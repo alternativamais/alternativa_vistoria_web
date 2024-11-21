@@ -5,23 +5,29 @@ import MainLayout from 'layout/MainLayout';
 import Dashboard from 'pages/Dashboard';
 import Usuarios from 'pages/Usuarios';
 import Vistorias from 'pages/Vistorias/index';
+import Checklist from 'pages/Checklist/index';
 
 const MainRoutes = [
   {
     path: '/',
     element: <MainLayout />,
     children: [
+      // admin
       {
         path: 'dashboard',
         element: <Dashboard />
       },
       {
-        path: 'usuarios',
+        path: 'admin/usuarios',
         element: <Usuarios />
       },
       {
-        path: 'vistorias',
+        path: 'admin/vistorias',
         element: <Vistorias />
+      },
+      {
+        path: 'admin/checklist',
+        element: <Checklist />
       },
       {
         path: '*',

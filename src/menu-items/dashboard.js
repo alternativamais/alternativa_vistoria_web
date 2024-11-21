@@ -1,4 +1,4 @@
-import { DashboardOutlined, UserOutlined, EyeOutlined } from '@ant-design/icons';
+import { DashboardOutlined, UserOutlined, EyeOutlined, CheckSquareOutlined } from '@ant-design/icons';
 
 const dashboard = {
   id: 'group-dashboard',
@@ -17,7 +17,7 @@ const dashboard = {
       id: 'usuarios',
       title: 'Usuários',
       type: 'item',
-      url: '/usuarios',
+      url: '/admin/usuarios',
       icon: UserOutlined,
       breadcrumbs: false
     },
@@ -25,8 +25,16 @@ const dashboard = {
       id: 'vistorias',
       title: 'Vistorias',
       type: 'item',
-      url: '/vistorias',
+      url: '/admin/vistorias',
       icon: EyeOutlined,
+      breadcrumbs: false
+    },
+    {
+      id: 'checklist',
+      title: 'Checklist',
+      type: 'item',
+      url: '/admin/checklist',
+      icon: CheckSquareOutlined,
       breadcrumbs: false
     }
   ]
