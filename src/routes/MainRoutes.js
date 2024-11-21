@@ -4,6 +4,7 @@ import { Navigate } from 'react-router-dom';
 import MainLayout from 'layout/MainLayout';
 import Dashboard from 'pages/Dashboard';
 import Usuarios from 'pages/Usuarios';
+import Vistorias from 'pages/Vistorias/index';
 
 const MainRoutes = [
   {
@@ -17,6 +18,10 @@ const MainRoutes = [
       {
         path: 'usuarios',
         element: <Usuarios />
+      },
+      {
+        path: 'vistorias',
+        element: <Vistorias />
       },
       {
         path: '*',

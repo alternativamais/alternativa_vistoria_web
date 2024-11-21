@@ -9,8 +9,8 @@ export const AuthContext = createContext({});
 
 function AuthProvider({ children }) {
   const [data, setData] = useState(() => {
-    const user = localStorage.getItem('@alvo:user');
-    const token = localStorage.getItem('@alvo:token');
+    const user = localStorage.getItem('@vistoria:user');
+    const token = localStorage.getItem('@vistoria:token');
     if (user && token) {
       return { user: JSON.parse(user), token };
     }
@@ -24,8 +24,8 @@ function AuthProvider({ children }) {
       const response = await api.post('/auth', { email, password });
       const { accessToken, user } = response.data;
 
-      localStorage.setItem('@alvo:user', JSON.stringify(user));
-      localStorage.setItem('@alvo:token', accessToken);
+      localStorage.setItem('@vistoria:user', JSON.stringify(user));
+      localStorage.setItem('@vistoria:token', accessToken);
 
       api.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
       setData({ user, token: accessToken });
@@ -43,8 +43,8 @@ function AuthProvider({ children }) {
   }
 
   function signOut() {
-    localStorage.removeItem('@alvo:user');
-    localStorage.removeItem('@alvo:token');
+    localStorage.removeItem('@vistoria:user');
+    localStorage.removeItem('@vistoria:token');
 
     setData({});
 
@@ -54,7 +54,7 @@ function AuthProvider({ children }) {
   async function checkToken() {
     if (data.token) {
       try {
-        await api.get('/users/1');
+        await api.get('/users/6');
       } catch {
         signOut();
       }
