@@ -11,6 +11,7 @@ const EditarVistoria = ({ open, onClose, onSuccess, vistoria }) => {
     coordenadasCto: vistoria?.coordenadasCto || '',
     coordenadasEnderecoCliente: vistoria?.coordenadasEnderecoCliente || '',
     resumoVistoria: vistoria?.resumoVistoria || '',
+    idTecnicoDesignado: vistoria?.idTecnicoDesignado || '',
     status: vistoria?.status || 'aberta'
   });
 
@@ -23,6 +24,7 @@ const EditarVistoria = ({ open, onClose, onSuccess, vistoria }) => {
         coordenadasCto: vistoria.coordenadasCto || '',
         coordenadasEnderecoCliente: vistoria.coordenadasEnderecoCliente || '',
         resumoVistoria: vistoria.resumoVistoria || '',
+        idTecnicoDesignado: vistoria.idTecnicoDesignado || '',
         status: vistoria.status || 'aberta'
       });
     }
@@ -92,6 +94,14 @@ const EditarVistoria = ({ open, onClose, onSuccess, vistoria }) => {
             fullWidth
             multiline
             rows={3}
+          />
+          <TextField
+            label="ID Técnico Designado"
+            name="idTecnicoDesignado"
+            value={formData.idTecnicoDesignado}
+            onChange={handleChange}
+            fullWidth
+            type="number"
           />
           <FormControl fullWidth>
             <InputLabel id="status-label">Status</InputLabel>

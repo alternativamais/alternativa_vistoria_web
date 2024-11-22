@@ -90,6 +90,14 @@ const CriarVistoria = ({ open, onClose, onSuccess }) => {
             multiline
             rows={3}
           />
+          <TextField
+            label="ID Técnico Designado"
+            name="idTecnicoDesignado"
+            value={formData.idTecnicoDesignado}
+            onChange={handleChange}
+            fullWidth
+            type="number"
+          />
           <FormControl fullWidth>
             <InputLabel id="status-label">Status</InputLabel>
             <Select labelId="status-label" name="status" value={formData.status} onChange={handleChange}>
