@@ -26,8 +26,8 @@ const EditarChecklist = ({ open, onClose, onSuccess, checklist }) => {
   const handleSubmit = async () => {
     try {
       await api.put(`/checklist/${checklist.id}`, formData);
-      onSuccess(); // Atualiza a lista de checklists após a edição
-      onClose(); // Fecha o modal
+      onSuccess();
+      onClose();
     } catch (error) {
       console.error('Erro ao editar checklist:', error);
       alert('Erro ao editar checklist. Verifique os dados e tente novamente.');

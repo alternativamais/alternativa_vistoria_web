@@ -30,7 +30,6 @@ function AuthProvider({ children }) {
       api.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
       setData({ user, token: accessToken });
 
-      console.log('Bem-vindo!');
       return;
     } catch (e) {
       if (e.response) {
