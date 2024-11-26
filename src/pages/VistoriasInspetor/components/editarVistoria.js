@@ -54,7 +54,7 @@ const EditarVistoria = ({ open, onClose, onSuccess, vistoria }) => {
     try {
       const response = await api.get(`/checklist-vistorias/vistoria/${vistoriaId}`);
       const linked = response.data.reduce((acc, item) => {
-        acc[item.checklist.id] = { situacao: item.situacao, status: item.status, id: item.id };
+        acc[item.checklist.id] = { situacao: item.situacao, motivo: item.motivo, status: item.status, id: item.id };
         return acc;
       }, {});
       setChecklistSelections(linked);
@@ -63,11 +63,15 @@ const EditarVistoria = ({ open, onClose, onSuccess, vistoria }) => {
     }
   };
 
-  const handleSituacaoChange = (checklistId, situacao) => {
-    setChecklistSelections({
-      ...checklistSelections,
-      [checklistId]: { ...checklistSelections[checklistId], situacao }
-    });
+  const handleSituacaoChange = (checklistId, situacao, motivo = '') => {
+    setChecklistSelections((prev) => ({
+      ...prev,
+      [checklistId]: {
+        ...prev[checklistId],
+        situacao, // Atualiza a situação
+        motivo // Atualiza o motivo
+      }
+    }));
   };
 
   const handleSave = async () => {
@@ -75,12 +79,18 @@ const EditarVistoria = ({ open, onClose, onSuccess, vistoria }) => {
       await api.put(`/vistorias/${vistoria.id}`, formData);
 
       for (const checklistId of Object.keys(checklistSelections)) {
-        const { situacao, id } = checklistSelections[checklistId];
+        const { situacao, motivo, id } = checklistSelections[checklistId];
+        if (!situacao) {
+          alert(`Checklist ID ${checklistId} está sem situação. Verifique antes de salvar.`);
+          return;
+        }
+
         if (id) {
           await api.put(`/checklist-vistorias/${id}`, {
             vistoria: Number(vistoria.id),
             checklist: Number(checklistId),
             situacao,
+            motivo: situacao === 'impossibilitado' ? motivo : '',
             status: true
           });
         } else {
@@ -88,6 +98,7 @@ const EditarVistoria = ({ open, onClose, onSuccess, vistoria }) => {
             vistoria: Number(vistoria.id),
             checklist: Number(checklistId),
             situacao,
+            motivo: situacao === 'impossibilitado' ? motivo : '',
             status: true
           });
         }
@@ -95,7 +106,7 @@ const EditarVistoria = ({ open, onClose, onSuccess, vistoria }) => {
 
       alert('Dados salvos com sucesso!');
       onSuccess();
-      handleClose(); // Volta para a etapa inicial ao salvar
+      handleClose();
     } catch (error) {
       console.error('Erro ao salvar os dados:', error);
       alert('Erro ao salvar os dados. Verifique e tente novamente.');
