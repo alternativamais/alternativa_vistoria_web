@@ -5,7 +5,11 @@ import { api } from 'services/api';
 import isMobile from 'is-mobile';
 import Webcam from 'react-webcam';
 
-const UploadImagens = ({ idVistoria, onSuccess, setEnviado }) => {
+const UploadImagens = ({
+  idVistoria,
+  onSuccess
+  // setEnviado
+}) => {
   const [imagens, setImagens] = useState([]);
   const [cameraAtiva, setCameraAtiva] = useState(false);
   const webcamRef = useRef(null);
@@ -75,11 +79,11 @@ const UploadImagens = ({ idVistoria, onSuccess, setEnviado }) => {
       }
       alert('Imagens enviadas com sucesso!');
       setImagens([]);
-      setEnviado(true);
+      // setEnviado(true);
     } catch (error) {
       console.error('Erro ao enviar imagens:', error);
       alert('Erro ao enviar imagens. Tente novamente.');
-      setEnviado(false);
+      // setEnviado(false);
     }
   };
 

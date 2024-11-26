@@ -139,7 +139,7 @@ const EditarVistoria = ({ open, onClose, onSuccess, vistoria }) => {
   const renderStepContent = (step) => {
     switch (step) {
       case 0:
-        return <DadosOS formData={formData} handleChange={handleChange} />;
+        return <DadosOS formData={formData} handleChange={handleChange} vistoria={vistoria} />;
       case 1:
         return (
           <Checklist

@@ -108,7 +108,7 @@ const VistoriasInspetor = () => {
                   Status: {vistoria.status}
                 </Typography>
                 <Typography variant="body2" color="text.secondary" display="flex" justifyContent="space-between" alignItems="center">
-                  <div>Criada em: {new Date(vistoria.dataHoraCriacao).toLocaleString('pt-BR')}</div>
+                  <div>Agendamento: {new Date(vistoria.dataAgendamento).toLocaleString('pt-BR')}</div>
                   <IconButton onClick={() => handleEditarVistoria(vistoria)}>
                     <EditOutlined />
                   </IconButton>

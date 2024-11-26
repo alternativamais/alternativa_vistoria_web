@@ -57,6 +57,7 @@ const Vistorias = () => {
 
   const formatarDataHoraParaBrasil = (dataISO) => {
     const data = new Date(dataISO);
+    data.setHours(data.getHours() - 3);
     return data.toLocaleString('pt-BR', { timeZone: 'UTC' });
   };
 
@@ -150,7 +151,7 @@ const Vistorias = () => {
                     </TableCell>
                     <TableCell>{formatarDataHoraParaBrasil(vistoria.dataHoraCriacao)}</TableCell>
                     <TableCell>
-                      {vistoria.dataHoraConclusao ? formatarDataHoraParaBrasil(vistoria.dataHoraConclusao) : 'Não concluída'}
+                      {vistoria.dataAgendamento ? formatarDataHoraParaBrasil(vistoria.dataAgendamento) : 'Não concluída'}
                     </TableCell>
                     <TableCell>
                       <Tooltip title="Editar">

@@ -9,12 +9,10 @@ const CriarVistoria = ({ open, onClose, onSuccess }) => {
     tipoVistoria: 'interna',
     nomeCliente: '',
     enderecoCliente: '',
-    coordenadasCto: '',
-    coordenadasEnderecoCliente: '',
-    resumoVistoria: '',
     idUsuarioAbertura: 6,
     idTecnicoDesignado: '',
-    status: 'aberta'
+    status: 'aberta',
+    dataAgendamento: ''
   };
 
   const [formData, setFormData] = useState(initialFormData);
@@ -44,7 +42,7 @@ const CriarVistoria = ({ open, onClose, onSuccess }) => {
 
     setFormData({
       ...formData,
-      [name]: name === 'idTecnicoDesignado' ? value : value
+      [name]: value
     });
   };
 
@@ -98,22 +96,16 @@ const CriarVistoria = ({ open, onClose, onSuccess }) => {
             onChange={handleChange}
             fullWidth
           />
-          <TextField label="Coordenadas CTO" name="coordenadasCto" value={formData.coordenadasCto} onChange={handleChange} fullWidth />
           <TextField
-            label="Coordenadas do Endereço do Cliente"
-            name="coordenadasEnderecoCliente"
-            value={formData.coordenadasEnderecoCliente}
+            label="Data de Agendamento"
+            name="dataAgendamento"
+            type="datetime-local"
+            value={formData.dataAgendamento}
             onChange={handleChange}
             fullWidth
-          />
-          <TextField
-            label="Resumo da Vistoria"
-            name="resumoVistoria"
-            value={formData.resumoVistoria}
-            onChange={handleChange}
-            fullWidth
-            multiline
-            rows={3}
+            InputLabelProps={{
+              shrink: true
+            }}
           />
           <FormControl fullWidth>
             <InputLabel id="id-tecnico-designado-label">Técnico Designado</InputLabel>

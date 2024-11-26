@@ -2,8 +2,7 @@
 import React from 'react';
 import { Button, Select, MenuItem, FormControl, InputLabel, Typography, Box, Grid, TextField } from '@mui/material';
 
-const DadosOS = ({ formData, handleChange }) => {
-  console.log('formData.tipoVistoriaformData.tipoVistoria', formData.tipoVistoria);
+const DadosOS = ({ formData, handleChange, vistoria }) => {
   // Função para capturar as coordenadas de localização
   const pegarCoordenadas = (campo) => {
     if (navigator.geolocation) {
@@ -24,6 +23,9 @@ const DadosOS = ({ formData, handleChange }) => {
   return (
     <>
       <Box mb={1}>
+        <Typography variant="h6" gutterBottom>
+          Agendamento: {new Date(vistoria.dataAgendamento).toLocaleString('pt-BR')}
+        </Typography>
         <Typography variant="h6" gutterBottom>
           Tipo de Vistoria: {formData.tipoVistoria}
         </Typography>

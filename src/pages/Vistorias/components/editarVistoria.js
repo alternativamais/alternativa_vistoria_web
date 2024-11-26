@@ -8,11 +8,9 @@ const EditarVistoria = ({ open, onClose, onSuccess, vistoria }) => {
     tipoVistoria: vistoria?.tipoVistoria || 'interna',
     nomeCliente: vistoria?.nomeCliente || '',
     enderecoCliente: vistoria?.enderecoCliente || '',
-    coordenadasCto: vistoria?.coordenadasCto || '',
-    coordenadasEnderecoCliente: vistoria?.coordenadasEnderecoCliente || '',
-    resumoVistoria: vistoria?.resumoVistoria || '',
     idTecnicoDesignado: vistoria?.idTecnicoDesignado || '',
-    status: vistoria?.status || 'aberta'
+    status: vistoria?.status || 'aberta',
+    dataAgendamento: vistoria?.dataAgendamento || ''
   });
 
   const [usuarios, setUsuarios] = useState([]);
@@ -23,11 +21,9 @@ const EditarVistoria = ({ open, onClose, onSuccess, vistoria }) => {
         tipoVistoria: vistoria.tipoVistoria || 'interna',
         nomeCliente: vistoria.nomeCliente || '',
         enderecoCliente: vistoria.enderecoCliente || '',
-        coordenadasCto: vistoria.coordenadasCto || '',
-        coordenadasEnderecoCliente: vistoria.coordenadasEnderecoCliente || '',
-        resumoVistoria: vistoria.resumoVistoria || '',
         idTecnicoDesignado: vistoria.idTecnicoDesignado || '',
-        status: vistoria.status || 'aberta'
+        status: vistoria.status || 'aberta',
+        dataAgendamento: vistoria.dataAgendamento || ''
       });
     }
   }, [vistoria]);
@@ -100,22 +96,16 @@ const EditarVistoria = ({ open, onClose, onSuccess, vistoria }) => {
             onChange={handleChange}
             fullWidth
           />
-          <TextField label="Coordenadas CTO" name="coordenadasCto" value={formData.coordenadasCto} onChange={handleChange} fullWidth />
           <TextField
-            label="Coordenadas do Endereço do Cliente"
-            name="coordenadasEnderecoCliente"
-            value={formData.coordenadasEnderecoCliente}
+            label="Data de Agendamento"
+            name="dataAgendamento"
+            type="datetime-local"
+            value={formData.dataAgendamento}
             onChange={handleChange}
             fullWidth
-          />
-          <TextField
-            label="Resumo da Vistoria"
-            name="resumoVistoria"
-            value={formData.resumoVistoria}
-            onChange={handleChange}
-            fullWidth
-            multiline
-            rows={3}
+            InputLabelProps={{
+              shrink: true
+            }}
           />
           <FormControl fullWidth>
             <InputLabel id="id-tecnico-designado-label">Técnico Designado</InputLabel>
