@@ -53,7 +53,7 @@ function AuthProvider({ children }) {
   async function checkToken() {
     if (data.token) {
       try {
-        await api.get('/users/6');
+        await api.get('/check-token');
       } catch {
         signOut();
       }
