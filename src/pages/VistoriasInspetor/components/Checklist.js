@@ -1,20 +1,31 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react/prop-types */
 import React, { useState, useEffect } from 'react';
-import { FormControl, InputLabel, Select, MenuItem, TextField } from '@mui/material';
+import { FormControl, InputLabel, Select, MenuItem, TextField, LinearProgress, Typography, Box } from '@mui/material';
 
-const Checklist = ({ checklistData, checklistSelections, handleSituacaoChange }) => {
-  console.log('checklistSelections', checklistSelections);
+const Checklist = ({ checklistData, checklistSelections, handleSituacaoChange, vistoria }) => {
   const [relatos, setRelatos] = useState({});
+  const [percentualConcluido, setPercentualConcluido] = useState(0);
+
+  // Filtrar checklists com tipo "vistoria"
+  const filteredChecklistData = checklistData.filter((item) => item.tipo === vistoria.tipoVistoria);
 
   useEffect(() => {
     const initialRelatos = {};
-    checklistData.forEach((item) => {
+    filteredChecklistData.forEach((item) => {
       if (checklistSelections[item.id]?.situacao === 'impossibilitado') {
         initialRelatos[item.id] = checklistSelections[item.id]?.motivo || '';
       }
     });
     setRelatos(initialRelatos);
-  }, [checklistData, checklistSelections]);
+  }, []);
+
+  useEffect(() => {
+    const totalItens = filteredChecklistData.length;
+    const itensFeitos = filteredChecklistData.filter((item) => checklistSelections[item.id]?.situacao === 'feito').length;
+    const percentual = totalItens > 0 ? (itensFeitos / totalItens) * 100 : 0;
+    setPercentualConcluido(percentual);
+  }, [filteredChecklistData, checklistSelections]);
 
   const handleRelatoChange = (id, value) => {
     setRelatos((prevRelatos) => ({
@@ -27,7 +38,16 @@ const Checklist = ({ checklistData, checklistSelections, handleSituacaoChange })
 
   return (
     <>
-      {checklistData.map((item) => (
+      {/* Barra de progresso */}
+      <Box sx={{ width: '100%', marginBottom: '16px' }}>
+        <Typography variant="h6" align="center">
+          Progresso: {Math.round(percentualConcluido)}%
+        </Typography>
+        <LinearProgress variant="determinate" value={percentualConcluido} />
+      </Box>
+
+      {/* Itens do checklist */}
+      {filteredChecklistData.map((item) => (
         <div key={item.id}>
           <FormControl fullWidth style={{ marginBottom: '16px' }}>
             <InputLabel id={`situacao-${item.id}-label`}>{item.item}</InputLabel>

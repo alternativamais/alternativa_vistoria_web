@@ -6,6 +6,7 @@ import { api } from 'services/api';
 const EditarChecklist = ({ open, onClose, onSuccess, checklist }) => {
   const [formData, setFormData] = useState({
     item: checklist?.item || '',
+    tipo: checklist?.tipo || 'cliente', // Adicionado tipo com valor padrão
     status: checklist?.status || true
   });
 
@@ -13,6 +14,7 @@ const EditarChecklist = ({ open, onClose, onSuccess, checklist }) => {
     if (checklist) {
       setFormData({
         item: checklist.item || '',
+        tipo: checklist.tipo || 'cliente', // Atualizando tipo
         status: checklist.status || true
       });
     }
@@ -52,6 +54,13 @@ const EditarChecklist = ({ open, onClose, onSuccess, checklist }) => {
         <h2 id="modal-editar-checklist">Editar Checklist</h2>
         <Box component="form" noValidate autoComplete="off" sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
           <TextField label="Item" name="item" value={formData.item} onChange={handleChange} fullWidth />
+          <FormControl fullWidth>
+            <InputLabel id="tipo-label">Tipo</InputLabel>
+            <Select labelId="tipo-label" name="tipo" value={formData.tipo} onChange={handleChange}>
+              <MenuItem value="cliente">Cliente</MenuItem>
+              <MenuItem value="rede">Rede</MenuItem>
+            </Select>
+          </FormControl>
           <FormControl fullWidth>
             <InputLabel id="status-label">Status</InputLabel>
             <Select labelId="status-label" name="status" value={formData.status} onChange={handleChange}>

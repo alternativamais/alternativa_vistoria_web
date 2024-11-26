@@ -27,13 +27,13 @@ const EditarVistoria = ({ open, onClose, onSuccess, vistoria }) => {
   useEffect(() => {
     if (vistoria) {
       setFormData({
-        tipoVistoria: vistoria.tipoVistoria || 'interna',
+        tipoVistoria: vistoria.tipoVistoria || '',
         nomeCliente: vistoria.nomeCliente || '',
         enderecoCliente: vistoria.enderecoCliente || '',
         coordenadasCto: vistoria.coordenadasCto || '',
         coordenadasEnderecoCliente: vistoria.coordenadasEnderecoCliente || '',
         resumoVistoria: vistoria.resumoVistoria || '',
-        status: vistoria.status || 'aberta'
+        status: vistoria.status || ''
       });
       fetchChecklistData();
       fetchLinkedChecklist(vistoria.id);
@@ -142,7 +142,12 @@ const EditarVistoria = ({ open, onClose, onSuccess, vistoria }) => {
         return <DadosOS formData={formData} handleChange={handleChange} />;
       case 1:
         return (
-          <Checklist checklistData={checklistData} checklistSelections={checklistSelections} handleSituacaoChange={handleSituacaoChange} />
+          <Checklist
+            checklistData={checklistData}
+            checklistSelections={checklistSelections}
+            handleSituacaoChange={handleSituacaoChange}
+            vistoria={vistoria}
+          />
         );
       case 2:
         return (

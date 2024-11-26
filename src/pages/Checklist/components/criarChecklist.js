@@ -1,12 +1,13 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react/prop-types */
 import React, { useState, useEffect } from 'react';
-import { Box, Button, Modal, TextField } from '@mui/material';
+import { Box, Button, Modal, TextField, MenuItem } from '@mui/material';
 import { api } from 'services/api';
 
 const CriarChecklist = ({ open, onClose, onSuccess }) => {
   const initialFormData = {
     item: '',
+    tipo: 'cliente', // Valor padrão inicial
     status: true
   };
 
@@ -52,6 +53,10 @@ const CriarChecklist = ({ open, onClose, onSuccess }) => {
         <h2 id="modal-criar-checklist">Criar Checklist</h2>
         <Box component="form" noValidate autoComplete="off" sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
           <TextField label="Item" name="item" value={formData.item} onChange={handleChange} fullWidth />
+          <TextField label="Tipo" name="tipo" value={formData.tipo} onChange={handleChange} select fullWidth>
+            <MenuItem value="cliente">Cliente</MenuItem>
+            <MenuItem value="rede">Rede</MenuItem>
+          </TextField>
           <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
             <Button onClick={onClose} color="secondary">
               Cancelar

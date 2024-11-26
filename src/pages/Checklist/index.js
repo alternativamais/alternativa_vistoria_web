@@ -118,6 +118,7 @@ const Checklist = () => {
               <TableHead>
                 <TableRow>
                   <TableCell>Item</TableCell>
+                  <TableCell>Tipo</TableCell>
                   <TableCell>Status</TableCell>
                   <TableCell>Data de Criação</TableCell>
                   <TableCell>Ações</TableCell>
@@ -127,6 +128,7 @@ const Checklist = () => {
                 {checklistsFiltrados.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((checklist) => (
                   <TableRow key={checklist.id}>
                     <TableCell>{checklist.item}</TableCell>
+                    <TableCell>{checklist.tipo === 'cliente' ? 'Cliente' : 'Rede'}</TableCell>
                     <TableCell>
                       <Chip
                         label={checklist.status ? 'Ativo' : 'Inativo'}
