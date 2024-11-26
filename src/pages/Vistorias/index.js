@@ -12,13 +12,15 @@ import {
   TablePagination,
   Chip,
   TextField,
-  IconButton
+  IconButton,
+  Tooltip
 } from '@mui/material';
-import { EditOutlined } from '@ant-design/icons';
+import { EditOutlined, PictureOutlined } from '@ant-design/icons';
 import MainCard from 'components/sistema/MainCard';
 import CriarVistoria from './components/criarVistoria';
 import EditarVistoria from './components/editarVistoria';
 import { api } from 'services/api';
+import { Link } from 'react-router-dom';
 
 const Vistorias = () => {
   const [vistorias, setVistorias] = useState([]);
@@ -104,7 +106,7 @@ const Vistorias = () => {
           onChange={handlePesquisaChange}
           sx={{ width: '300px' }}
         />
-        <Button onClick={handleNovaVistoria} variant="contained">
+        <Button onClick={handleNovaVistoria} variant="contained" sx={{ width: { xs: '100%', sm: 'auto' } }}>
           Nova Vistoria
         </Button>
       </Box>
@@ -120,7 +122,7 @@ const Vistorias = () => {
           }}
         >
           <TableContainer>
-            <Table>
+            <Table sx={{ minWidth: { xs: '600px', sm: 'auto' } }}>
               <TableHead>
                 <TableRow>
                   <TableCell>Cliente</TableCell>
@@ -151,9 +153,16 @@ const Vistorias = () => {
                       {vistoria.dataHoraConclusao ? formatarDataHoraParaBrasil(vistoria.dataHoraConclusao) : 'Não concluída'}
                     </TableCell>
                     <TableCell>
-                      <IconButton onClick={() => handleEditarVistoria(vistoria)}>
-                        <EditOutlined />
-                      </IconButton>
+                      <Tooltip title="Editar">
+                        <IconButton onClick={() => handleEditarVistoria(vistoria)}>
+                          <EditOutlined />
+                        </IconButton>
+                      </Tooltip>
+                      <Tooltip title="Ver Galeria">
+                        <IconButton component={Link} to={`/admin/galeria/${vistoria.id}`}>
+                          <PictureOutlined />
+                        </IconButton>
+                      </Tooltip>
                     </TableCell>
                   </TableRow>
                 ))}

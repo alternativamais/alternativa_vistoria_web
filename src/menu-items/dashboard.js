@@ -2,7 +2,7 @@ import { DashboardOutlined, UserOutlined, EyeOutlined, CheckSquareOutlined } fro
 
 const dashboard = {
   id: 'group-dashboard',
-  title: 'Sistema',
+  title: 'Admin',
   type: 'group',
   children: [
     {

@@ -15,6 +15,8 @@ const EditarVistoria = ({ open, onClose, onSuccess, vistoria }) => {
     status: vistoria?.status || 'aberta'
   });
 
+  const [usuarios, setUsuarios] = useState([]);
+
   useEffect(() => {
     if (vistoria) {
       setFormData({
@@ -30,6 +32,19 @@ const EditarVistoria = ({ open, onClose, onSuccess, vistoria }) => {
     }
   }, [vistoria]);
 
+  useEffect(() => {
+    const fetchUsuarios = async () => {
+      try {
+        const response = await api.get('/users');
+        setUsuarios(response.data.filter((user) => user.status === 'active')); // Filtra apenas usuários ativos
+      } catch (error) {
+        console.error('Erro ao buscar usuários:', error);
+      }
+    };
+
+    fetchUsuarios();
+  }, []);
+
   const handleChange = (event) => {
     const { name, value } = event.target;
     setFormData({ ...formData, [name]: value });
@@ -37,9 +52,14 @@ const EditarVistoria = ({ open, onClose, onSuccess, vistoria }) => {
 
   const handleSubmit = async () => {
     try {
-      await api.put(`/vistorias/${vistoria.id}`, formData);
-      onSuccess(); // Atualiza a lista de vistorias após a edição
-      onClose(); // Fecha o modal
+      const payload = {
+        ...formData,
+        idTecnicoDesignado: formData.idTecnicoDesignado ? Number(formData.idTecnicoDesignado) : null
+      };
+
+      await api.put(`/vistorias/${vistoria.id}`, payload);
+      onSuccess();
+      onClose();
     } catch (error) {
       console.error('Erro ao editar vistoria:', error);
       alert('Erro ao editar vistoria. Verifique os dados e tente novamente.');
@@ -54,7 +74,9 @@ const EditarVistoria = ({ open, onClose, onSuccess, vistoria }) => {
           top: '50%',
           left: '50%',
           transform: 'translate(-50%, -50%)',
-          width: 500,
+          width: { xs: '90vw', sm: '70vw', md: '600px' },
+          maxHeight: '90vh',
+          overflowY: 'auto',
           bgcolor: 'background.paper',
           boxShadow: 24,
           p: 4,
@@ -66,8 +88,8 @@ const EditarVistoria = ({ open, onClose, onSuccess, vistoria }) => {
           <FormControl fullWidth>
             <InputLabel id="tipo-vistoria-label">Tipo de Vistoria</InputLabel>
             <Select labelId="tipo-vistoria-label" name="tipoVistoria" value={formData.tipoVistoria} onChange={handleChange}>
-              <MenuItem value="interna">Interna</MenuItem>
-              <MenuItem value="externa">Externa</MenuItem>
+              <MenuItem value="cliente">Cliente</MenuItem>
+              <MenuItem value="rede">Rede</MenuItem>
             </Select>
           </FormControl>
           <TextField label="Nome do Cliente" name="nomeCliente" value={formData.nomeCliente} onChange={handleChange} fullWidth />
@@ -95,19 +117,27 @@ const EditarVistoria = ({ open, onClose, onSuccess, vistoria }) => {
             multiline
             rows={3}
           />
-          <TextField
-            label="ID Técnico Designado"
-            name="idTecnicoDesignado"
-            value={formData.idTecnicoDesignado}
-            onChange={handleChange}
-            fullWidth
-            type="number"
-          />
+          <FormControl fullWidth>
+            <InputLabel id="id-tecnico-designado-label">Técnico Designado</InputLabel>
+            <Select
+              labelId="id-tecnico-designado-label"
+              name="idTecnicoDesignado"
+              value={formData.idTecnicoDesignado}
+              onChange={handleChange}
+            >
+              {usuarios.map((usuario) => (
+                <MenuItem key={usuario.id} value={usuario.id}>
+                  {usuario.name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
           <FormControl fullWidth>
             <InputLabel id="status-label">Status</InputLabel>
             <Select labelId="status-label" name="status" value={formData.status} onChange={handleChange}>
               <MenuItem value="aberta">Aberta</MenuItem>
               <MenuItem value="fechada">Fechada</MenuItem>
+              <MenuItem value="pendente">Pendente</MenuItem>
             </Select>
           </FormControl>
           <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>

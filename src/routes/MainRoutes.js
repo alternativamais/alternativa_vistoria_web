@@ -6,6 +6,8 @@ import Dashboard from 'pages/Dashboard';
 import Usuarios from 'pages/Usuarios';
 import Vistorias from 'pages/Vistorias/index';
 import Checklist from 'pages/Checklist/index';
+import VistoriasInspetor from 'pages/VistoriasInspetor/index';
+import Galeria from 'pages/Galeria/index';
 
 const MainRoutes = [
   {
@@ -28,6 +30,14 @@ const MainRoutes = [
       {
         path: 'admin/checklist',
         element: <Checklist />
+      },
+      {
+        path: 'inspetor/vistorias',
+        element: <VistoriasInspetor />
+      },
+      {
+        path: 'admin/galeria/:idvistoria',
+        element: <Galeria />
       },
       {
         path: '*',
