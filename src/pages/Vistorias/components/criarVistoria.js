@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react/prop-types */
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Box, Button, Modal, TextField, Select, MenuItem, FormControl, InputLabel } from '@mui/material';
 import { api } from 'services/api';
 
@@ -17,10 +17,13 @@ const CriarVistoria = ({ open, onClose, onSuccess }) => {
 
   const [formData, setFormData] = useState(initialFormData);
   const [usuarios, setUsuarios] = useState([]);
+  const [searchResults, setSearchResults] = useState([]);
+  const [searchTimeout, setSearchTimeout] = useState(null);
 
   useEffect(() => {
     if (!open) {
       setFormData(initialFormData);
+      setSearchResults([]);
     }
   }, [open]);
 
@@ -44,6 +47,48 @@ const CriarVistoria = ({ open, onClose, onSuccess }) => {
       ...formData,
       [name]: value
     });
+
+    if (name === 'nomeCliente') {
+      if (searchTimeout) {
+        clearTimeout(searchTimeout);
+      }
+      setSearchTimeout(
+        setTimeout(() => {
+          performSearch(value);
+        }, 2000)
+      );
+    }
+  };
+
+  const performSearch = useCallback(async (term) => {
+    if (!term.trim()) {
+      setSearchResults([]);
+      return;
+    }
+
+    try {
+      const formattedTerm = term.trim().replace(/\s+/g, '+');
+      const response = await api.get(`/sgp-integration/search?term=${formattedTerm}`);
+      setSearchResults(response.data);
+    } catch (error) {
+      console.error('Erro ao realizar pesquisa:', error);
+    }
+  }, []);
+
+  const handleSelectResult = (event) => {
+    const selectedId = event.target.value;
+    const selectedResult = searchResults.find((result) => result.id === selectedId);
+
+    if (selectedResult) {
+      setFormData({
+        ...formData,
+        nomeCliente: selectedResult.text,
+        enderecoCliente: selectedResult.address
+      });
+    }
+
+    // Limpa os resultados para ocultar o Select
+    setSearchResults([]);
   };
 
   const handleSubmit = async () => {
@@ -89,6 +134,18 @@ const CriarVistoria = ({ open, onClose, onSuccess }) => {
             </Select>
           </FormControl>
           <TextField label="Nome do Cliente" name="nomeCliente" value={formData.nomeCliente} onChange={handleChange} fullWidth />
+          {searchResults.length > 0 && (
+            <FormControl fullWidth>
+              <InputLabel id="search-results-label">Selecione um Cliente</InputLabel>
+              <Select labelId="search-results-label" value="" onChange={handleSelectResult}>
+                {searchResults.map((result) => (
+                  <MenuItem key={result.id} value={result.id}>
+                    {result.text}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          )}
           <TextField
             label="Endereço do Cliente"
             name="enderecoCliente"
