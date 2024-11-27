@@ -21,6 +21,7 @@ import CriarVistoria from './components/criarVistoria';
 import EditarVistoria from './components/editarVistoria';
 import { api } from 'services/api';
 import { Link } from 'react-router-dom';
+import { notification } from 'components/notification/index';
 
 const Vistorias = () => {
   const [vistorias, setVistorias] = useState([]);
@@ -46,7 +47,7 @@ const Vistorias = () => {
       setVistorias(response.data);
       setVistoriasFiltradas(response.data);
     } catch (error) {
-      console.error('Erro ao buscar vistorias:', error);
+      notification({ message: 'Erro ao buscar vistorias!', type: 'error' });
     }
   };
 

@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Box, Button, Modal, TextField, Select, MenuItem, FormControl, InputLabel } from '@mui/material';
 import { api } from 'services/api';
+import { notification } from 'components/notification/index';
 
 const EditarVistoria = ({ open, onClose, onSuccess, vistoria }) => {
   const [formData, setFormData] = useState({
@@ -37,6 +38,7 @@ const EditarVistoria = ({ open, onClose, onSuccess, vistoria }) => {
         setUsuarios(response.data.filter((user) => user.status === 'active'));
       } catch (error) {
         console.error('Erro ao buscar usuários:', error);
+        notification({ message: 'Erro ao buscar usuários!', type: 'error' });
       }
     };
 
@@ -70,7 +72,7 @@ const EditarVistoria = ({ open, onClose, onSuccess, vistoria }) => {
       const response = await api.get(`/sgp-integration/search?term=${formattedTerm}`);
       setSearchResults(response.data);
     } catch (error) {
-      console.error('Erro ao realizar pesquisa:', error);
+      notification({ message: 'Erro ao realizar pesquisa!', type: 'error' });
     }
   }, []);
 
@@ -100,9 +102,10 @@ const EditarVistoria = ({ open, onClose, onSuccess, vistoria }) => {
       await api.put(`/vistorias/${vistoria.id}`, payload);
       onSuccess();
       onClose();
+      notification({ message: 'Vistoria editada com sucesso!', type: 'success' });
     } catch (error) {
       console.error('Erro ao editar vistoria:', error);
-      alert('Erro ao editar vistoria. Verifique os dados e tente novamente.');
+      notification({ message: 'Erro ao editar vistoria. Verifique os dados e tente novamente!', type: 'error' });
     }
   };
 

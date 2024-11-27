@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Button, Modal, TextField, MenuItem } from '@mui/material';
 import { api } from 'services/api';
+import { notification } from 'components/notification/index';
 
 const CriarChecklist = ({ open, onClose, onSuccess }) => {
   const initialFormData = {
@@ -29,9 +30,9 @@ const CriarChecklist = ({ open, onClose, onSuccess }) => {
       await api.post('/checklist', formData);
       onSuccess();
       onClose();
+      notification({ message: 'Item criado com sucesso!', type: 'success' });
     } catch (error) {
-      console.error('Erro ao criar checklist:', error);
-      alert('Erro ao criar checklist. Verifique os dados e tente novamente.');
+      notification({ message: 'Erro ao criar checklist. Verifique os dados e tente novamente.', type: 'error' });
     }
   };
 

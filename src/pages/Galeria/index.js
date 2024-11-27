@@ -27,7 +27,7 @@ const Galeria = () => {
       setImagens(imagensFormatadas);
       setLoading(false);
     } catch (error) {
-      console.error('Erro ao buscar imagens:', error);
+      notification({ message: 'Erro ao buscar imagens!', type: 'error' });
       setLoading(false);
     }
   };

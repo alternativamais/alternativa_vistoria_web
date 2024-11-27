@@ -19,6 +19,7 @@ import MainCard from 'components/sistema/MainCard';
 import CriarChecklist from './components/criarChecklist';
 import EditarChecklist from './components/editarChecklist';
 import { api } from 'services/api';
+import { notification } from 'components/notification/index';
 
 const Checklist = () => {
   const [checklists, setChecklists] = useState([]);
@@ -44,7 +45,7 @@ const Checklist = () => {
       setChecklists(response.data);
       setChecklistsFiltrados(response.data);
     } catch (error) {
-      console.error('Erro ao buscar checklists:', error);
+      notification({ message: 'Erro ao buscar checklists!', type: 'error' });
     }
   };
 

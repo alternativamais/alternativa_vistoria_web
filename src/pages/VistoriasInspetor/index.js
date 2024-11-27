@@ -6,6 +6,7 @@ import MainCard from 'components/sistema/MainCard';
 import EditarVistoria from './components/editarVistoria';
 import { api } from 'services/api';
 import { useAuth } from 'hooks/auth';
+import { notification } from 'components/notification/index';
 
 const VistoriasInspetor = () => {
   const [vistorias, setVistorias] = useState([]);
@@ -30,7 +31,7 @@ const VistoriasInspetor = () => {
       setVistorias(response.data);
       setVistoriasFiltradas(response.data);
     } catch (error) {
-      console.error('Erro ao buscar vistorias:', error);
+      notification({ message: 'Erro ao buscar vistorias!', type: 'error' });
     }
   };
 

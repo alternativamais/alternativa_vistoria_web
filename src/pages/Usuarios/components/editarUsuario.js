@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Button, Modal, TextField, Select, MenuItem, FormControl, InputLabel } from '@mui/material';
 import { api } from 'services/api';
+import { notification } from 'components/notification/index';
 
 const EditarUsuario = ({ open, onClose, onSuccess, usuario }) => {
   const [formData, setFormData] = useState({
@@ -42,9 +43,9 @@ const EditarUsuario = ({ open, onClose, onSuccess, usuario }) => {
       await api.put(`/users/${usuario.id}`, dataToSend);
       onSuccess(); // Atualiza a lista de usuários após a edição
       onClose(); // Fecha o modal
+      notification({ message: 'Usuário editado com sucesso!', type: 'success' });
     } catch (error) {
-      console.error('Erro ao editar usuário:', error);
-      alert('Erro ao editar usuário. Verifique os dados e tente novamente.');
+      notification({ message: 'Erro ao editar usuário. Verifique os dados e tente novamente.', type: 'error' });
     }
   };
 

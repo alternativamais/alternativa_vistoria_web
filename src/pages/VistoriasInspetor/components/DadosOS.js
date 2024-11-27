@@ -1,18 +1,23 @@
 /* eslint-disable react/prop-types */
-import React from 'react';
-import { Button, Select, MenuItem, FormControl, InputLabel, Typography, Box, Grid, TextField } from '@mui/material';
+import React, { useState } from 'react';
+import { Button, Select, MenuItem, FormControl, InputLabel, Typography, Box, Grid, TextField, CircularProgress } from '@mui/material';
 
 const DadosOS = ({ formData, handleChange, vistoria }) => {
+  const [isLoading, setIsLoading] = useState(false); // Estado para controlar o carregamento
+
   // Função para capturar as coordenadas de localização
   const pegarCoordenadas = (campo) => {
     if (navigator.geolocation) {
+      setIsLoading(true); // Ativa o estado de carregamento
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const coordenadas = `${position.coords.latitude}, ${position.coords.longitude}`;
           handleChange({ target: { name: campo, value: coordenadas } });
+          setIsLoading(false); // Desativa o estado de carregamento
         },
         (error) => {
           alert('Erro ao obter a localização: ' + error.message);
+          setIsLoading(false); // Desativa o estado de carregamento mesmo em caso de erro
         }
       );
     } else {
@@ -44,8 +49,14 @@ const DadosOS = ({ formData, handleChange, vistoria }) => {
               <Typography variant="body1">Coordenadas CTO: {formData.coordenadasCto || 'Não disponível'}</Typography>
             </Grid>
             <Grid item xs={4}>
-              <Button variant="contained" color="primary" onClick={() => pegarCoordenadas('coordenadasCto')} fullWidth>
-                Obter
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={() => pegarCoordenadas('coordenadasCto')}
+                fullWidth
+                disabled={isLoading} // Desativa o botão enquanto carrega
+              >
+                {isLoading ? <CircularProgress size={24} color="inherit" /> : 'Obter'}
               </Button>
             </Grid>
           </Grid>
@@ -58,10 +69,15 @@ const DadosOS = ({ formData, handleChange, vistoria }) => {
                 Coordenadas do Endereço do Cliente: {formData.coordenadasEnderecoCliente || 'Não disponível'}
               </Typography>
             </Grid>
-
             <Grid item xs={4}>
-              <Button variant="contained" color="primary" onClick={() => pegarCoordenadas('coordenadasEnderecoCliente')} fullWidth>
-                Obter
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={() => pegarCoordenadas('coordenadasEnderecoCliente')}
+                fullWidth
+                disabled={isLoading} // Desativa o botão enquanto carrega
+              >
+                {isLoading ? <CircularProgress size={24} color="inherit" /> : 'Obter'}
               </Button>
             </Grid>
           </Grid>

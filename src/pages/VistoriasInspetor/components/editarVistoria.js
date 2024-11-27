@@ -5,6 +5,7 @@ import DadosOS from './DadosOS';
 import Checklist from './Checklist';
 import UploadImagens from './UploadImagens'; // Importação do componente de upload
 import { api } from 'services/api';
+import { notification } from 'components/notification/index';
 
 const Etapas = ['Dados da OS', 'Checklist', 'Upload de Imagens'];
 
@@ -45,8 +46,7 @@ const EditarVistoria = ({ open, onClose, onSuccess, vistoria }) => {
       const response = await api.get('/checklist');
       setChecklistData(response.data);
     } catch (error) {
-      console.error('Erro ao buscar checklists:', error);
-      alert('Erro ao buscar checklists. Tente novamente.');
+      notification({ message: 'Erro ao buscar checklists. Tente novamente!', type: 'error' });
     }
   };
 
@@ -59,7 +59,7 @@ const EditarVistoria = ({ open, onClose, onSuccess, vistoria }) => {
       }, {});
       setChecklistSelections(linked);
     } catch (error) {
-      console.error('Erro ao buscar checklists vinculados:', error);
+      notification({ message: 'Erro ao buscar checklists vinculados!', type: 'error' });
     }
   };
 
@@ -104,12 +104,11 @@ const EditarVistoria = ({ open, onClose, onSuccess, vistoria }) => {
         }
       }
 
-      alert('Dados salvos com sucesso!');
+      notification({ message: 'Dados salvos com sucesso!', type: 'success' });
       onSuccess();
       handleClose();
     } catch (error) {
-      console.error('Erro ao salvar os dados:', error);
-      alert('Erro ao salvar os dados. Verifique e tente novamente.');
+      notification({ message: 'Erro ao salvar os dados. Verifique e tente novamente!', type: 'error' });
     }
   };
 
@@ -150,13 +149,7 @@ const EditarVistoria = ({ open, onClose, onSuccess, vistoria }) => {
           />
         );
       case 2:
-        return (
-          <UploadImagens
-            idVistoria={vistoria?.id}
-            onSuccess={() => alert('Imagens enviadas com sucesso!')}
-            // setEnviado={setEnviado}
-          />
-        );
+        return <UploadImagens idVistoria={vistoria?.id} />;
       default:
         return <Typography>Etapa desconhecida.</Typography>;
     }

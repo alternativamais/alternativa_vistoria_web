@@ -19,6 +19,7 @@ import MainCard from 'components/sistema/MainCard';
 import CriarUsuario from './components/criarUsuario';
 import EditarUsuario from './components/editarUsuario';
 import { api } from 'services/api';
+import { notification } from 'components/notification/index';
 
 const ListaUsuarios = () => {
   const [usuarios, setUsuarios] = useState([]);
@@ -44,7 +45,7 @@ const ListaUsuarios = () => {
       setUsuarios(response.data);
       setUsuariosFiltrados(response.data);
     } catch (error) {
-      console.error('Erro ao buscar usuários:', error);
+      notification({ message: 'Erro ao buscar usuários!', type: 'error' });
     }
   };
 

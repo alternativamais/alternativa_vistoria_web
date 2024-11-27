@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Box, Button, Modal, TextField, Select, MenuItem, FormControl, InputLabel } from '@mui/material';
 import { api } from 'services/api';
+import { notification } from 'components/notification/index';
 
 const CriarVistoria = ({ open, onClose, onSuccess }) => {
   const initialFormData = {
@@ -33,7 +34,7 @@ const CriarVistoria = ({ open, onClose, onSuccess }) => {
         const response = await api.get('/users');
         setUsuarios(response.data.filter((user) => user.status === 'active')); // Filtra apenas usuários ativos
       } catch (error) {
-        console.error('Erro ao buscar usuários:', error);
+        notification({ message: 'Erro ao buscar usuários!', type: 'error' });
       }
     };
 
@@ -71,7 +72,7 @@ const CriarVistoria = ({ open, onClose, onSuccess }) => {
       const response = await api.get(`/sgp-integration/search?term=${formattedTerm}`);
       setSearchResults(response.data);
     } catch (error) {
-      console.error('Erro ao realizar pesquisa:', error);
+      notification({ message: 'Erro ao realizar pesquisa!', type: 'error' });
     }
   }, []);
 
@@ -101,9 +102,9 @@ const CriarVistoria = ({ open, onClose, onSuccess }) => {
       await api.post('/vistorias', payload);
       onSuccess();
       onClose();
+      notification({ message: 'Vistoria criada com sucesso!', type: 'success' });
     } catch (error) {
-      console.error('Erro ao criar vistoria:', error);
-      alert('Erro ao criar vistoria. Verifique os dados e tente novamente.');
+      notification({ message: 'Erro ao criar vistoria. Verifique os dados e tente novamente!', type: 'error' });
     }
   };
 

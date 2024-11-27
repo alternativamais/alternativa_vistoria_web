@@ -7,6 +7,7 @@ import { EyeOutlined, EyeInvisibleOutlined } from '@ant-design/icons';
 import { useAuth } from '../../../hooks/auth';
 import AnimateButton from 'components/sistema/@extended/AnimateButton';
 import { useNavigate } from 'react-router-dom';
+import { notification } from 'components/notification/index';
 
 const AuthLogin = () => {
   const { signIn } = useAuth();
@@ -29,9 +30,11 @@ const AuthLogin = () => {
             await signIn({ email: values.email, password: values.password });
             setStatus({ success: true });
             navigate('/');
+            notification({ message: 'Bem-vindo!', type: 'success' });
           } catch (err) {
             setStatus({ success: false });
             setErrors({ submit: err.response.data.message });
+            notification({ message: 'Erro ao fazer login!', type: 'error' });
           }
           setSubmitting(false);
         }}

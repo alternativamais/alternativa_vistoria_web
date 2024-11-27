@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Button, Modal, TextField, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import { api } from 'services/api';
+import { notification } from 'components/notification/index';
 
 const EditarChecklist = ({ open, onClose, onSuccess, checklist }) => {
   const [formData, setFormData] = useState({
@@ -30,9 +31,9 @@ const EditarChecklist = ({ open, onClose, onSuccess, checklist }) => {
       await api.put(`/checklist/${checklist.id}`, formData);
       onSuccess();
       onClose();
+      notification({ message: 'Item editado!', type: 'success' });
     } catch (error) {
-      console.error('Erro ao editar checklist:', error);
-      alert('Erro ao editar checklist. Verifique os dados e tente novamente.');
+      notification({ message: 'Erro ao editar checklist. Verifique os dados e tente novamente.', type: 'error' });
     }
   };
 

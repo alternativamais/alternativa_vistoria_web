@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Button, Modal, TextField, Select, MenuItem, FormControl, InputLabel } from '@mui/material';
 import { api } from 'services/api';
+import { notification } from 'components/notification/index';
 
 const CriarUsuario = ({ open, onClose, onSuccess }) => {
   const initialFormData = {
@@ -32,9 +33,10 @@ const CriarUsuario = ({ open, onClose, onSuccess }) => {
       await api.post('/users', formData);
       onSuccess();
       onClose();
+      notification({ message: 'Usuário criado com sucesso!', type: 'success' });
     } catch (error) {
       console.error('Erro ao criar usuário:', error);
-      alert('Erro ao criar usuário. Verifique os dados e tente novamente.');
+      notification({ message: 'Erro ao criar usuário. Verifique os dados e tente novamente!', type: 'error' });
     }
   };
 

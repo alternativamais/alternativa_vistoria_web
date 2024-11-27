@@ -4,12 +4,9 @@ import { Box, Button } from '@mui/material';
 import { api } from 'services/api';
 import isMobile from 'is-mobile';
 import Webcam from 'react-webcam';
+import { notification } from 'components/notification/index';
 
-const UploadImagens = ({
-  idVistoria,
-  onSuccess
-  // setEnviado
-}) => {
+const UploadImagens = ({ idVistoria, onSuccess }) => {
   const [imagens, setImagens] = useState([]);
   const [cameraAtiva, setCameraAtiva] = useState(false);
   const webcamRef = useRef(null);
@@ -49,13 +46,13 @@ const UploadImagens = ({
       const file = dataURIToFile(imageSrc, `foto_${Date.now()}.png`);
       setImagens((prev) => [...prev, { file, preview: imageSrc }]);
     } else {
-      alert('Erro: Não foi possível capturar a foto.');
+      notification({ message: 'Não foi possível capturar a foto!', type: 'error' });
     }
   };
 
   const handleUploadImagens = async () => {
     if (!idVistoria) {
-      alert('Erro: ID da vistoria não foi definido.');
+      notification({ message: 'ID da vistoria não foi definido!', type: 'error' });
       return;
     }
 
@@ -67,23 +64,19 @@ const UploadImagens = ({
     });
 
     try {
-      const response = await api.post('/imagens-vistorias/upload', formData, {
+      await api.post('/imagens-vistorias/upload', formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
       });
 
-      console.log('Imagens enviadas com sucesso:', response.data);
       if (onSuccess) {
         onSuccess();
       }
-      alert('Imagens enviadas com sucesso!');
+      notification({ message: 'Imagens enviadas com sucesso!', type: 'success' });
       setImagens([]);
-      // setEnviado(true);
     } catch (error) {
-      console.error('Erro ao enviar imagens:', error);
-      alert('Erro ao enviar imagens. Tente novamente.');
-      // setEnviado(false);
+      notification({ message: 'Erro ao enviar imagens. Tente novamente!', type: 'error' });
     }
   };
 
