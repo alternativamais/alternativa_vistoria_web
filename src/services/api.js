@@ -5,13 +5,9 @@ export const api = axios.create({
   // baseURL: 'http://localhost:5051/api'
 });
 
-const getToken = async () => {
-  return await localStorage.getItem('@alvo:token');
-};
-
 api.interceptors.request.use(
-  async (config) => {
-    const token = await getToken();
+  (config) => {
+    const token = localStorage.getItem('@alvo:token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
