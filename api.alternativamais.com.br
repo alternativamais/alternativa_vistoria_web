@@ -1,0 +1,153 @@
+server {
+    if ($host = api.alternativamais.com.br) {
+        return 301 https://$host$request_uri;
+    } # managed by Certbot
+
+    listen 80;
+    server_name api.alternativamais.com.br expo.alternativamais.com.br;
+
+    location / {
+        if ($host = expo.alternativamais.com.br) {
+            return 301 https://$host$request_uri;
+        }
+        return 301 https://$host$request_uri;
+    }
+}
+
+server {
+    listen 443 ssl;
+    server_name api.alternativamais.com.br;
+
+    ssl_certificate /etc/letsencrypt/live/api.alternativamais.com.br/fullchain.pem; # managed by Certbot
+    ssl_certificate_key /etc/letsencrypt/live/api.alternativamais.com.br/privkey.pem; # managed by Certbot
+
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_prefer_server_ciphers on;
+    ssl_ciphers "ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384";
+
+    location / {
+        root /home/arnaldo/front2/expo-macae-front/dist;
+        try_files $uri $uri/ /index.html;
+    }
+
+    location /politica-app {
+        alias /home/arnaldo/front;
+        try_files $uri $uri/ /index.html;
+    }
+
+    location /api/ {
+        proxy_pass http://localhost:8080;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+    }
+
+    location /apiexpo/ {
+        proxy_pass http://localhost:8081;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+    }
+}
+
+server {
+    listen 443 ssl;
+    server_name expo.alternativamais.com.br;
+
+    ssl_certificate /etc/letsencrypt/live/expo.alternativamais.com.br/fullchain.pem; # managed by Certbot
+    ssl_certificate_key /etc/letsencrypt/live/expo.alternativamais.com.br/privkey.pem; # managed by Certbot
+
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_prefer_server_ciphers on;
+    ssl_ciphers "ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384";
+
+    location / {
+        root /home/arnaldo/front2/Cursos;
+        try_files $uri $uri/ /index.html;
+    }
+
+    location /apiexpo/ {
+        proxy_pass http://localhost:8081;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+    }
+}
+
+server {
+    if ($host = pdl.alternativamais.com.br) {
+        return 301 https://$host$request_uri;
+    } # managed by Certbot
+
+    listen 80;
+    server_name pdl.alternativamais.com.br;
+
+    location / {
+        return 301 https://$host$request_uri;
+    }
+}
+
+server {
+    listen 443 ssl;
+    server_name pdl.alternativamais.com.br;
+
+    ssl_certificate /etc/letsencrypt/live/pdl.alternativamais.com.br/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/pdl.alternativamais.com.br/privkey.pem;
+
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_prefer_server_ciphers on;
+    ssl_ciphers "ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384";
+
+    location / {
+        root /home/arnaldo/front2/Cursos;
+        try_files $uri $uri/ /index.html;
+    }
+}
+
+server {
+    listen 5050 ssl;
+    server_name pdl.alternativamais.com.br;
+
+    ssl_certificate /etc/letsencrypt/live/pdl.alternativamais.com.br/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/pdl.alternativamais.com.br/privkey.pem;
+
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_prefer_server_ciphers on;
+    ssl_ciphers "ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384";
+
+    location / {
+        proxy_pass http://localhost:5050;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+    }
+}
+
+server {
+    listen 5173 ssl;
+    server_name pdl.alternativamais.com.br;
+
+    ssl_certificate /etc/letsencrypt/live/pdl.alternativamais.com.br/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/pdl.alternativamais.com.br/privkey.pem;
+
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_prefer_server_ciphers on;
+    ssl_ciphers "ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384";
+
+    location / {
+        proxy_pass http://localhost:5174;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+    }
+}
