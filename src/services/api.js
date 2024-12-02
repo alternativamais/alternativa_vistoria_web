@@ -1,13 +1,17 @@
 import axios from 'axios';
 
 export const api = axios.create({
-  baseURL: 'https://vistoria.alternativamais.com.br/api'
-  // baseURL: 'http://localhost:5051/api'
+  // baseURL: 'http://192.168.13.2:5050/api'
+  baseURL: 'http://localhost:5051/api'
 });
+
+const getToken = () => {
+  return localStorage.getItem('@vistoria:token');
+};
 
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('@alvo:token');
+    const token = getToken();
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
