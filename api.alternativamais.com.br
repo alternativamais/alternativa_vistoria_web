@@ -4,10 +4,13 @@ server {
     } # managed by Certbot
 
     listen 80;
-    server_name api.alternativamais.com.br expo.alternativamais.com.br;
+    server_name api.alternativamais.com.br expo.alternativamais.com.br vistoria.alternativamais.com.br;
 
     location / {
         if ($host = expo.alternativamais.com.br) {
+            return 301 https://$host$request_uri;
+        }
+        if ($host = vistoria.alternativamais.com.br) {
             return 301 https://$host$request_uri;
         }
         return 301 https://$host$request_uri;
@@ -144,6 +147,32 @@ server {
 
     location / {
         proxy_pass http://localhost:5174;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+    }
+}
+
+server {
+    listen 443 ssl;
+    server_name vistoria.alternativamais.com.br;
+
+    ssl_certificate /etc/letsencrypt/live/vistoria.alternativamais.com.br/fullchain.pem; # managed by Certbot
+    ssl_certificate_key /etc/letsencrypt/live/vistoria.alternativamais.com.br/privkey.pem; # managed by Certbot
+
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_prefer_server_ciphers on;
+    ssl_ciphers "ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384";
+
+    location / {
+        root /home/arnaldo/vistoria/alternativa-vistoria-frontend/build;
+        try_files $uri $uri/ /index.html;
+    }
+
+    location /api/ {
+        proxy_pass http://localhost:5051;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection 'upgrade';
