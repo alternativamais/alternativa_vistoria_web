@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { Box, CircularProgress, Typography, Dialog } from '@mui/material';
 import { api } from 'services/api';
+import { notification } from 'components/notification/index';
 
 const Galeria = () => {
   const { idvistoria } = useParams();
