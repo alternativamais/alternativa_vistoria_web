@@ -4,13 +4,16 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Box, Button, Modal, TextField, Select, MenuItem, FormControl, InputLabel } from '@mui/material';
 import { api } from 'services/api';
 import { notification } from 'components/notification/index';
+import { useAuth } from 'hooks/auth';
 
 const CriarVistoria = ({ open, onClose, onSuccess }) => {
+  const { user } = useAuth();
+
   const initialFormData = {
     tipoVistoria: 'interna',
     nomeCliente: '',
     enderecoCliente: '',
-    idUsuarioAbertura: 6,
+    idUsuarioAbertura: user.id,
     idTecnicoDesignado: '',
     status: 'aberta',
     dataAgendamento: ''
