@@ -92,7 +92,7 @@ const Profile = () => {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    const userData = JSON.parse(localStorage.getItem('@alvo:user'));
+    const userData = JSON.parse(localStorage.getItem('@vistoria:user'));
     setUser(userData);
   }, []);
 

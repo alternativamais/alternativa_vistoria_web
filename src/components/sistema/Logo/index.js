@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { ButtonBase } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
 
-// import logo from '../../assets/images/logo/logo.png';
+import logo from '../../../assets/images/logo/logo.png';
 import config from 'config';
 import { activeItem } from 'store/reducers/menu';
 import { useAuth } from 'hooks/auth';
@@ -21,8 +21,7 @@ const LogoSection = ({ sx }) => {
       to={user ? config.loggedInPath : config.loggedOutPath}
       sx={sx}
     >
-      {/* <img src={logo} alt="Logo" style={{ width: '150px', height: 'auto' }} /> */}
-      <h1>colocar logo</h1>
+      <img src={logo} alt="Logo" style={{ width: '150px', height: 'auto' }} />
     </ButtonBase>
   );
 };
