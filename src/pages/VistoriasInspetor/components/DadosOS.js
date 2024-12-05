@@ -94,6 +94,16 @@ const DadosOS = ({ formData, handleChange, vistoria }) => {
         rows={3}
       />
 
+      <TextField
+        label="Metragem do Cabo"
+        name="metragemCabo"
+        type="number"
+        value={formData.metragemCabo || ''}
+        onChange={handleChange}
+        fullWidth
+        margin="normal"
+      />
+
       <FormControl fullWidth>
         <InputLabel id="status-label">Status</InputLabel>
         <Select labelId="status-label" name="status" value={formData.status} onChange={handleChange}>

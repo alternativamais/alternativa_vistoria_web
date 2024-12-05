@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Box, Button, Modal, Step, StepLabel, Stepper, Typography } from '@mui/material';
 import DadosOS from './DadosOS';
 import Checklist from './Checklist';
-import UploadImagens from './UploadImagens'; // Importação do componente de upload
+import UploadImagens from './UploadImagens';
 import { api } from 'services/api';
 import { notification } from 'components/notification/index';
 
@@ -18,13 +18,12 @@ const EditarVistoria = ({ open, onClose, onSuccess, vistoria }) => {
     coordenadasCto: '',
     coordenadasEnderecoCliente: '',
     resumoVistoria: '',
-    status: ''
+    status: '',
+    metragemCabo: ''
   });
   const [checklistData, setChecklistData] = useState([]);
   const [checklistSelections, setChecklistSelections] = useState({});
-  // const [enviado, setEnviado] = useState(false);
 
-  // Carrega os dados da vistoria e do checklist
   useEffect(() => {
     if (vistoria) {
       setFormData({
@@ -34,7 +33,8 @@ const EditarVistoria = ({ open, onClose, onSuccess, vistoria }) => {
         coordenadasCto: vistoria.coordenadasCto || '',
         coordenadasEnderecoCliente: vistoria.coordenadasEnderecoCliente || '',
         resumoVistoria: vistoria.resumoVistoria || '',
-        status: vistoria.status || ''
+        status: vistoria.status || '',
+        metragemCabo: vistoria.metragemCabo || ''
       });
       fetchChecklistData();
       fetchLinkedChecklist(vistoria.id);
@@ -68,8 +68,8 @@ const EditarVistoria = ({ open, onClose, onSuccess, vistoria }) => {
       ...prev,
       [checklistId]: {
         ...prev[checklistId],
-        situacao, // Atualiza a situação
-        motivo // Atualiza o motivo
+        situacao,
+        motivo
       }
     }));
   };
@@ -113,14 +113,16 @@ const EditarVistoria = ({ open, onClose, onSuccess, vistoria }) => {
   };
 
   const handleClose = () => {
-    // setEnviado(false);
     setActiveStep(0);
     onClose();
   };
 
   const handleChange = (event) => {
     const { name, value } = event.target;
-    setFormData({ ...formData, [name]: value });
+    setFormData({
+      ...formData,
+      [name]: name === 'metragemCabo' ? Number(value) : value
+    });
   };
 
   const handleNext = () => {
@@ -186,12 +188,7 @@ const EditarVistoria = ({ open, onClose, onSuccess, vistoria }) => {
               Voltar
             </Button>
             {activeStep === Etapas.length - 1 ? (
-              <Button
-                onClick={handleSave}
-                variant="contained"
-                color="primary"
-                // disabled={!enviado}
-              >
+              <Button onClick={handleSave} variant="contained" color="primary">
                 Salvar Tudo
               </Button>
             ) : (
