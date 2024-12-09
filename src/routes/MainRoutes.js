@@ -8,6 +8,7 @@ import Vistorias from 'pages/Vistorias/index';
 import Checklist from 'pages/Checklist/index';
 import VistoriasInspetor from 'pages/VistoriasInspetor/index';
 import Galeria from 'pages/Galeria/index';
+import Veiculos from 'pages/Veiculos/index';
 
 const MainRoutes = [
   {
@@ -19,6 +20,8 @@ const MainRoutes = [
         path: 'dashboard',
         element: <Dashboard />
       },
+
+      // admin
       {
         path: 'admin/usuarios',
         element: <Usuarios />
@@ -31,6 +34,12 @@ const MainRoutes = [
         path: 'admin/checklist',
         element: <Checklist />
       },
+      {
+        path: 'admin/veiculos',
+        element: <Veiculos />
+      },
+
+      // inspetor
       {
         path: 'inspetor/vistorias',
         element: <VistoriasInspetor />
