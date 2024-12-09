@@ -1,4 +1,4 @@
-import { EyeOutlined } from '@ant-design/icons';
+import { EyeOutlined, FontColorsOutlined } from '@ant-design/icons';
 
 const inspetor = {
   id: 'group-dashboard',
@@ -11,6 +11,14 @@ const inspetor = {
       type: 'item',
       url: '/inspetor/vistorias',
       icon: EyeOutlined,
+      breadcrumbs: false
+    },
+    {
+      id: 'atendimentos',
+      title: 'Atendimentos',
+      type: 'item',
+      url: '/inspetor/atendimentos',
+      icon: FontColorsOutlined,
       breadcrumbs: false
     }
   ]

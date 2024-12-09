@@ -9,6 +9,7 @@ import Checklist from 'pages/Checklist/index';
 import VistoriasInspetor from 'pages/VistoriasInspetor/index';
 import Galeria from 'pages/Galeria/index';
 import Veiculos from 'pages/Veiculos/index';
+import Atendimentos from 'pages/Atendimentos/index';
 
 const MainRoutes = [
   {
@@ -38,6 +39,10 @@ const MainRoutes = [
         path: 'admin/veiculos',
         element: <Veiculos />
       },
+      {
+        path: 'admin/galeria/:idvistoria',
+        element: <Galeria />
+      },
 
       // inspetor
       {
@@ -45,8 +50,8 @@ const MainRoutes = [
         element: <VistoriasInspetor />
       },
       {
-        path: 'admin/galeria/:idvistoria',
-        element: <Galeria />
+        path: 'inspetor/atendimentos',
+        element: <Atendimentos />
       },
       {
         path: '*',
