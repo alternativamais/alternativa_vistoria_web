@@ -50,7 +50,10 @@ const Atendimentos = () => {
   };
 
   const filtrarAtendimentos = () => {
-    const filtrados = atendimentos.filter((atendimento) => atendimento.observacao.toLowerCase().includes(pesquisa.toLowerCase()));
+    const filtrados = atendimentos.filter((atendimento) => {
+      const observacao = atendimento.observacao || '';
+      return observacao.toLowerCase().includes(pesquisa.toLowerCase());
+    });
     setAtendimentosFiltrados(filtrados);
   };
 

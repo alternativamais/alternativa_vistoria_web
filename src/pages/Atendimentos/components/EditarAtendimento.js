@@ -112,6 +112,14 @@ const EditarAtendimento = ({ open, onClose, onSuccess, atendimento }) => {
               ))}
             </Select>
           </FormControl>
+          <FormControl fullWidth>
+            <InputLabel id="status-label">Status</InputLabel>
+            <Select labelId="status-label" name="status" value={formData.status} onChange={handleChange}>
+              <MenuItem value="pendente">Pendente</MenuItem>
+              <MenuItem value="aberta">Aberta</MenuItem>
+              <MenuItem value="fechada">Fechada</MenuItem>
+            </Select>
+          </FormControl>
           <TextField label="KM Saída" name="kmSaida" type="number" value={formData.kmSaida} onChange={handleChange} fullWidth />
           <TextField label="KM Chegada" name="kmChegada" type="number" value={formData.kmChegada} onChange={handleChange} fullWidth />
           <TextField
