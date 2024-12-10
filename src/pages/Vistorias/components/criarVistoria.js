@@ -11,12 +11,12 @@ const CriarVistoria = ({ open, onClose, onSuccess }) => {
 
   const initialFormData = {
     tipoVistoria: 'interna',
-    nomeCliente: '',
-    enderecoCliente: '',
+    nomeCliente: null,
+    enderecoCliente: null,
     idUsuarioAbertura: user.id,
-    idTecnicoDesignado: '',
+    idTecnicoDesignado: null,
     status: 'aberta',
-    dataAgendamento: ''
+    dataAgendamento: null
   };
 
   const [formData, setFormData] = useState(initialFormData);

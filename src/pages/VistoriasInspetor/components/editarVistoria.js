@@ -12,14 +12,14 @@ const Etapas = ['Dados da OS', 'Checklist', 'Upload de Imagens'];
 const EditarVistoria = ({ open, onClose, onSuccess, vistoria }) => {
   const [activeStep, setActiveStep] = useState(0);
   const [formData, setFormData] = useState({
-    tipoVistoria: '',
-    nomeCliente: '',
-    enderecoCliente: '',
-    coordenadasCto: '',
-    coordenadasEnderecoCliente: '',
-    resumoVistoria: '',
-    status: '',
-    metragemCabo: ''
+    tipoVistoria: null,
+    nomeCliente: null,
+    enderecoCliente: null,
+    coordenadasCto: null,
+    coordenadasEnderecoCliente: null,
+    resumoVistoria: null,
+    status: null,
+    metragemCabo: null
   });
   const [checklistData, setChecklistData] = useState([]);
   const [checklistSelections, setChecklistSelections] = useState({});
@@ -27,14 +27,14 @@ const EditarVistoria = ({ open, onClose, onSuccess, vistoria }) => {
   useEffect(() => {
     if (vistoria) {
       setFormData({
-        tipoVistoria: vistoria.tipoVistoria || '',
-        nomeCliente: vistoria.nomeCliente || '',
-        enderecoCliente: vistoria.enderecoCliente || '',
-        coordenadasCto: vistoria.coordenadasCto || '',
-        coordenadasEnderecoCliente: vistoria.coordenadasEnderecoCliente || '',
-        resumoVistoria: vistoria.resumoVistoria || '',
-        status: vistoria.status || '',
-        metragemCabo: vistoria.metragemCabo || ''
+        tipoVistoria: vistoria.tipoVistoria || null,
+        nomeCliente: vistoria.nomeCliente || null,
+        enderecoCliente: vistoria.enderecoCliente || null,
+        coordenadasCto: vistoria.coordenadasCto || null,
+        coordenadasEnderecoCliente: vistoria.coordenadasEnderecoCliente || null,
+        resumoVistoria: vistoria.resumoVistoria || null,
+        status: vistoria.status || null,
+        metragemCabo: vistoria.metragemCabo || null
       });
       fetchChecklistData();
       fetchLinkedChecklist(vistoria.id);
@@ -63,7 +63,7 @@ const EditarVistoria = ({ open, onClose, onSuccess, vistoria }) => {
     }
   };
 
-  const handleSituacaoChange = (checklistId, situacao, motivo = '') => {
+  const handleSituacaoChange = (checklistId, situacao, motivo = null) => {
     setChecklistSelections((prev) => ({
       ...prev,
       [checklistId]: {
@@ -90,7 +90,7 @@ const EditarVistoria = ({ open, onClose, onSuccess, vistoria }) => {
             vistoria: Number(vistoria.id),
             checklist: Number(checklistId),
             situacao,
-            motivo: situacao === 'impossibilitado' ? motivo : '',
+            motivo: situacao === 'impossibilitado' ? motivo : null,
             status: true
           });
         } else {
@@ -98,7 +98,7 @@ const EditarVistoria = ({ open, onClose, onSuccess, vistoria }) => {
             vistoria: Number(vistoria.id),
             checklist: Number(checklistId),
             situacao,
-            motivo: situacao === 'impossibilitado' ? motivo : '',
+            motivo: situacao === 'impossibilitado' ? motivo : null,
             status: true
           });
         }

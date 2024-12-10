@@ -7,12 +7,12 @@ import { notification } from 'components/notification/index';
 
 const CriarVeiculo = ({ open, onClose, onSuccess }) => {
   const initialFormData = {
-    placa: '',
-    modelo: '',
-    marca: '',
-    cor: '',
-    ano: '',
-    descricao: '',
+    placa: null,
+    modelo: null,
+    marca: null,
+    cor: null,
+    ano: null,
+    descricao: null,
     status: 'Disponível'
   };
 
@@ -28,7 +28,7 @@ const CriarVeiculo = ({ open, onClose, onSuccess }) => {
     const { name, value } = event.target;
     setFormData({
       ...formData,
-      [name]: name === 'ano' ? parseInt(value, 10) || '' : value // Garante que 'ano' seja um número
+      [name]: name === 'ano' ? parseInt(value, 10) || null : value // Garante que 'ano' seja um número
     });
   };
 

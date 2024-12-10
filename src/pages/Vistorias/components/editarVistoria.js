@@ -7,11 +7,11 @@ import { notification } from 'components/notification/index';
 const EditarVistoria = ({ open, onClose, onSuccess, vistoria }) => {
   const [formData, setFormData] = useState({
     tipoVistoria: vistoria?.tipoVistoria || 'interna',
-    nomeCliente: vistoria?.nomeCliente || '',
-    enderecoCliente: vistoria?.enderecoCliente || '',
-    idTecnicoDesignado: vistoria?.idTecnicoDesignado || '',
+    nomeCliente: vistoria?.nomeCliente || null,
+    enderecoCliente: vistoria?.enderecoCliente || null,
+    idTecnicoDesignado: vistoria?.idTecnicoDesignado || null,
     status: vistoria?.status || 'aberta',
-    dataAgendamento: vistoria?.dataAgendamento || ''
+    dataAgendamento: vistoria?.dataAgendamento || null
   });
 
   const [usuarios, setUsuarios] = useState([]);
@@ -22,11 +22,11 @@ const EditarVistoria = ({ open, onClose, onSuccess, vistoria }) => {
     if (vistoria) {
       setFormData({
         tipoVistoria: vistoria.tipoVistoria || 'interna',
-        nomeCliente: vistoria.nomeCliente || '',
-        enderecoCliente: vistoria.enderecoCliente || '',
-        idTecnicoDesignado: vistoria.idTecnicoDesignado || '',
+        nomeCliente: vistoria.nomeCliente || null,
+        enderecoCliente: vistoria.enderecoCliente || null,
+        idTecnicoDesignado: vistoria.idTecnicoDesignado || null,
         status: vistoria.status || 'aberta',
-        dataAgendamento: vistoria.dataAgendamento || ''
+        dataAgendamento: vistoria.dataAgendamento || null
       });
     }
   }, [vistoria]);
