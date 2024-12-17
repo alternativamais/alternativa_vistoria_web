@@ -146,15 +146,17 @@ const Vistorias = () => {
                         sx={{
                           backgroundColor:
                             vistoria.status === 'a vistoriar'
-                              ? '#2196F3'
+                              ? '#2196F3' // Azul
                               : vistoria.status === 'cancelado'
-                                ? '#9E9E9E'
-                                : vistoria.status === 'pendente'
-                                  ? '#FF9800'
+                                ? '#9E9E9E' // Cinza (não aparece)
+                                : vistoria.status === 'pendente de agendamento'
+                                  ? '#FFEB3B' // Amarelo
                                   : vistoria.status === 'correcao de instalacao'
-                                    ? '#9C27B0'
-                                    : '#E0E0E0',
-                          color: 'white',
+                                    ? '#F44336' // Vermelho
+                                    : vistoria.status === 'vistoriado'
+                                      ? '#4CAF50' // Verde
+                                      : '#E0E0E0', // Cor padrão
+                          color: vistoria.status === 'pendente de agendamento' ? '#000000FF' : 'white',
                           fontWeight: 'bold'
                         }}
                       />
