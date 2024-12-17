@@ -130,8 +130,8 @@ const Vistorias = () => {
                   <TableCell>Cliente</TableCell>
                   <TableCell>Tipo de Vistoria</TableCell>
                   <TableCell>Status</TableCell>
-                  <TableCell>Data de Criação</TableCell>
-                  <TableCell>Data de Conclusão</TableCell>
+                  <TableCell>Data de Agendamento</TableCell>
+                  <TableCell>Data de Conclusao</TableCell>
                   <TableCell>Ações</TableCell>
                 </TableRow>
               </TableHead>
@@ -144,15 +144,24 @@ const Vistorias = () => {
                       <Chip
                         label={vistoria.status}
                         sx={{
-                          backgroundColor: vistoria.status === 'aberta' ? 'green' : 'red',
+                          backgroundColor:
+                            vistoria.status === 'a vistoriar'
+                              ? '#2196F3'
+                              : vistoria.status === 'cancelado'
+                                ? '#9E9E9E'
+                                : vistoria.status === 'pendente'
+                                  ? '#FF9800'
+                                  : vistoria.status === 'correcao de instalacao'
+                                    ? '#9C27B0'
+                                    : '#E0E0E0',
                           color: 'white',
                           fontWeight: 'bold'
                         }}
                       />
                     </TableCell>
-                    <TableCell>{formatarDataHoraParaBrasil(vistoria.dataHoraCriacao)}</TableCell>
+                    <TableCell>{formatarDataHoraParaBrasil(vistoria.dataAgendamento)}</TableCell>
                     <TableCell>
-                      {vistoria.dataAgendamento ? formatarDataHoraParaBrasil(vistoria.dataAgendamento) : 'Não concluída'}
+                      {vistoria.dataHoraConclusao === null ? 'Não concluída' : formatarDataHoraParaBrasil(vistoria.dataHoraConclusao)}
                     </TableCell>
                     <TableCell>
                       <Tooltip title="Editar">

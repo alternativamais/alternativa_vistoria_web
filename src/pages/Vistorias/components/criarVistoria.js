@@ -15,7 +15,7 @@ const CriarVistoria = ({ open, onClose, onSuccess }) => {
     enderecoCliente: null,
     idUsuarioAbertura: user.id,
     idTecnicoDesignado: null,
-    status: 'aberta',
+    status: 'pendente',
     dataAgendamento: null
   };
 
@@ -35,7 +35,8 @@ const CriarVistoria = ({ open, onClose, onSuccess }) => {
     const fetchUsuarios = async () => {
       try {
         const response = await api.get('/users');
-        setUsuarios(response.data.filter((user) => user.status === 'active')); // Filtra apenas usuários ativos
+        // setUsuarios(response.data.filter((user) => user.name === 'Arnaldo Batista')); // dev
+        setUsuarios(response.data.filter((user) => user.name === 'Caique Santos Silva')); // prod
       } catch (error) {
         notification({ message: 'Erro ao buscar usuários!', type: 'error' });
       }
@@ -183,14 +184,15 @@ const CriarVistoria = ({ open, onClose, onSuccess }) => {
               ))}
             </Select>
           </FormControl>
-          <FormControl fullWidth>
+          {/* <FormControl fullWidth>
             <InputLabel id="status-label">Status</InputLabel>
             <Select labelId="status-label" name="status" value={formData.status} onChange={handleChange}>
-              <MenuItem value="aberta">Aberta</MenuItem>
-              <MenuItem value="fechada">Fechada</MenuItem>
+              <MenuItem value="a vistoriar">A Vistoriar</MenuItem>
+              <MenuItem value="cancelado">Cancelado</MenuItem>
               <MenuItem value="pendente">Pendente</MenuItem>
+              <MenuItem value="correcao de instalacao">Correção de Instalação</MenuItem>
             </Select>
-          </FormControl>
+          </FormControl> */}
           <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
             <Button onClick={onClose} color="secondary">
               Cancelar
