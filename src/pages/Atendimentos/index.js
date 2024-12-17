@@ -166,7 +166,7 @@ const Atendimentos = () => {
             </Table>
           </TableContainer>
           <TablePagination
-            rowsPerPageOptions={[5, 10, 15]}
+            rowsPerPageOptions={[5, 10, 15, 100, 200, 500, 1000]}
             component="div"
             count={atendimentosFiltrados.length}
             rowsPerPage={rowsPerPage}

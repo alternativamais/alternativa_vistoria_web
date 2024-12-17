@@ -142,30 +142,35 @@ const Vistorias = () => {
                     <TableCell>{vistoria.tipoVistoria}</TableCell>
                     <TableCell>
                       <Chip
-                        label={vistoria.status}
+                        label={vistoria.status
+                          .toString()
+                          .toLowerCase()
+                          .split(' ')
+                          .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+                          .join(' ')}
                         sx={{
                           backgroundColor:
                             vistoria.status === 'a vistoriar'
-                              ? '#2196F3' // Azul
+                              ? '#2196F3'
                               : vistoria.status === 'cancelado'
-                                ? '#9E9E9E' // Cinza (não aparece)
+                                ? '#9E9E9E'
                                 : vistoria.status === 'pendente de agendamento'
-                                  ? '#FFEB3B' // Amarelo
+                                  ? '#FFEB3B'
                                   : vistoria.status === 'correcao de instalacao'
-                                    ? '#F44336' // Vermelho
+                                    ? '#F44336'
                                     : vistoria.status === 'vistoriado'
-                                      ? '#4CAF50' // Verde
-                                      : '#E0E0E0', // Cor padrão
+                                      ? '#4CAF50'
+                                      : '#E0E0E0',
                           color: vistoria.status === 'pendente de agendamento' ? '#000000FF' : 'white',
                           fontWeight: 'bold'
                         }}
                       />
                     </TableCell>
                     <TableCell>
-                      {vistoria.dataAgendamento === null ? 'Não concluída' : formatarDataHoraParaBrasil(vistoria.dataAgendamento)}
+                      {vistoria.dataAgendamento === null ? 'Não Concluída' : formatarDataHoraParaBrasil(vistoria.dataAgendamento)}
                     </TableCell>
                     <TableCell>
-                      {vistoria.dataHoraConclusao === null ? 'Não concluída' : formatarDataHoraParaBrasil(vistoria.dataHoraConclusao)}
+                      {vistoria.dataHoraConclusao === null ? 'Não Concluída' : formatarDataHoraParaBrasil(vistoria.dataHoraConclusao)}
                     </TableCell>
                     <TableCell>
                       <Tooltip title="Editar">
@@ -185,7 +190,7 @@ const Vistorias = () => {
             </Table>
           </TableContainer>
           <TablePagination
-            rowsPerPageOptions={[5, 10, 15]}
+            rowsPerPageOptions={[5, 10, 15, 100, 200, 500, 1000]}
             component="div"
             count={vistoriasFiltradas.length}
             rowsPerPage={rowsPerPage}

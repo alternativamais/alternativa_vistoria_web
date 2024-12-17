@@ -152,7 +152,7 @@ const Checklist = () => {
             </Table>
           </TableContainer>
           <TablePagination
-            rowsPerPageOptions={[5, 10, 15]}
+            rowsPerPageOptions={[5, 10, 15, 100, 200, 500, 1000]}
             component="div"
             count={checklistsFiltrados.length}
             rowsPerPage={rowsPerPage}
