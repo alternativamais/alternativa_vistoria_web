@@ -188,9 +188,10 @@ const CriarVistoria = ({ open, onClose, onSuccess }) => {
             <InputLabel id="status-label">Status</InputLabel>
             <Select labelId="status-label" name="status" value={formData.status} onChange={handleChange}>
               <MenuItem value="a vistoriar">A Vistoriar</MenuItem>
-              <MenuItem value="cancelado">Cancelado</MenuItem>
               <MenuItem value="pendente">Pendente</MenuItem>
               <MenuItem value="correcao de instalacao">Correção de Instalação</MenuItem>
+              <MenuItem value="cancelado">Cancelado</MenuItem>
+              <MenuItem value="encerrado">Encerrado</MenuItem>
             </Select>
           </FormControl> */}
           <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>

@@ -107,9 +107,11 @@ const DadosOS = ({ formData, handleChange, vistoria }) => {
       <FormControl fullWidth>
         <InputLabel id="status-label">Status</InputLabel>
         <Select labelId="status-label" name="status" value={formData.status} onChange={handleChange}>
-          <MenuItem value="aberta">Aberta</MenuItem>
-          <MenuItem value="fechada">Fechada</MenuItem>
+          <MenuItem value="a vistoriar">A Vistoriar</MenuItem>
           <MenuItem value="pendente">Pendente</MenuItem>
+          <MenuItem value="correcao de instalacao">Correção de Instalação</MenuItem>
+          <MenuItem value="cancelado">Cancelado</MenuItem>
+          <MenuItem value="encerrado">Encerrado</MenuItem>
         </Select>
       </FormControl>
     </>
