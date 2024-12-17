@@ -26,8 +26,18 @@ import { notification } from 'components/notification/index';
 const Vistorias = () => {
   const [vistorias, setVistorias] = useState([]);
   const [vistoriasFiltradas, setVistoriasFiltradas] = useState([]);
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
+
+  // Ler do localStorage ao inicializar o estado (lazy initialization)
+  const [page, setPage] = useState(() => {
+    const paginaSalva = localStorage.getItem('paginaVistorias');
+    return paginaSalva ? parseInt(paginaSalva, 10) : 0;
+  });
+
+  const [rowsPerPage, setRowsPerPage] = useState(() => {
+    const linhasSalvas = localStorage.getItem('linhasPorPaginaVistorias');
+    return linhasSalvas ? parseInt(linhasSalvas, 10) : 5; // Iniciando com 5 para teste
+  });
+
   const [pesquisa, setPesquisa] = useState('');
   const [modalCriarOpen, setModalCriarOpen] = useState(false);
   const [modalEditarOpen, setModalEditarOpen] = useState(false);
@@ -40,6 +50,14 @@ const Vistorias = () => {
   useEffect(() => {
     filtrarVistorias();
   }, [pesquisa, vistorias]);
+
+  useEffect(() => {
+    localStorage.setItem('paginaVistorias', page.toString());
+  }, [page]);
+
+  useEffect(() => {
+    localStorage.setItem('linhasPorPaginaVistorias', rowsPerPage.toString());
+  }, [rowsPerPage]);
 
   const buscarVistorias = async () => {
     try {
@@ -62,12 +80,13 @@ const Vistorias = () => {
     return data.toLocaleString('pt-BR', { timeZone: 'UTC' });
   };
 
-  const handleMudancaPagina = (event, novaPagina) => {
-    setPage(novaPagina);
+  const handleMudancaPagina = (event, newPage) => {
+    setPage(newPage);
   };
 
   const handleMudancaLinhasPorPagina = (event) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
+    const novasLinhas = parseInt(event.target.value, 10);
+    setRowsPerPage(novasLinhas);
     setPage(0);
   };
 
@@ -131,7 +150,7 @@ const Vistorias = () => {
                   <TableCell>Tipo de Vistoria</TableCell>
                   <TableCell>Status</TableCell>
                   <TableCell>Data de Agendamento</TableCell>
-                  <TableCell>Data de Conclusao</TableCell>
+                  <TableCell>Data de Conclusão</TableCell>
                   <TableCell>Ações</TableCell>
                 </TableRow>
               </TableHead>
