@@ -159,7 +159,9 @@ const Vistorias = () => {
                         }}
                       />
                     </TableCell>
-                    <TableCell>{formatarDataHoraParaBrasil(vistoria.dataAgendamento)}</TableCell>
+                    <TableCell>
+                      {vistoria.dataAgendamento === null ? 'Não concluída' : formatarDataHoraParaBrasil(vistoria.dataAgendamento)}
+                    </TableCell>
                     <TableCell>
                       {vistoria.dataHoraConclusao === null ? 'Não concluída' : formatarDataHoraParaBrasil(vistoria.dataHoraConclusao)}
                     </TableCell>
