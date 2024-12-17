@@ -185,7 +185,7 @@ const EditarVistoria = ({ open, onClose, onSuccess, vistoria }) => {
             <InputLabel id="status-label">Status</InputLabel>
             <Select labelId="status-label" name="status" value={formData.status} onChange={handleChange}>
               <MenuItem value="a vistoriar">A Vistoriar</MenuItem>
-              <MenuItem value="pendente">Pendente</MenuItem>
+              <MenuItem value="pendente de agendamento">Pendente de Agendamento</MenuItem>
               <MenuItem value="correcao de instalacao">Correção de Instalação</MenuItem>
               <MenuItem value="cancelado">Cancelado</MenuItem>
               <MenuItem value="encerrado">Encerrado</MenuItem>
