@@ -15,7 +15,7 @@ const CriarVistoria = ({ open, onClose, onSuccess }) => {
     enderecoCliente: null,
     idUsuarioAbertura: user.id,
     idTecnicoDesignado: null,
-    status: 'pendente',
+    status: 'pendente de agendamento',
     dataAgendamento: null
   };
 

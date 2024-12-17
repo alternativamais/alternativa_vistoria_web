@@ -9,7 +9,7 @@ const CriarAtendimento = ({ open, onClose, onSuccess }) => {
   const initialFormData = {
     veiculoId: '',
     vistoriaId: '',
-    status: 'pendente',
+    status: 'pendente de agendamento',
     kmSaida: '',
     kmChegada: '',
     horarioSaida: '',
