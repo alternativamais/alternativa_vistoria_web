@@ -76,7 +76,13 @@ const EditarVistoria = ({ open, onClose, onSuccess, vistoria }) => {
 
   const handleSave = async () => {
     try {
-      await api.put(`/vistorias/${vistoria.id}`, formData);
+      const updatedFormData = { ...formData };
+
+      if (updatedFormData.status === 'vistoriado') {
+        updatedFormData.dataHoraConclusao = new Date().toISOString();
+      }
+
+      await api.put(`/vistorias/${vistoria.id}`, updatedFormData);
 
       for (const checklistId of Object.keys(checklistSelections)) {
         const { situacao, motivo, id } = checklistSelections[checklistId];
