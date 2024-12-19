@@ -13,7 +13,12 @@ import {
   Chip,
   TextField,
   IconButton,
-  Tooltip
+  Tooltip,
+  TableSortLabel,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem
 } from '@mui/material';
 import { EditOutlined, PictureOutlined } from '@ant-design/icons';
 import MainCard from 'components/sistema/MainCard';
@@ -27,7 +32,6 @@ const Vistorias = () => {
   const [vistorias, setVistorias] = useState([]);
   const [vistoriasFiltradas, setVistoriasFiltradas] = useState([]);
 
-  // Ler do localStorage ao inicializar o estado (lazy initialization)
   const [page, setPage] = useState(() => {
     const paginaSalva = localStorage.getItem('paginaVistorias');
     return paginaSalva ? parseInt(paginaSalva, 10) : 0;
@@ -35,13 +39,17 @@ const Vistorias = () => {
 
   const [rowsPerPage, setRowsPerPage] = useState(() => {
     const linhasSalvas = localStorage.getItem('linhasPorPaginaVistorias');
-    return linhasSalvas ? parseInt(linhasSalvas, 10) : 5; // Iniciando com 5 para teste
+    return linhasSalvas ? parseInt(linhasSalvas, 10) : 5;
   });
 
   const [pesquisa, setPesquisa] = useState('');
+  const [statusFiltro, setStatusFiltro] = useState('');
   const [modalCriarOpen, setModalCriarOpen] = useState(false);
   const [modalEditarOpen, setModalEditarOpen] = useState(false);
   const [vistoriaSelecionada, setVistoriaSelecionada] = useState(null);
+
+  const [sortColumn, setSortColumn] = useState(null);
+  const [sortDirection, setSortDirection] = useState('asc');
 
   useEffect(() => {
     buscarVistorias();
@@ -49,7 +57,7 @@ const Vistorias = () => {
 
   useEffect(() => {
     filtrarVistorias();
-  }, [pesquisa, vistorias]);
+  }, [pesquisa, vistorias, statusFiltro]);
 
   useEffect(() => {
     localStorage.setItem('paginaVistorias', page.toString());
@@ -70,7 +78,16 @@ const Vistorias = () => {
   };
 
   const filtrarVistorias = () => {
-    const filtradas = vistorias.filter((vistoria) => vistoria.nomeCliente.toLowerCase().includes(pesquisa.toLowerCase()));
+    let filtradas = vistorias;
+
+    if (pesquisa.trim() !== '') {
+      filtradas = filtradas.filter((vistoria) => vistoria.nomeCliente.toLowerCase().includes(pesquisa.toLowerCase()));
+    }
+
+    if (statusFiltro.trim() !== '') {
+      filtradas = filtradas.filter((vistoria) => vistoria.status.toLowerCase() === statusFiltro.toLowerCase());
+    }
+
     setVistoriasFiltradas(filtradas);
   };
 
@@ -117,9 +134,73 @@ const Vistorias = () => {
     setPage(0);
   };
 
+  const handleStatusChange = (event) => {
+    setStatusFiltro(event.target.value);
+    setPage(0);
+  };
+
+  const handleSort = (column) => {
+    if (sortColumn === column) {
+      setSortDirection((prevDirection) => (prevDirection === 'asc' ? 'desc' : 'asc'));
+    } else {
+      setSortColumn(column);
+      setSortDirection('asc');
+    }
+  };
+
+  const ordenarVistorias = (a, b) => {
+    if (!sortColumn) return 0;
+
+    let valorA = '';
+    let valorB = '';
+
+    switch (sortColumn) {
+      case 'nomeCliente':
+        valorA = a.nomeCliente.toLowerCase();
+        valorB = b.nomeCliente.toLowerCase();
+        break;
+      case 'tipoVistoria':
+        valorA = a.tipoVistoria.toLowerCase();
+        valorB = b.tipoVistoria.toLowerCase();
+        break;
+      case 'status':
+        valorA = a.status.toLowerCase();
+        valorB = b.status.toLowerCase();
+        break;
+      case 'dataAgendamento':
+        valorA = a.dataAgendamento ? new Date(a.dataAgendamento).getTime() : 0;
+        valorB = b.dataAgendamento ? new Date(b.dataAgendamento).getTime() : 0;
+        break;
+      case 'dataHoraConclusao':
+        valorA = a.dataHoraConclusao ? new Date(a.dataHoraConclusao).getTime() : 0;
+        valorB = b.dataHoraConclusao ? new Date(b.dataHoraConclusao).getTime() : 0;
+        break;
+      default:
+        return 0;
+    }
+
+    if (valorA < valorB) {
+      return sortDirection === 'asc' ? -1 : 1;
+    } else if (valorA > valorB) {
+      return sortDirection === 'asc' ? 1 : -1;
+    } else {
+      return 0;
+    }
+  };
+
+  const vistoriasOrdenadas = [...vistoriasFiltradas].sort(ordenarVistorias);
+
   return (
     <Box sx={{ padding: '20px' }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '10px' }}>
+      <Box
+        sx={{
+          display: 'flex',
+          gap: '10px',
+          flexDirection: { xs: 'column', sm: 'row' },
+          justifyContent: 'space-between',
+          paddingBottom: '10px'
+        }}
+      >
         <TextField
           label="Pesquisar por cliente"
           variant="outlined"
@@ -146,16 +227,67 @@ const Vistorias = () => {
             <Table sx={{ minWidth: { xs: '600px', sm: 'auto' } }}>
               <TableHead>
                 <TableRow>
-                  <TableCell>Cliente</TableCell>
-                  <TableCell>Tipo de Vistoria</TableCell>
-                  <TableCell>Status</TableCell>
-                  <TableCell>Data de Agendamento</TableCell>
-                  <TableCell>Data de Conclusão</TableCell>
+                  <TableCell sortDirection={sortColumn === 'nomeCliente' ? sortDirection : false}>
+                    <TableSortLabel
+                      active={sortColumn === 'nomeCliente'}
+                      direction={sortColumn === 'nomeCliente' ? sortDirection : 'asc'}
+                      onClick={() => handleSort('nomeCliente')}
+                    >
+                      Cliente
+                    </TableSortLabel>
+                  </TableCell>
+                  <TableCell sortDirection={sortColumn === 'tipoVistoria' ? sortDirection : false}>
+                    <TableSortLabel
+                      active={sortColumn === 'tipoVistoria'}
+                      direction={sortColumn === 'tipoVistoria' ? sortDirection : 'asc'}
+                      onClick={() => handleSort('tipoVistoria')}
+                    >
+                      Tipo de Vistoria
+                    </TableSortLabel>
+                  </TableCell>
+                  <TableCell sortDirection={sortColumn === 'status' ? sortDirection : false}>
+                    <div>
+                      <FormControl sx={{ width: 100 }}>
+                        <InputLabel>Status</InputLabel>
+                        <Select value={statusFiltro} onChange={handleStatusChange} label="Status">
+                          <MenuItem value="">Todos</MenuItem>
+                          <MenuItem value="a vistoriar">A Vistoriar</MenuItem>
+                          <MenuItem value="cancelado">Cancelado</MenuItem>
+                          <MenuItem value="pendente de agendamento">Pendente de Agendamento</MenuItem>
+                          <MenuItem value="correcao de instalacao">Correcao de Instalacao</MenuItem>
+                          <MenuItem value="vistoriado">Vistoriado</MenuItem>
+                        </Select>
+                      </FormControl>
+                      <TableSortLabel
+                        active={sortColumn === 'status'}
+                        direction={sortColumn === 'status' ? sortDirection : 'asc'}
+                        onClick={() => handleSort('status')}
+                      ></TableSortLabel>
+                    </div>
+                  </TableCell>
+                  <TableCell sortDirection={sortColumn === 'dataAgendamento' ? sortDirection : false}>
+                    <TableSortLabel
+                      active={sortColumn === 'dataAgendamento'}
+                      direction={sortColumn === 'dataAgendamento' ? sortDirection : 'asc'}
+                      onClick={() => handleSort('dataAgendamento')}
+                    >
+                      Data de Agendamento
+                    </TableSortLabel>
+                  </TableCell>
+                  <TableCell sortDirection={sortColumn === 'dataHoraConclusao' ? sortDirection : false}>
+                    <TableSortLabel
+                      active={sortColumn === 'dataHoraConclusao'}
+                      direction={sortColumn === 'dataHoraConclusao' ? sortDirection : 'asc'}
+                      onClick={() => handleSort('dataHoraConclusao')}
+                    >
+                      Data de Conclusão
+                    </TableSortLabel>
+                  </TableCell>
                   <TableCell>Ações</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {vistoriasFiltradas.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((vistoria) => (
+                {vistoriasOrdenadas.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((vistoria) => (
                   <TableRow key={vistoria.id}>
                     <TableCell>{vistoria.nomeCliente}</TableCell>
                     <TableCell>{vistoria.tipoVistoria}</TableCell>
@@ -211,7 +343,7 @@ const Vistorias = () => {
           <TablePagination
             rowsPerPageOptions={[5, 10, 15, 100, 200, 500, 1000]}
             component="div"
-            count={vistoriasFiltradas.length}
+            count={vistoriasOrdenadas.length}
             rowsPerPage={rowsPerPage}
             page={page}
             onPageChange={handleMudancaPagina}
