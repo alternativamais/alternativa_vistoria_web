@@ -1,7 +1,8 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { Box, CircularProgress, Typography, Dialog } from '@mui/material';
+import { Box, Typography, Dialog } from '@mui/material';
+import { LeftOutlined, RightOutlined } from '@ant-design/icons';
 import { api } from 'services/api';
 import { notification } from 'components/notification/index';
 
@@ -41,6 +42,22 @@ const Galeria = () => {
     setImagemSelecionada(null);
   };
 
+  const handleNext = () => {
+    if (imagemSelecionada) {
+      const currentIndex = imagens.findIndex((img) => img.id === imagemSelecionada.id);
+      const nextIndex = (currentIndex + 1) % imagens.length;
+      setImagemSelecionada(imagens[nextIndex]);
+    }
+  };
+
+  const handlePrev = () => {
+    if (imagemSelecionada) {
+      const currentIndex = imagens.findIndex((img) => img.id === imagemSelecionada.id);
+      const prevIndex = (currentIndex - 1 + imagens.length) % imagens.length;
+      setImagemSelecionada(imagens[prevIndex]);
+    }
+  };
+
   return (
     <Box sx={{ padding: '20px' }}>
       <Box sx={{ display: 'flex', alignItems: 'center', marginBottom: '20px' }}>
@@ -50,7 +67,7 @@ const Galeria = () => {
       </Box>
       {loading ? (
         <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: '50px' }}>
-          <CircularProgress />
+          <Typography variant="body1">Carregando...</Typography>
         </Box>
       ) : imagens.length > 0 ? (
         <Box
@@ -99,7 +116,24 @@ const Galeria = () => {
       {/* Modal para exibir a imagem selecionada */}
       <Dialog open={!!imagemSelecionada} onClose={handleCloseModal} maxWidth="md" fullWidth>
         {imagemSelecionada && (
-          <Box sx={{ textAlign: 'center', padding: '20px' }}>
+          <Box sx={{ textAlign: 'center', padding: '20px', position: 'relative' }}>
+            <Box
+              onClick={handlePrev}
+              sx={{
+                position: 'absolute',
+                left: '10px',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                color: 'white',
+                borderRadius: '50%',
+                padding: '10px',
+                cursor: 'pointer',
+                '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.7)' }
+              }}
+            >
+              <LeftOutlined style={{ fontSize: '20px' }} />
+            </Box>
             <img
               src={imagemSelecionada.src}
               alt={imagemSelecionada.descricao || 'Imagem'}
@@ -115,6 +149,23 @@ const Galeria = () => {
                 {imagemSelecionada.descricao}
               </Typography>
             )}
+            <Box
+              onClick={handleNext}
+              sx={{
+                position: 'absolute',
+                right: '10px',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                color: 'white',
+                borderRadius: '50%',
+                padding: '10px',
+                cursor: 'pointer',
+                '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.7)' }
+              }}
+            >
+              <RightOutlined style={{ fontSize: '20px' }} />
+            </Box>
           </Box>
         )}
       </Dialog>
