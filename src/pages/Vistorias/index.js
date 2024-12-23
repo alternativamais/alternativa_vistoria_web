@@ -20,10 +20,11 @@ import {
   Select,
   MenuItem
 } from '@mui/material';
-import { EditOutlined, PictureOutlined } from '@ant-design/icons';
+import { EditOutlined, PictureOutlined, EyeOutlined } from '@ant-design/icons';
 import MainCard from 'components/sistema/MainCard';
 import CriarVistoria from './components/criarVistoria';
 import EditarVistoria from './components/editarVistoria';
+import VerDetalhesVistoria from './components/VerDetalhesVistoria';
 import { api } from 'services/api';
 import { Link } from 'react-router-dom';
 import { notification } from 'components/notification/index';
@@ -47,6 +48,10 @@ const Vistorias = () => {
   const [modalCriarOpen, setModalCriarOpen] = useState(false);
   const [modalEditarOpen, setModalEditarOpen] = useState(false);
   const [vistoriaSelecionada, setVistoriaSelecionada] = useState(null);
+
+  // Novo estado para controlar o modal de detalhes
+  const [modalDetalhesOpen, setModalDetalhesOpen] = useState(false);
+  const [vistoriaDetalhes, setVistoriaDetalhes] = useState(null);
 
   const [sortColumn, setSortColumn] = useState(null);
   const [sortDirection, setSortDirection] = useState('asc');
@@ -92,7 +97,11 @@ const Vistorias = () => {
   };
 
   const formatarDataHoraParaBrasil = (dataISO) => {
+    if (!dataISO) {
+      return 'Não Concluída';
+    }
     const data = new Date(dataISO);
+    // Ajuste de fuso horário se necessário
     data.setHours(data.getHours() - 3);
     return data.toLocaleString('pt-BR', { timeZone: 'UTC' });
   };
@@ -123,6 +132,16 @@ const Vistorias = () => {
   const handleFecharModalEditar = () => {
     setVistoriaSelecionada(null);
     setModalEditarOpen(false);
+  };
+
+  const handleAbrirModalDetalhes = (vistoria) => {
+    setVistoriaDetalhes(vistoria);
+    setModalDetalhesOpen(true);
+  };
+
+  const handleFecharModalDetalhes = () => {
+    setVistoriaDetalhes(null);
+    setModalDetalhesOpen(false);
   };
 
   const atualizarListaVistorias = () => {
@@ -334,6 +353,11 @@ const Vistorias = () => {
                           <PictureOutlined />
                         </IconButton>
                       </Tooltip>
+                      <Tooltip title="Ver Detalhes">
+                        <IconButton onClick={() => handleAbrirModalDetalhes(vistoria)}>
+                          <EyeOutlined />
+                        </IconButton>
+                      </Tooltip>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -360,6 +384,7 @@ const Vistorias = () => {
         onSuccess={atualizarListaVistorias}
         vistoria={vistoriaSelecionada}
       />
+      <VerDetalhesVistoria open={modalDetalhesOpen} onClose={handleFecharModalDetalhes} vistoria={vistoriaDetalhes} />
     </Box>
   );
 };
