@@ -420,11 +420,13 @@ const Vistorias = () => {
                           <EditOutlined />
                         </IconButton>
                       </Tooltip>
-                      <Tooltip title="Ver Galeria">
-                        <IconButton component={Link} to={`/admin/galeria/${vistoria.id}`}>
-                          <PictureOutlined />
-                        </IconButton>
-                      </Tooltip>
+                      {vistoria.imagem ? (
+                        <Tooltip title="Ver Galeria">
+                          <IconButton component={Link} to={`/admin/galeria/${vistoria.id}`}>
+                            <PictureOutlined />
+                          </IconButton>
+                        </Tooltip>
+                      ) : null}
                       <Tooltip title="Ver Detalhes">
                         <IconButton onClick={() => handleAbrirModalDetalhes(vistoria)}>
                           <EyeOutlined />
