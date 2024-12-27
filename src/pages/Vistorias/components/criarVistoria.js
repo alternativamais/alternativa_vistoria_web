@@ -16,7 +16,8 @@ const CriarVistoria = ({ open, onClose, onSuccess }) => {
     idUsuarioAbertura: user.id,
     idTecnicoDesignado: null,
     status: 'pendente de agendamento',
-    dataAgendamento: null
+    dataAgendamento: null,
+    idSgp: null
   };
 
   const [formData, setFormData] = useState(initialFormData);
@@ -88,11 +89,11 @@ const CriarVistoria = ({ open, onClose, onSuccess }) => {
       setFormData({
         ...formData,
         nomeCliente: selectedResult.text,
-        enderecoCliente: selectedResult.address
+        enderecoCliente: selectedResult.address,
+        idSgp: Number(selectedResult.id)
       });
     }
 
-    // Limpa os resultados para ocultar o Select
     setSearchResults([]);
   };
 
@@ -100,7 +101,8 @@ const CriarVistoria = ({ open, onClose, onSuccess }) => {
     try {
       const payload = {
         ...formData,
-        idTecnicoDesignado: formData.idTecnicoDesignado ? Number(formData.idTecnicoDesignado) : null
+        idTecnicoDesignado: formData.idTecnicoDesignado ? Number(formData.idTecnicoDesignado) : null,
+        idSgp: formData.idSgp
       };
 
       await api.post('/vistorias', payload);
