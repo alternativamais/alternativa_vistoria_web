@@ -7,7 +7,7 @@ const inspetor = {
   children: [
     {
       id: 'inspvistorias',
-      title: 'Vistorias',
+      title: 'Inspetor Vistorias',
       type: 'item',
       url: '/inspetor/vistorias',
       icon: EyeOutlined,
