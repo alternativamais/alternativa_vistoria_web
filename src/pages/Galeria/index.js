@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { Box, Typography, Dialog } from '@mui/material';
+import { Box, Typography, Dialog, TextField, Button } from '@mui/material';
 import { LeftOutlined, RightOutlined } from '@ant-design/icons';
 import { api } from 'services/api';
 import { notification } from 'components/notification/index';
@@ -11,6 +11,9 @@ const Galeria = () => {
   const [imagens, setImagens] = useState([]);
   const [loading, setLoading] = useState(true);
   const [imagemSelecionada, setImagemSelecionada] = useState(null);
+  const [dialogoAberto, setDialogoAberto] = useState(false);
+  const [senha, setSenha] = useState('');
+  const [imagemParaApagar, setImagemParaApagar] = useState(null);
 
   useEffect(() => {
     fetchImagens();
@@ -55,6 +58,43 @@ const Galeria = () => {
       const currentIndex = imagens.findIndex((img) => img.id === imagemSelecionada.id);
       const prevIndex = (currentIndex - 1 + imagens.length) % imagens.length;
       setImagemSelecionada(imagens[prevIndex]);
+    }
+  };
+
+  const abrirDialogoApagar = () => {
+    setDialogoAberto(true);
+  };
+
+  const fecharDialogoApagar = () => {
+    setDialogoAberto(false);
+    setSenha('');
+    setImagemParaApagar(null);
+  };
+
+  const confirmarApagar = async (id) => {
+    if (!id) {
+      notification({ message: 'ID inválido ou indefinido!', type: 'error' });
+      return;
+    }
+
+    console.log('ID para apagar:', id);
+
+    if (senha !== '2025') {
+      notification({ message: 'Senha incorreta!', type: 'error' });
+      return;
+    }
+
+    try {
+      await api.delete(`/imagens-vistorias/${id}`);
+      notification({ message: 'Imagem apagada com sucesso!', type: 'success' });
+
+      setImagens((prev) => prev.filter((img) => img.id !== id));
+
+      fecharDialogoApagar();
+      handleCloseModal();
+    } catch (error) {
+      console.log(error);
+      notification({ message: 'Erro ao apagar imagem!', type: 'error' });
     }
   };
 
@@ -104,6 +144,27 @@ const Galeria = () => {
                   display: 'block'
                 }}
               />
+              <Button
+                variant="contained"
+                color="error"
+                sx={{
+                  position: 'absolute',
+                  top: '5px',
+                  right: '5px',
+                  minWidth: '30px',
+                  minHeight: '30px',
+                  padding: '5px',
+                  fontSize: '12px'
+                }}
+                onClick={(e) => {
+                  e.stopPropagation();
+
+                  setImagemParaApagar(img);
+                  abrirDialogoApagar();
+                }}
+              >
+                X
+              </Button>
             </Box>
           ))}
         </Box>
@@ -168,6 +229,31 @@ const Galeria = () => {
             </Box>
           </Box>
         )}
+      </Dialog>
+
+      {/* Diálogo para confirmação de exclusão */}
+      <Dialog open={dialogoAberto} onClose={fecharDialogoApagar}>
+        <Box sx={{ padding: '20px', textAlign: 'center' }}>
+          <Typography variant="h6" sx={{ marginBottom: '20px' }}>
+            Tem certeza que deseja apagar esta imagem?
+          </Typography>
+          <TextField
+            label="Senha"
+            type="password"
+            fullWidth
+            value={senha}
+            onChange={(e) => setSenha(e.target.value)}
+            sx={{ marginBottom: '20px' }}
+          />
+          <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+            <Button variant="outlined" onClick={fecharDialogoApagar}>
+              Cancelar
+            </Button>
+            <Button variant="contained" color="error" onClick={() => confirmarApagar(imagemParaApagar?.id)}>
+              Confirmar
+            </Button>
+          </Box>
+        </Box>
       </Dialog>
     </Box>
   );
