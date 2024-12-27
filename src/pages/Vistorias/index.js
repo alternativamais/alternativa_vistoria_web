@@ -31,9 +31,6 @@ import { Link } from 'react-router-dom';
 import { notification } from 'components/notification/index';
 
 const Vistorias = () => {
-  const [vistorias, setVistorias] = useState([]);
-  const [vistoriasFiltradas, setVistoriasFiltradas] = useState([]);
-
   const [page, setPage] = useState(() => {
     const paginaSalva = localStorage.getItem('paginaVistorias');
     return paginaSalva ? parseInt(paginaSalva, 10) : 0;
@@ -44,18 +41,35 @@ const Vistorias = () => {
     return linhasSalvas ? parseInt(linhasSalvas, 10) : 5;
   });
 
-  const [pesquisa, setPesquisa] = useState('');
-  const [statusFiltro, setStatusFiltro] = useState('');
+  const [pesquisa, setPesquisa] = useState(() => {
+    const pesquisaSalva = localStorage.getItem('pesquisaVistorias');
+    return pesquisaSalva ? pesquisaSalva : '';
+  });
+
+  const [statusFiltro, setStatusFiltro] = useState(() => {
+    const statusSalvo = localStorage.getItem('statusFiltroVistorias');
+    return statusSalvo ? statusSalvo : '';
+  });
+
+  const [sortColumn, setSortColumn] = useState(() => {
+    const colunaSalva = localStorage.getItem('sortColumnVistorias');
+    return colunaSalva ? colunaSalva : null;
+  });
+
+  const [sortDirection, setSortDirection] = useState(() => {
+    const direcaoSalva = localStorage.getItem('sortDirectionVistorias');
+    return direcaoSalva ? direcaoSalva : 'asc';
+  });
+
+  const [vistorias, setVistorias] = useState([]);
+  const [vistoriasFiltradas, setVistoriasFiltradas] = useState([]);
+
   const [modalCriarOpen, setModalCriarOpen] = useState(false);
   const [modalEditarOpen, setModalEditarOpen] = useState(false);
   const [vistoriaSelecionada, setVistoriaSelecionada] = useState(null);
 
-  // Novo estado para controlar o modal de detalhes
   const [modalDetalhesOpen, setModalDetalhesOpen] = useState(false);
   const [vistoriaDetalhes, setVistoriaDetalhes] = useState(null);
-
-  const [sortColumn, setSortColumn] = useState(null);
-  const [sortDirection, setSortDirection] = useState('asc');
 
   useEffect(() => {
     buscarVistorias();
@@ -63,7 +77,7 @@ const Vistorias = () => {
 
   useEffect(() => {
     filtrarVistorias();
-  }, [pesquisa, vistorias, statusFiltro]);
+  }, [pesquisa, statusFiltro, vistorias]);
 
   useEffect(() => {
     localStorage.setItem('paginaVistorias', page.toString());
@@ -72,6 +86,26 @@ const Vistorias = () => {
   useEffect(() => {
     localStorage.setItem('linhasPorPaginaVistorias', rowsPerPage.toString());
   }, [rowsPerPage]);
+
+  useEffect(() => {
+    localStorage.setItem('pesquisaVistorias', pesquisa);
+  }, [pesquisa]);
+
+  useEffect(() => {
+    localStorage.setItem('statusFiltroVistorias', statusFiltro);
+  }, [statusFiltro]);
+
+  useEffect(() => {
+    if (sortColumn !== null) {
+      localStorage.setItem('sortColumnVistorias', sortColumn);
+    }
+  }, [sortColumn]);
+
+  useEffect(() => {
+    if (sortDirection !== null) {
+      localStorage.setItem('sortDirectionVistorias', sortDirection);
+    }
+  }, [sortDirection]);
 
   const buscarVistorias = async () => {
     try {
@@ -84,7 +118,7 @@ const Vistorias = () => {
   };
 
   const filtrarVistorias = () => {
-    let filtradas = vistorias;
+    let filtradas = [...vistorias];
 
     if (pesquisa.trim() !== '') {
       filtradas = filtradas.filter((vistoria) => vistoria.nomeCliente.toLowerCase().includes(pesquisa.toLowerCase()));
@@ -102,7 +136,6 @@ const Vistorias = () => {
       return 'Não Concluída';
     }
     const data = new Date(dataISO);
-    // Ajuste de fuso horário se necessário
     data.setHours(data.getHours() - 3);
     return data.toLocaleString('pt-BR', { timeZone: 'UTC' });
   };
@@ -232,6 +265,7 @@ const Vistorias = () => {
           Nova Vistoria
         </Button>
       </Box>
+
       <MainCard title="Vistorias">
         <Box
           sx={{
@@ -266,7 +300,7 @@ const Vistorias = () => {
                     </TableSortLabel>
                   </TableCell>
                   <TableCell sortDirection={sortColumn === 'status' ? sortDirection : false}>
-                    <div>
+                    <div style={{ display: 'flex', alignItems: 'center' }}>
                       <FormControl sx={{ width: 100 }}>
                         <InputLabel>Status</InputLabel>
                         <Select value={statusFiltro} onChange={handleStatusChange} label="Status">
@@ -282,7 +316,7 @@ const Vistorias = () => {
                         active={sortColumn === 'status'}
                         direction={sortColumn === 'status' ? sortDirection : 'asc'}
                         onClick={() => handleSort('status')}
-                      ></TableSortLabel>
+                      />
                     </div>
                   </TableCell>
                   <TableCell sortDirection={sortColumn === 'dataAgendamento' ? sortDirection : false}>
@@ -306,11 +340,18 @@ const Vistorias = () => {
                   <TableCell>Ações</TableCell>
                 </TableRow>
               </TableHead>
+
               <TableBody>
                 {vistoriasOrdenadas.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((vistoria) => (
                   <TableRow key={vistoria.id}>
                     <TableCell>
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <div
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between'
+                        }}
+                      >
                         <Typography>{vistoria.nomeCliente}</Typography>
                         {vistoria.idSgp ? (
                           <a
@@ -438,6 +479,7 @@ const Vistorias = () => {
               </TableBody>
             </Table>
           </TableContainer>
+
           <TablePagination
             rowsPerPageOptions={[5, 10, 15, 100, 200, 500, 1000]}
             component="div"
