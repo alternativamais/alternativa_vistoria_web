@@ -18,7 +18,8 @@ import {
   FormControl,
   InputLabel,
   Select,
-  MenuItem
+  MenuItem,
+  Typography
 } from '@mui/material';
 import { EditOutlined, PictureOutlined, EyeOutlined } from '@ant-design/icons';
 import MainCard from 'components/sistema/MainCard';
@@ -308,7 +309,78 @@ const Vistorias = () => {
               <TableBody>
                 {vistoriasOrdenadas.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((vistoria) => (
                   <TableRow key={vistoria.id}>
-                    <TableCell>{vistoria.nomeCliente}</TableCell>
+                    <TableCell>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <Typography>{vistoria.nomeCliente}</Typography>
+                        {vistoria.idSgp ? (
+                          <a
+                            href={`https://alternativaip.sgp.net.br/admin/cliente/${vistoria.idSgp}/contratos/`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{ textDecoration: 'none', display: 'flex', justifyContent: 'center', alignItems: 'center' }}
+                          >
+                            <Chip
+                              sx={{
+                                display: 'flex',
+                                padding: '13px',
+                                paddingRight: 0,
+                                backgroundColor: '#4B545C'
+                              }}
+                              icon={
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  xmlSpace="preserve"
+                                  width="60px"
+                                  height="31px"
+                                  version="1.1"
+                                  style={{
+                                    shapeRendering: 'geometricPrecision',
+                                    textRendering: 'geometricPrecision',
+                                    imageRendering: 'optimizeQuality',
+                                    fillRule: 'evenodd',
+                                    clipRule: 'evenodd'
+                                  }}
+                                  viewBox="0 0 8043 3133"
+                                >
+                                  <defs>
+                                    <style type="text/css">{`.fil0 {fill:#F2F2F2}`}</style>
+                                  </defs>
+                                  <g id="Camada_x0020_1">
+                                    <metadata id="CorelCorpID_0Corel-Layer" />
+                                    <g id="_2112558215968">
+                                      <path
+                                        className="fil0"
+                                        d="M5323 2053l44 0 0 41 -44 0 0 -41zm43 -50l49 0 0 49 -49 0 0 -49zm-68 -59l59 0 0 60 -59 0 0 -60zm141 34l24 0 0 25 -24 0 0 -25zm688 185l310 0 0 -112 -302 0c-130,0 -192,98 -192,188 0,106 86,188 192,188l107 0c38,2 72,35 72,76 0,29 -19,57 -46,69l-286 -1 121 121 144 0c103,-1 190,-88 190,-196 0,-107 -86,-196 -194,-195l-116 -4c-30,0 -45,-20 -46,-20 -41,-42 -12,-114 46,-114zm1653 -19l-94 -94 -224 224 -224 -224 -94 94 224 224 -224 224 94 94 224 -224 224 224 94 -94 -224 -224 224 -224zm-2413 34l183 0 0 514 126 0 0 -514 211 2c25,-75 63,-117 119,-129l-639 0 0 127zm1424 143l-303 -272 0 641 130 0 0 -343 0 1 173 126 174 -126 0 -1 0 343 129 0 0 -641 -303 272zm-728 371l-120 0 0 -121 120 121zm-540 -550l-42 0 0 -40 42 0 0 40zm-42 -41l-63 0 0 -50 63 0 0 50zm-86 -50l0 25 -28 0 0 -25 28 0z"
+                                      />
+                                      <path
+                                        className="fil0"
+                                        d="M4551 2788c47,12 269,4 334,4 148,0 191,5 191,-152 -1,-221 8,-459 -1,-678l-524 -2 0 828z"
+                                      />
+                                      <path
+                                        className="fil0"
+                                        d="M307 2267c5,584 -93,525 391,525 182,0 761,11 901,-15 239,-46 428,-224 515,-399 225,-453 -73,-1034 -612,-1072 -141,-10 -311,-2 -456,-2 -84,0 -124,-5 -178,-50 -152,-128 -74,-381 136,-387 440,-13 930,15 1379,-1 60,-139 269,-327 394,-419 61,-45 149,-87 172,-105 -144,-8 -312,-1 -459,-1l-1383 0c-356,0 -490,74 -663,259 -325,347 -202,999 298,1183 173,63 435,46 641,46 90,1 126,-3 191,42 86,60 131,207 41,314 -91,108 -211,81 -382,81 -154,0 -309,0 -463,0 -150,0 -315,-6 -463,1z"
+                                      />
+                                      <path
+                                        className="fil0"
+                                        d="M4419 1962l-524 -2 -1 218c-59,23 -98,49 -173,67 -227,57 -498,-7 -654,-164l-61 -66c-130,-161 -190,-346 -152,-569 44,-264 233,-456 445,-537 273,-105 604,3 736,161 31,-12 349,-339 374,-366 -34,-59 -208,-175 -274,-214 -98,-58 -231,-106 -360,-129 -304,-54 -583,0 -815,125 -206,111 -370,285 -490,485 -128,213 -181,527 -133,817 81,482 489,896 972,983 286,51 599,2 822,-122 61,-34 256,-159 284,-203 14,-22 6,-424 4,-484z"
+                                      />
+                                      <path
+                                        className="fil0"
+                                        d="M3369 1358l1 471c180,7 710,0 889,0l156 0c-27,-38 -98,-101 -134,-137l-346 -346c-43,-43 -22,-41 -115,-42l-451 0 0 54z"
+                                      />
+                                      <path
+                                        className="fil0"
+                                        d="M6522 1145l0 -120 -8 -33c-2,-13 -3,-23 -5,-36 -35,-221 -194,-432 -385,-530 -77,-39 -153,-67 -252,-79 -79,-9 -1273,-12 -1322,-3l1 826c29,7 485,7 525,1l0 -304c136,-1 271,0 405,0 98,0 312,-15 387,20 81,36 159,146 113,273 -48,133 -155,144 -266,144 -544,0 -1088,1 -1632,0l506 512c25,22 46,13 104,13l685 0c416,0 761,53 1025,-343 28,-42 57,-98 76,-152 16,-48 32,-166 43,-189z"
+                                      />
+                                    </g>
+                                  </g>
+                                </svg>
+                              }
+                            />
+                          </a>
+                        ) : null}
+                      </div>
+                    </TableCell>
                     <TableCell>{vistoria.tipoVistoria}</TableCell>
                     <TableCell>
                       <Chip
