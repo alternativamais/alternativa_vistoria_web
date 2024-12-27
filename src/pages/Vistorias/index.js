@@ -372,7 +372,7 @@ const Vistorias = () => {
                                   xmlns="http://www.w3.org/2000/svg"
                                   xmlSpace="preserve"
                                   width="60px"
-                                  height="31px"
+                                  height="18px"
                                   version="1.1"
                                   style={{
                                     shapeRendering: 'geometricPrecision',
