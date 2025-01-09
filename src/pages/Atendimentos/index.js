@@ -142,11 +142,22 @@ const Atendimentos = () => {
                     <TableCell>{atendimento.vistoriaId}</TableCell>
                     <TableCell>
                       <Chip
-                        label={atendimento.status}
+                        label={atendimento.status
+                          .toString()
+                          .toLowerCase()
+                          .split(' ')
+                          .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+                          .join(' ')}
                         sx={{
-                          backgroundColor: atendimento.status === 'pendente' ? 'orange' : 'green',
-                          color: 'white',
-                          fontWeight: 'bold'
+                          backgroundColor:
+                            atendimento.status === 'pendente'
+                              ? '#FFEB3B'
+                              : atendimento.status === 'fechada'
+                                ? '#434343FF'
+                                : atendimento.status === 'aberta'
+                                  ? '#4CAF50'
+                                  : '#E0E0E0',
+                          color: atendimento.status === 'fechada' || atendimento.status === 'aberta' ? '#FFFFFF' : '#000000'
                         }}
                       />
                     </TableCell>

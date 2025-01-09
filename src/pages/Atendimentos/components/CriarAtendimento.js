@@ -122,6 +122,9 @@ const CriarAtendimento = ({ open, onClose, onSuccess }) => {
             value={formData.horarioSaida}
             onChange={handleChange}
             fullWidth
+            InputLabelProps={{
+              shrink: true
+            }}
           />
           <TextField
             label="Horário de Chegada"
@@ -130,7 +133,11 @@ const CriarAtendimento = ({ open, onClose, onSuccess }) => {
             value={formData.horarioChegada}
             onChange={handleChange}
             fullWidth
+            InputLabelProps={{
+              shrink: true
+            }}
           />
+
           <TextField
             label="Observação"
             name="observacao"

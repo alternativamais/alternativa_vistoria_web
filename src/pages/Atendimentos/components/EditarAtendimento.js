@@ -4,6 +4,13 @@ import { Box, Button, Modal, TextField, Select, MenuItem, FormControl, InputLabe
 import { api } from 'services/api';
 import { notification } from 'components/notification/index';
 
+// Função para formatar datas no formato ISO 8601 para datetime-local
+const formatDateToDatetimeLocal = (date) => {
+  if (!date) return '';
+  const formattedDate = new Date(date).toISOString();
+  return formattedDate.slice(0, 16); // Pega somente YYYY-MM-DDTHH:mm
+};
+
 const EditarAtendimento = ({ open, onClose, onSuccess, atendimento }) => {
   const [formData, setFormData] = useState({
     veiculoId: atendimento?.veiculoId || '',
@@ -11,8 +18,8 @@ const EditarAtendimento = ({ open, onClose, onSuccess, atendimento }) => {
     status: atendimento?.status || 'pendente',
     kmSaida: atendimento?.kmSaida || '',
     kmChegada: atendimento?.kmChegada || '',
-    horarioSaida: atendimento?.horarioSaida || '',
-    horarioChegada: atendimento?.horarioChegada || '',
+    horarioSaida: formatDateToDatetimeLocal(atendimento?.horarioSaida),
+    horarioChegada: formatDateToDatetimeLocal(atendimento?.horarioChegada),
     observacao: atendimento?.observacao || ''
   });
 
@@ -31,8 +38,8 @@ const EditarAtendimento = ({ open, onClose, onSuccess, atendimento }) => {
         status: atendimento.status || 'pendente',
         kmSaida: atendimento.kmSaida || '',
         kmChegada: atendimento.kmChegada || '',
-        horarioSaida: atendimento.horarioSaida || '',
-        horarioChegada: atendimento.horarioChegada || '',
+        horarioSaida: formatDateToDatetimeLocal(atendimento.horarioSaida),
+        horarioChegada: formatDateToDatetimeLocal(atendimento.horarioChegada),
         observacao: atendimento.observacao || ''
       });
     }
@@ -129,6 +136,9 @@ const EditarAtendimento = ({ open, onClose, onSuccess, atendimento }) => {
             value={formData.horarioSaida}
             onChange={handleChange}
             fullWidth
+            InputLabelProps={{
+              shrink: true
+            }}
           />
           <TextField
             label="Horário de Chegada"
@@ -137,6 +147,9 @@ const EditarAtendimento = ({ open, onClose, onSuccess, atendimento }) => {
             value={formData.horarioChegada}
             onChange={handleChange}
             fullWidth
+            InputLabelProps={{
+              shrink: true
+            }}
           />
           <TextField
             label="Observação"
