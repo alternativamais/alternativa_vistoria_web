@@ -19,7 +19,8 @@ const EditarVistoria = ({ open, onClose, onSuccess, vistoria }) => {
     coordenadasEnderecoCliente: null,
     resumoVistoria: null,
     status: null,
-    metragemCabo: null
+    metragemCabo: null,
+    assinaturaEletronica: false
   });
   const [checklistData, setChecklistData] = useState([]);
   const [checklistSelections, setChecklistSelections] = useState({});
@@ -34,7 +35,8 @@ const EditarVistoria = ({ open, onClose, onSuccess, vistoria }) => {
         coordenadasEnderecoCliente: vistoria.coordenadasEnderecoCliente || null,
         resumoVistoria: vistoria.resumoVistoria || null,
         status: vistoria.status || null,
-        metragemCabo: vistoria.metragemCabo || null
+        metragemCabo: vistoria.metragemCabo || null,
+        assinaturaEletronica: vistoria.assinaturaEletronica || false
       });
       fetchChecklistData();
       fetchLinkedChecklist(vistoria.id);
@@ -124,10 +126,10 @@ const EditarVistoria = ({ open, onClose, onSuccess, vistoria }) => {
   };
 
   const handleChange = (event) => {
-    const { name, value } = event.target;
+    const { name, value, checked } = event.target;
     setFormData({
       ...formData,
-      [name]: name === 'metragemCabo' ? Number(value) : value
+      [name]: name === 'metragemCabo' ? Number(value) : name === 'assinaturaEletronica' ? checked : value
     });
   };
 

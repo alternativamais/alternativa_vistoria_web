@@ -8,8 +8,8 @@ import { notification } from 'components/notification/index';
 const CriarAtendimento = ({ open, onClose, onSuccess }) => {
   const initialFormData = {
     veiculoId: '',
-    vistoriaId: '',
-    status: 'pendente de agendamento',
+    vistorias: [],
+    status: 'aberta',
     kmSaida: '',
     kmChegada: '',
     horarioSaida: '',
@@ -17,18 +17,28 @@ const CriarAtendimento = ({ open, onClose, onSuccess }) => {
     observacao: ''
   };
 
+  const [vistoriaInputs, setVistoriaInputs] = useState([{ vistoriaId: '' }]);
+
   const [formData, setFormData] = useState(initialFormData);
   const [veiculos, setVeiculos] = useState([]);
-  const [vistorias, setVistorias] = useState([]);
+  const [vistoriasDisponiveis, setVistoriasDisponiveis] = useState([]);
+  const [step, setStep] = useState(1);
 
   useEffect(() => {
     if (open) {
       fetchVeiculos();
       fetchVistorias();
     } else {
-      setFormData(initialFormData);
+      resetForm();
     }
   }, [open]);
+
+  const resetForm = () => {
+    setFormData(initialFormData);
+
+    setVistoriaInputs([{ vistoriaId: '' }]);
+    setStep(1);
+  };
 
   const fetchVeiculos = async () => {
     try {
@@ -42,7 +52,7 @@ const CriarAtendimento = ({ open, onClose, onSuccess }) => {
   const fetchVistorias = async () => {
     try {
       const response = await api.get('/vistorias/user/1');
-      setVistorias(response.data);
+      setVistoriasDisponiveis(response.data);
     } catch (error) {
       notification({ message: 'Erro ao buscar vistorias!', type: 'error' });
     }
@@ -52,16 +62,69 @@ const CriarAtendimento = ({ open, onClose, onSuccess }) => {
     const { name, value } = event.target;
     setFormData({
       ...formData,
-      [name]: name.includes('km') ? parseInt(value, 10) || '' : value // Garantir que km seja numérico
+      [name]: name.includes('km') ? parseInt(value, 10) || '' : value
     });
+  };
+
+  const handleVistoriaChange = (index, vistoriaId) => {
+    const newVistorias = [...vistoriaInputs];
+    newVistorias[index] = { vistoriaId, concluido: false };
+    setVistoriaInputs(newVistorias);
+  };
+
+  const addVistoria = () => {
+    const last = vistoriaInputs[vistoriaInputs.length - 1];
+    if (!last.vistoriaId) return;
+
+    setVistoriaInputs([...vistoriaInputs, { vistoriaId: '' }]);
+  };
+
+  const removeVistoria = (index) => {
+    const newVistorias = vistoriaInputs.filter((_, i) => i !== index);
+    setVistoriaInputs(newVistorias);
+  };
+
+  const availableOptions = (index) => {
+    const alreadySelected = new Set(
+      vistoriaInputs
+        .filter((_, i) => i !== index)
+        .map((item) => item.vistoriaId)
+        .filter((id) => id !== '')
+    );
+
+    return vistoriasDisponiveis.filter((vistoria) => !alreadySelected.has(vistoria.id));
+  };
+
+  const isAddButtonDisabled = () => {
+    const last = vistoriaInputs[vistoriaInputs.length - 1];
+    return !last.vistoriaId || availableOptions(-1).length === 0;
+  };
+
+  const handleNextStep = () => {
+    setStep((prev) => prev + 1);
+  };
+
+  const handlePreviousStep = () => {
+    setStep((prev) => prev - 1);
   };
 
   const handleSubmit = async () => {
     try {
-      await api.post('/atendimentos', formData);
+      const payload = {
+        ...formData,
+
+        vistorias: vistoriaInputs
+          .filter((item) => item.vistoriaId)
+          .map((item) => ({
+            vistoriaId: item.vistoriaId,
+            concluido: item.concluido || false
+          }))
+      };
+
+      await api.post('/atendimentos', payload);
+      notification({ message: 'Atendimento criado com sucesso!', type: 'success' });
       onSuccess();
       onClose();
-      notification({ message: 'Atendimento criado com sucesso!', type: 'success' });
     } catch (error) {
       console.error('Erro ao criar atendimento:', error);
       notification({ message: 'Erro ao criar atendimento. Verifique os dados e tente novamente!', type: 'error' });
@@ -84,78 +147,98 @@ const CriarAtendimento = ({ open, onClose, onSuccess }) => {
         }}
       >
         <h2 id="modal-criar-atendimento">Criar Novo Atendimento</h2>
-        <Box component="form" noValidate autoComplete="off" sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-          <FormControl fullWidth>
-            <InputLabel id="veiculo-label">Veículo</InputLabel>
-            <Select labelId="veiculo-label" name="veiculoId" value={formData.veiculoId} onChange={handleChange}>
-              {veiculos.map((veiculo) => (
-                <MenuItem key={veiculo.id} value={veiculo.id}>
-                  {`${veiculo.modelo} - ${veiculo.marca} (${veiculo.placa})`}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-          <FormControl fullWidth>
-            <InputLabel id="vistoria-label">Vistoria</InputLabel>
-            <Select labelId="vistoria-label" name="vistoriaId" value={formData.vistoriaId} onChange={handleChange}>
-              {vistorias.map((vistoria) => (
-                <MenuItem key={vistoria.id} value={vistoria.id}>
-                  {`${vistoria.nomeCliente}`}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-          <FormControl fullWidth>
-            <InputLabel id="status-label">Status</InputLabel>
-            <Select labelId="status-label" name="status" value={formData.status} onChange={handleChange}>
-              <MenuItem value="pendente">Pendente</MenuItem>
-              <MenuItem value="aberta">Aberta</MenuItem>
-              <MenuItem value="fechada">Fechada</MenuItem>
-            </Select>
-          </FormControl>
-          <TextField label="KM Saída" name="kmSaida" type="number" value={formData.kmSaida} onChange={handleChange} fullWidth />
-          <TextField label="KM Chegada" name="kmChegada" type="number" value={formData.kmChegada} onChange={handleChange} fullWidth />
-          <TextField
-            label="Horário de Saída"
-            name="horarioSaida"
-            type="datetime-local"
-            value={formData.horarioSaida}
-            onChange={handleChange}
-            fullWidth
-            InputLabelProps={{
-              shrink: true
-            }}
-          />
-          <TextField
-            label="Horário de Chegada"
-            name="horarioChegada"
-            type="datetime-local"
-            value={formData.horarioChegada}
-            onChange={handleChange}
-            fullWidth
-            InputLabelProps={{
-              shrink: true
-            }}
-          />
+        {step === 1 && (
+          <Box component="form" noValidate autoComplete="off" sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <FormControl fullWidth>
+              <InputLabel id="veiculo-label">Veículo</InputLabel>
+              <Select labelId="veiculo-label" name="veiculoId" value={formData.veiculoId} onChange={handleChange}>
+                {veiculos.map((veiculo) => (
+                  <MenuItem key={veiculo.id} value={veiculo.id}>
+                    {`${veiculo.modelo} - ${veiculo.marca} (${veiculo.placa})`}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
 
-          <TextField
-            label="Observação"
-            name="observacao"
-            value={formData.observacao}
-            onChange={handleChange}
-            fullWidth
-            multiline
-            rows={3}
-          />
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
-            <Button onClick={onClose} color="secondary">
-              Cancelar
-            </Button>
-            <Button onClick={handleSubmit} variant="contained" color="primary">
-              Criar
-            </Button>
+            <TextField label="KM Saída" name="kmSaida" type="number" value={formData.kmSaida} onChange={handleChange} fullWidth />
+            <TextField label="KM Chegada" name="kmChegada" type="number" value={formData.kmChegada} onChange={handleChange} fullWidth />
+            <TextField
+              label="Horário de Saída"
+              name="horarioSaida"
+              type="datetime-local"
+              value={formData.horarioSaida}
+              onChange={handleChange}
+              fullWidth
+              InputLabelProps={{ shrink: true }}
+            />
+            <TextField
+              label="Horário de Chegada"
+              name="horarioChegada"
+              type="datetime-local"
+              value={formData.horarioChegada}
+              onChange={handleChange}
+              fullWidth
+              InputLabelProps={{ shrink: true }}
+            />
+            <TextField
+              label="Observação"
+              name="observacao"
+              value={formData.observacao}
+              onChange={handleChange}
+              fullWidth
+              multiline
+              rows={3}
+            />
+
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
+              <Button onClick={onClose} color="secondary">
+                Cancelar
+              </Button>
+              <Button onClick={handleNextStep} variant="contained" color="primary">
+                Próximo
+              </Button>
+            </Box>
           </Box>
-        </Box>
+        )}
+
+        {step === 2 && (
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            {vistoriaInputs.map((item, index) => (
+              <Box key={index} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <FormControl fullWidth>
+                  <InputLabel id={`vistoria-label-${index}`}>Vistoria</InputLabel>
+                  <Select
+                    labelId={`vistoria-label-${index}`}
+                    value={item.vistoriaId}
+                    onChange={(e) => handleVistoriaChange(index, e.target.value)}
+                  >
+                    {availableOptions(index).map((vistoria) => (
+                      <MenuItem key={vistoria.id} value={vistoria.id}>
+                        {vistoria.nomeCliente}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+                <Button onClick={() => removeVistoria(index)} color="error">
+                  Remover
+                </Button>
+              </Box>
+            ))}
+
+            <Button onClick={addVistoria} variant="outlined" color="primary" disabled={isAddButtonDisabled()}>
+              Adicionar Vistoria
+            </Button>
+
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
+              <Button onClick={handlePreviousStep} color="secondary">
+                Voltar
+              </Button>
+              <Button onClick={handleSubmit} variant="contained" color="primary">
+                Criar
+              </Button>
+            </Box>
+          </Box>
+        )}
       </Box>
     </Modal>
   );

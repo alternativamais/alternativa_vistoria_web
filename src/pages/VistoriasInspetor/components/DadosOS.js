@@ -1,23 +1,35 @@
 /* eslint-disable react/prop-types */
 import React, { useState } from 'react';
-import { Button, Select, MenuItem, FormControl, InputLabel, Typography, Box, Grid, TextField, CircularProgress } from '@mui/material';
+import {
+  Button,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  Typography,
+  Box,
+  Grid,
+  TextField,
+  CircularProgress,
+  Checkbox,
+  FormControlLabel
+} from '@mui/material';
 
 const DadosOS = ({ formData, handleChange, vistoria }) => {
-  const [isLoading, setIsLoading] = useState(false); // Estado para controlar o carregamento
+  const [isLoading, setIsLoading] = useState(false);
 
-  // Função para capturar as coordenadas de localização
   const pegarCoordenadas = (campo) => {
     if (navigator.geolocation) {
-      setIsLoading(true); // Ativa o estado de carregamento
+      setIsLoading(true);
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const coordenadas = `${position.coords.latitude}, ${position.coords.longitude}`;
           handleChange({ target: { name: campo, value: coordenadas } });
-          setIsLoading(false); // Desativa o estado de carregamento
+          setIsLoading(false);
         },
         (error) => {
           alert('Erro ao obter a localização: ' + error.message);
-          setIsLoading(false); // Desativa o estado de carregamento mesmo em caso de erro
+          setIsLoading(false);
         }
       );
     } else {
@@ -49,13 +61,7 @@ const DadosOS = ({ formData, handleChange, vistoria }) => {
               <Typography variant="body1">Coordenadas CTO: {formData.coordenadasCto || 'Não disponível'}</Typography>
             </Grid>
             <Grid item xs={4}>
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={() => pegarCoordenadas('coordenadasCto')}
-                fullWidth
-                disabled={isLoading} // Desativa o botão enquanto carrega
-              >
+              <Button variant="contained" color="primary" onClick={() => pegarCoordenadas('coordenadasCto')} fullWidth disabled={isLoading}>
                 {isLoading ? <CircularProgress size={24} color="inherit" /> : 'Obter'}
               </Button>
             </Grid>
@@ -75,7 +81,7 @@ const DadosOS = ({ formData, handleChange, vistoria }) => {
                 color="primary"
                 onClick={() => pegarCoordenadas('coordenadasEnderecoCliente')}
                 fullWidth
-                disabled={isLoading} // Desativa o botão enquanto carrega
+                disabled={isLoading}
               >
                 {isLoading ? <CircularProgress size={24} color="inherit" /> : 'Obter'}
               </Button>
@@ -105,8 +111,13 @@ const DadosOS = ({ formData, handleChange, vistoria }) => {
       />
 
       <FormControl fullWidth>
-        <InputLabel id="status-label">Status</InputLabel>
-        <Select labelId="status-label" name="status" value={formData.status} onChange={handleChange}>
+        <InputLabel id="status-label" shrink={!!formData.status}>
+          Status
+        </InputLabel>
+        <Select labelId="status-label" name="status" value={formData.status || ''} onChange={handleChange} displayEmpty>
+          <MenuItem value="" disabled>
+            <em>Selecione o status</em>
+          </MenuItem>
           <MenuItem value="a vistoriar">A Vistoriar</MenuItem>
           <MenuItem value="pendente de agendamento">Pendente de Agendamento</MenuItem>
           <MenuItem value="correcao de instalacao">Correção de Instalação</MenuItem>
@@ -114,6 +125,18 @@ const DadosOS = ({ formData, handleChange, vistoria }) => {
           <MenuItem value="vistoriado">Vistoriado</MenuItem>
         </Select>
       </FormControl>
+
+      <Box mt={2}>
+        <FormControlLabel
+          control={
+            <Checkbox
+              checked={formData.assinaturaEletronica || false}
+              onChange={(e) => handleChange({ target: { name: 'assinaturaEletronica', value: e.target.checked } })}
+            />
+          }
+          label="Assinatura Eletrônica realizada"
+        />
+      </Box>
     </>
   );
 };

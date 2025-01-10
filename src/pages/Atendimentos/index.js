@@ -124,48 +124,43 @@ const Atendimentos = () => {
             <Table>
               <TableHead>
                 <TableRow>
-                  <TableCell>Veículo ID</TableCell>
-                  <TableCell>Vistoria ID</TableCell>
+                  <TableCell>ID</TableCell>
+                  <TableCell>Veículo</TableCell>
                   <TableCell>Status</TableCell>
-                  <TableCell>KM Saída</TableCell>
-                  <TableCell>KM Chegada</TableCell>
-                  <TableCell>Horário Saída</TableCell>
-                  <TableCell>Horário Chegada</TableCell>
                   <TableCell>Observação</TableCell>
+                  <TableCell>Vistorias</TableCell>
                   <TableCell>Ações</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {atendimentosFiltrados.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((atendimento) => (
                   <TableRow key={atendimento.id}>
-                    <TableCell>{atendimento.veiculoId}</TableCell>
-                    <TableCell>{atendimento.vistoriaId}</TableCell>
+                    <TableCell>{atendimento.id}</TableCell>
+                    <TableCell>
+                      {atendimento.veiculo ? `${atendimento.veiculo.modelo} - ${atendimento.veiculo.placa}` : 'Sem Veículo'}
+                    </TableCell>
                     <TableCell>
                       <Chip
-                        label={atendimento.status
-                          .toString()
-                          .toLowerCase()
-                          .split(' ')
-                          .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-                          .join(' ')}
+                        label={atendimento.status}
                         sx={{
                           backgroundColor:
-                            atendimento.status === 'pendente'
-                              ? '#FFEB3B'
-                              : atendimento.status === 'fechada'
-                                ? '#434343FF'
-                                : atendimento.status === 'aberta'
-                                  ? '#4CAF50'
-                                  : '#E0E0E0',
-                          color: atendimento.status === 'fechada' || atendimento.status === 'aberta' ? '#FFFFFF' : '#000000'
+                            atendimento.status === 'pendente' ? '#FFEB3B' : atendimento.status === 'fechada' ? '#434343' : '#4CAF50',
+                          color: '#fff'
                         }}
                       />
                     </TableCell>
-                    <TableCell>{atendimento.kmSaida}</TableCell>
-                    <TableCell>{atendimento.kmChegada}</TableCell>
-                    <TableCell>{new Date(atendimento.horarioSaida).toLocaleString()}</TableCell>
-                    <TableCell>{new Date(atendimento.horarioChegada).toLocaleString()}</TableCell>
                     <TableCell>{atendimento.observacao}</TableCell>
+                    <TableCell>
+                      {atendimento.vistorias?.map((vistoria) => (
+                        <Chip
+                          key={vistoria.id}
+                          label={`${vistoria?.vistoria?.nomeCliente || 'Sem nome'} (${vistoria.concluido ? 'Concluído' : 'Pendente'})`}
+                          sx={{
+                            marginRight: '5px'
+                          }}
+                        />
+                      ))}
+                    </TableCell>
                     <TableCell>
                       <IconButton onClick={() => handleEditarAtendimento(atendimento)}>
                         <EditOutlined />
@@ -185,7 +180,7 @@ const Atendimentos = () => {
             onPageChange={handleMudancaPagina}
             onRowsPerPageChange={handleMudancaLinhasPorPagina}
             labelRowsPerPage="Linhas por página:"
-            labelDisplayedRows={({ from, to, count }) => `${from}-${to} de ${count !== -1 ? count : `mais de ${to}`}`}
+            labelDisplayedRows={({ from, to, count }) => `${from}-${to} de ${count}`}
           />
         </Box>
       </MainCard>
