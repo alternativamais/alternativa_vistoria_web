@@ -35,7 +35,7 @@ const EditarVistoria = ({ open, onClose, onSuccess, vistoria }) => {
     const fetchUsuarios = async () => {
       try {
         const response = await api.get('/users');
-        setUsuarios(response.data.filter((user) => user.name === 'Caique Santos Silva' || 'Arnaldo Batista'));
+        setUsuarios(response.data.filter((user) => user.name === 'Caique Santos Silva' || user.name === 'Arnaldo Batista'));
       } catch (error) {
         console.error('Erro ao buscar usuários:', error);
         notification({ message: 'Erro ao buscar usuários!', type: 'error' });

@@ -36,7 +36,7 @@ const CriarVistoria = ({ open, onClose, onSuccess }) => {
     const fetchUsuarios = async () => {
       try {
         const response = await api.get('/users');
-        setUsuarios(response.data.filter((user) => user.name === 'Caique Santos Silva' || 'Arnaldo Batista'));
+        setUsuarios(response.data.filter((user) => user.name === 'Caique Santos Silva' || user.name === 'Arnaldo Batista'));
       } catch (error) {
         notification({ message: 'Erro ao buscar usuários!', type: 'error' });
       }
