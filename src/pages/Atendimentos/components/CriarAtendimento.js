@@ -4,8 +4,11 @@ import React, { useState, useEffect } from 'react';
 import { Box, Button, Modal, TextField, Select, MenuItem, FormControl, InputLabel } from '@mui/material';
 import { api } from 'services/api';
 import { notification } from 'components/notification/index';
+import { useAuth } from 'hooks/auth';
 
 const CriarAtendimento = ({ open, onClose, onSuccess }) => {
+  const { user } = useAuth();
+
   const initialFormData = {
     veiculoId: '',
     vistorias: [],
@@ -51,7 +54,7 @@ const CriarAtendimento = ({ open, onClose, onSuccess }) => {
 
   const fetchVistorias = async () => {
     try {
-      const response = await api.get('/vistorias/user/1');
+      const response = await api.get(`/vistorias/user/${user.id}`);
       setVistoriasDisponiveis(response.data);
     } catch (error) {
       notification({ message: 'Erro ao buscar vistorias!', type: 'error' });

@@ -1,8 +1,10 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react/prop-types */
 import React, { useState, useEffect } from 'react';
 import { Box, Button, Modal, TextField, Select, MenuItem, FormControl, InputLabel, Checkbox, FormControlLabel } from '@mui/material';
 import { api } from 'services/api';
 import { notification } from 'components/notification/index';
+import { useAuth } from 'hooks/auth';
 
 const formatDateToDatetimeLocal = (date) => {
   if (!date) return '';
@@ -11,6 +13,8 @@ const formatDateToDatetimeLocal = (date) => {
 };
 
 const EditarAtendimento = ({ open, onClose, onSuccess, atendimento }) => {
+  const { user } = useAuth();
+
   const [formData, setFormData] = useState({
     veiculoId: atendimento?.veiculoId || '',
     vistorias: atendimento?.vistorias || [],
@@ -23,11 +27,8 @@ const EditarAtendimento = ({ open, onClose, onSuccess, atendimento }) => {
   });
 
   const [veiculos, setVeiculos] = useState([]);
-
   const [vistoriasDisponiveis, setVistoriasDisponiveis] = useState([]);
-
   const [novaVistoria, setNovaVistoria] = useState('');
-
   const [step, setStep] = useState(1);
 
   useEffect(() => {
@@ -60,7 +61,7 @@ const EditarAtendimento = ({ open, onClose, onSuccess, atendimento }) => {
 
   const fetchVistorias = async () => {
     try {
-      const response = await api.get('/vistorias');
+      const response = await api.get(`/vistorias/user/${user.id}`);
       setVistoriasDisponiveis(response.data);
     } catch (error) {
       notification({ message: 'Erro ao buscar vistorias!', type: 'error' });
@@ -175,6 +176,15 @@ const EditarAtendimento = ({ open, onClose, onSuccess, atendimento }) => {
               </Select>
             </FormControl>
 
+            <FormControl fullWidth>
+              <InputLabel id="status-label">Status</InputLabel>
+              <Select labelId="status-label" name="status" value={formData.status} onChange={handleChange}>
+                <MenuItem value="pendente">Pendente</MenuItem>
+                <MenuItem value="aberta">Aberta</MenuItem>
+                <MenuItem value="fechada">Fechada</MenuItem>
+              </Select>
+            </FormControl>
+
             <TextField label="KM Saída" name="kmSaida" type="number" value={formData.kmSaida} onChange={handleChange} fullWidth />
             <TextField label="KM Chegada" name="kmChegada" type="number" value={formData.kmChegada} onChange={handleChange} fullWidth />
             <TextField
@@ -231,7 +241,7 @@ const EditarAtendimento = ({ open, onClose, onSuccess, atendimento }) => {
                       onChange={(e) => handleVistoriaStatusChange(vistoria.vistoriaId, e.target.checked)}
                     />
                   }
-                  label={`${vistoria.nomeCliente || 'Vistoria'} - ${vistoria.vistoriaId}`}
+                  label={vistoria.vistoria?.nomeCliente || vistoria.nomeCliente}
                 />
                 <Button onClick={() => removeVistoria(vistoria.vistoriaId)} color="error">
                   Remover
