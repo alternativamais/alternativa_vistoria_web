@@ -29,6 +29,7 @@ import VerDetalhesVistoria from './components/VerDetalhesVistoria';
 import { api } from 'services/api';
 import { Link } from 'react-router-dom';
 import { notification } from 'components/notification/index';
+import { generateXlsxReport } from './components/generateXlsxReport';
 
 const Vistorias = () => {
   const [page, setPage] = useState(() => {
@@ -479,18 +480,22 @@ const Vistorias = () => {
               </TableBody>
             </Table>
           </TableContainer>
-
-          <TablePagination
-            rowsPerPageOptions={[5, 10, 15, 100, 200, 500, 1000]}
-            component="div"
-            count={vistoriasOrdenadas.length}
-            rowsPerPage={rowsPerPage}
-            page={page}
-            onPageChange={handleMudancaPagina}
-            onRowsPerPageChange={handleMudancaLinhasPorPagina}
-            labelRowsPerPage="Linhas por página:"
-            labelDisplayedRows={({ from, to, count }) => `${from}-${to} de ${count !== -1 ? count : `mais de ${to}`}`}
-          />
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <Button variant="contained" color="primary" onClick={generateXlsxReport}>
+              Gerar Relatório XLSX
+            </Button>
+            <TablePagination
+              rowsPerPageOptions={[5, 10, 15, 100, 200, 500, 1000]}
+              component="div"
+              count={vistoriasOrdenadas.length}
+              rowsPerPage={rowsPerPage}
+              page={page}
+              onPageChange={handleMudancaPagina}
+              onRowsPerPageChange={handleMudancaLinhasPorPagina}
+              labelRowsPerPage="Linhas por página:"
+              labelDisplayedRows={({ from, to, count }) => `${from}-${to} de ${count !== -1 ? count : `mais de ${to}`}`}
+            />
+          </div>
         </Box>
       </MainCard>
       <CriarVistoria open={modalCriarOpen} onClose={handleFecharModalCriar} onSuccess={atualizarListaVistorias} />
