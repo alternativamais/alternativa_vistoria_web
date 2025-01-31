@@ -127,10 +127,10 @@ const EditarVistoria = ({ open, onClose, onSuccess, vistoria }) => {
 
   const handleChange = (event) => {
     const { name, value, checked } = event.target;
-    setFormData({
-      ...formData,
+    setFormData((prev) => ({
+      ...prev,
       [name]: name === 'metragemCabo' ? Number(value) : name === 'assinaturaEletronica' ? checked : value
-    });
+    }));
   };
 
   const handleNext = () => {

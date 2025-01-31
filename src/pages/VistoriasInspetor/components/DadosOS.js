@@ -24,7 +24,7 @@ const DadosOS = ({ formData, handleChange, vistoria }) => {
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const coordenadas = `${position.coords.latitude}, ${position.coords.longitude}`;
-          handleChange({ target: { name: campo, value: coordenadas } });
+          handleChange({ target: { name: campo, value: coordenadas, checked: false } });
           setIsLoading(false);
         },
         (error) => {
@@ -93,7 +93,7 @@ const DadosOS = ({ formData, handleChange, vistoria }) => {
       <TextField
         label="Resumo da Vistoria"
         name="resumoVistoria"
-        value={formData.resumoVistoria}
+        value={formData.resumoVistoria || ''}
         onChange={handleChange}
         fullWidth
         multiline
@@ -128,12 +128,7 @@ const DadosOS = ({ formData, handleChange, vistoria }) => {
 
       <Box mt={2}>
         <FormControlLabel
-          control={
-            <Checkbox
-              checked={formData.assinaturaEletronica || false}
-              onChange={(e) => handleChange({ target: { name: 'assinaturaEletronica', value: e.target.checked } })}
-            />
-          }
+          control={<Checkbox name="assinaturaEletronica" checked={formData.assinaturaEletronica || false} onChange={handleChange} />}
           label="Assinatura Eletrônica realizada"
         />
       </Box>
