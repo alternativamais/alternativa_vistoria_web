@@ -310,7 +310,7 @@ const Vistorias = () => {
                           <MenuItem value="cancelado">Cancelado</MenuItem>
                           <MenuItem value="pendente de agendamento">Pendente de Agendamento</MenuItem>
                           <MenuItem value="correcao de instalacao">Correcao de Instalacao</MenuItem>
-                          <MenuItem value="vistoriado">Vistoriado</MenuItem>
+                          <MenuItem value="vistoriado ok">Vistoriado OK</MenuItem>
                         </Select>
                       </FormControl>
                       <TableSortLabel
@@ -442,7 +442,7 @@ const Vistorias = () => {
                                   ? '#FFEB3B'
                                   : vistoria.status === 'correcao de instalacao'
                                     ? '#F44336'
-                                    : vistoria.status === 'vistoriado'
+                                    : vistoria.status === 'vistoriado ok'
                                       ? '#4CAF50'
                                       : '#E0E0E0',
                           color: vistoria.status === 'pendente de agendamento' ? '#000000FF' : 'white',

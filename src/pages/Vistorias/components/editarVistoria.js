@@ -192,7 +192,7 @@ const EditarVistoria = ({ open, onClose, onSuccess, vistoria }) => {
               <MenuItem value="pendente de agendamento">Pendente de Agendamento</MenuItem>
               <MenuItem value="correcao de instalacao">Correção de Instalação</MenuItem>
               <MenuItem value="cancelado">Cancelado</MenuItem>
-              <MenuItem value="vistoriado">Vistoriado</MenuItem>
+              <MenuItem value="vistoriado ok">Vistoriado OK</MenuItem>
             </Select>
           </FormControl>
           <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>

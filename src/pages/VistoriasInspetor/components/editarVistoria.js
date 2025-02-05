@@ -80,7 +80,7 @@ const EditarVistoria = ({ open, onClose, onSuccess, vistoria }) => {
     try {
       const updatedFormData = { ...formData };
 
-      if (updatedFormData.status === 'vistoriado') {
+      if (updatedFormData.status === 'vistoriado ok') {
         updatedFormData.dataHoraConclusao = new Date().toISOString();
       }
 
