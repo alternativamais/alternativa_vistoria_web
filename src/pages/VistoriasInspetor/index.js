@@ -1,22 +1,59 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, TextField, IconButton, Card, Rating, Stack } from '@mui/material';
+import {
+  Box,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TablePagination,
+  TextField,
+  IconButton,
+  Tooltip,
+  TableSortLabel,
+  Typography
+} from '@mui/material';
 import { EditOutlined } from '@ant-design/icons';
 import MainCard from 'components/sistema/MainCard';
 import EditarVistoria from './components/editarVistoria';
 import { api } from 'services/api';
-import { useAuth } from 'hooks/auth';
 import { notification } from 'components/notification/index';
+import { useAuth } from 'hooks/auth';
 
 const VistoriasInspetor = () => {
+  const { user } = useAuth();
+
+  const [page, setPage] = useState(() => {
+    const paginaSalva = localStorage.getItem('paginaVistoriasInsp');
+    return paginaSalva ? parseInt(paginaSalva, 10) : 0;
+  });
+
+  const [rowsPerPage, setRowsPerPage] = useState(() => {
+    const linhasSalvas = localStorage.getItem('linhasPorPaginaVistoriasInsp');
+    return linhasSalvas ? parseInt(linhasSalvas, 10) : 5;
+  });
+
+  const [pesquisa, setPesquisa] = useState(() => {
+    const pesquisaSalva = localStorage.getItem('pesquisaVistoriasInsp');
+    return pesquisaSalva ? pesquisaSalva : '';
+  });
+
+  const [sortColumn, setSortColumn] = useState(() => {
+    const colunaSalva = localStorage.getItem('sortColumnVistoriasInsp');
+    return colunaSalva ? colunaSalva : null;
+  });
+
+  const [sortDirection, setSortDirection] = useState(() => {
+    const direcaoSalva = localStorage.getItem('sortDirectionVistoriasInsp');
+    return direcaoSalva ? direcaoSalva : 'asc';
+  });
+
   const [vistorias, setVistorias] = useState([]);
   const [vistoriasFiltradas, setVistoriasFiltradas] = useState([]);
-  const [gruposVistorias, setGruposVistorias] = useState([]);
-  const [pesquisa, setPesquisa] = useState('');
   const [modalEditarOpen, setModalEditarOpen] = useState(false);
   const [vistoriaSelecionada, setVistoriaSelecionada] = useState(null);
-
-  const { user } = useAuth();
 
   useEffect(() => {
     buscarVistorias();
@@ -27,9 +64,28 @@ const VistoriasInspetor = () => {
   }, [pesquisa, vistorias]);
 
   useEffect(() => {
-    const grupos = agruparVistoriasPorData(vistoriasFiltradas);
-    setGruposVistorias(grupos);
-  }, [vistoriasFiltradas]);
+    localStorage.setItem('paginaVistoriasInsp', page.toString());
+  }, [page]);
+
+  useEffect(() => {
+    localStorage.setItem('linhasPorPaginaVistoriasInsp', rowsPerPage.toString());
+  }, [rowsPerPage]);
+
+  useEffect(() => {
+    localStorage.setItem('pesquisaVistoriasInsp', pesquisa);
+  }, [pesquisa]);
+
+  useEffect(() => {
+    if (sortColumn !== null) {
+      localStorage.setItem('sortColumnVistoriasInsp', sortColumn);
+    }
+  }, [sortColumn]);
+
+  useEffect(() => {
+    if (sortDirection !== null) {
+      localStorage.setItem('sortDirectionVistoriasInsp', sortDirection);
+    }
+  }, [sortDirection]);
 
   const buscarVistorias = async () => {
     try {
@@ -42,39 +98,29 @@ const VistoriasInspetor = () => {
   };
 
   const filtrarVistorias = () => {
-    const filtradas = vistorias.filter((vistoria) => {
-      return vistoria.nomeCliente.toLowerCase().includes(pesquisa.toLowerCase());
-    });
+    let filtradas = [...vistorias];
+
+    if (pesquisa.trim() !== '') {
+      filtradas = filtradas.filter((vistoria) => vistoria.nomeCliente.toLowerCase().includes(pesquisa.toLowerCase()));
+    }
+
     setVistoriasFiltradas(filtradas);
   };
 
-  const agruparVistoriasPorData = (lista) => {
-    const agrupadas = lista.reduce((acc, vistoria) => {
-      const data = new Date(vistoria.dataAgendamento);
+  const formatarDataHoraParaBrasil = (dataISO) => {
+    if (!dataISO) return 'Não Concluída';
+    const data = new Date(dataISO);
+    return data.toLocaleString('pt-BR');
+  };
 
-      const dataString = data.toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' });
+  const handleMudancaPagina = (event, newPage) => {
+    setPage(newPage);
+  };
 
-      if (!acc[dataString]) {
-        acc[dataString] = [];
-      }
-      acc[dataString].push(vistoria);
-      return acc;
-    }, {});
-
-    const gruposArray = Object.keys(agrupadas).map((data) => ({
-      data,
-      vistorias: agrupadas[data]
-    }));
-
-    gruposArray.sort((a, b) => {
-      const [diaA, mesA, anoA] = a.data.split('/');
-      const [diaB, mesB, anoB] = b.data.split('/');
-      const dataA = new Date(anoA, mesA - 1, diaA);
-      const dataB = new Date(anoB, mesB - 1, diaB);
-      return dataB - dataA;
-    });
-
-    return gruposArray;
+  const handleMudancaLinhasPorPagina = (event) => {
+    const novasLinhas = parseInt(event.target.value, 10);
+    setRowsPerPage(novasLinhas);
+    setPage(0);
   };
 
   const handleEditarVistoria = (vistoria) => {
@@ -93,12 +139,64 @@ const VistoriasInspetor = () => {
 
   const handlePesquisaChange = (event) => {
     setPesquisa(event.target.value);
+    setPage(0);
   };
+
+  const handleSort = (column) => {
+    if (sortColumn === column) {
+      setSortDirection((prevDirection) => (prevDirection === 'asc' ? 'desc' : 'asc'));
+    } else {
+      setSortColumn(column);
+      setSortDirection('asc');
+    }
+  };
+
+  const ordenarVistorias = (a, b) => {
+    if (!sortColumn) return 0;
+
+    let valorA = '';
+    let valorB = '';
+
+    switch (sortColumn) {
+      case 'nomeCliente':
+        valorA = a.nomeCliente.toLowerCase();
+        valorB = b.nomeCliente.toLowerCase();
+        break;
+      case 'tipoVistoria':
+        valorA = a.tipoVistoria.toLowerCase();
+        valorB = b.tipoVistoria.toLowerCase();
+        break;
+      case 'dataAgendamento':
+        valorA = a.dataAgendamento ? new Date(a.dataAgendamento).getTime() : 0;
+        valorB = b.dataAgendamento ? new Date(b.dataAgendamento).getTime() : 0;
+        break;
+      default:
+        return 0;
+    }
+
+    if (valorA < valorB) {
+      return sortDirection === 'asc' ? -1 : 1;
+    } else if (valorA > valorB) {
+      return sortDirection === 'asc' ? 1 : -1;
+    } else {
+      return 0;
+    }
+  };
+
+  const vistoriasOrdenadas = [...vistoriasFiltradas].sort(ordenarVistorias);
 
   return (
     <Box sx={{ padding: '20px' }}>
-      {/* Campo de pesquisa */}
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '10px' }}>
+      {/* Barra de pesquisa */}
+      <Box
+        sx={{
+          display: 'flex',
+          gap: '10px',
+          flexDirection: { xs: 'column', sm: 'row' },
+          justifyContent: 'space-between',
+          paddingBottom: '10px'
+        }}
+      >
         <TextField
           label="Pesquisar por cliente"
           variant="outlined"
@@ -109,65 +207,109 @@ const VistoriasInspetor = () => {
       </Box>
 
       <MainCard title="Vistorias">
-        {/* Renderização dos grupos de vistorias por data */}
-        {gruposVistorias.map((grupo, index) => (
-          <Box key={index} sx={{ marginBottom: '20px' }}>
-            {/* Título do grupo com a data */}
-            <Typography variant="h5" sx={{ fontWeight: 'bold', marginBottom: '10px' }}>
-              {grupo.data}
-            </Typography>
+        <Box
+          sx={{
+            overflowX: 'auto',
+            '&::-webkit-scrollbar': { width: '0.4em' },
+            '&::-webkit-scrollbar-thumb': {
+              backgroundColor: 'rgba(0,0,0,.1)',
+              borderRadius: '4px'
+            }
+          }}
+        >
+          <TableContainer>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  {/* Cliente */}
+                  <TableCell sortDirection={sortColumn === 'nomeCliente' ? sortDirection : false}>
+                    <TableSortLabel
+                      active={sortColumn === 'nomeCliente'}
+                      direction={sortColumn === 'nomeCliente' ? sortDirection : 'asc'}
+                      onClick={() => handleSort('nomeCliente')}
+                    >
+                      Cliente
+                    </TableSortLabel>
+                  </TableCell>
 
-            {/* Lista de vistorias daquele dia */}
-            <Box
-              sx={{
-                display: 'flex',
-                flexWrap: 'wrap',
-                gap: '20px',
-                justifyContent: 'center'
-              }}
-            >
-              {grupo.vistorias.map((vistoria) => (
-                <Card
-                  key={vistoria.id}
-                  sx={{
-                    width: '100%',
-                    maxWidth: '400px',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    padding: '15px',
-                    borderRadius: '10px',
-                    boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)',
-                    backgroundColor: '#fff'
-                  }}
-                >
-                  <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ marginBottom: '10px' }}>
-                    <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-                      {vistoria.nomeCliente}
-                    </Typography>
-                    <Rating value={vistoria.nota || 5} readOnly sx={{ fontSize: '1.2rem' }} />
-                  </Stack>
-                  <Box sx={{ marginBottom: '15px' }}>
-                    <Typography variant="body2" color="text.secondary" sx={{ marginBottom: '5px' }}>
-                      Tipo: {vistoria.tipoVistoria}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary" sx={{ marginBottom: '5px' }}>
-                      Endereço: {vistoria.enderecoCliente}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary" sx={{ marginBottom: '5px' }}>
-                      Status: {vistoria.status}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary" display="flex" justifyContent="space-between" alignItems="center">
-                      <div>Agendamento: {new Date(vistoria.dataAgendamento).toLocaleString('pt-BR')}</div>
-                      <IconButton onClick={() => handleEditarVistoria(vistoria)}>
-                        <EditOutlined />
-                      </IconButton>
-                    </Typography>
-                  </Box>
-                </Card>
-              ))}
-            </Box>
-          </Box>
-        ))}
+                  {/* Tipo de Vistoria */}
+                  <TableCell sortDirection={sortColumn === 'tipoVistoria' ? sortDirection : false}>
+                    <TableSortLabel
+                      active={sortColumn === 'tipoVistoria'}
+                      direction={sortColumn === 'tipoVistoria' ? sortDirection : 'asc'}
+                      onClick={() => handleSort('tipoVistoria')}
+                    >
+                      Tipo de Vistoria
+                    </TableSortLabel>
+                  </TableCell>
+
+                  {/* Exibimos a coluna "Status" sem qualquer verificação extra */}
+                  <TableCell>Status</TableCell>
+
+                  {/* Data de Agendamento */}
+                  <TableCell sortDirection={sortColumn === 'dataAgendamento' ? sortDirection : false}>
+                    <TableSortLabel
+                      active={sortColumn === 'dataAgendamento'}
+                      direction={sortColumn === 'dataAgendamento' ? sortDirection : 'asc'}
+                      onClick={() => handleSort('dataAgendamento')}
+                    >
+                      Data de Agendamento
+                    </TableSortLabel>
+                  </TableCell>
+
+                  {/* Ações */}
+                  <TableCell>Ações</TableCell>
+                </TableRow>
+              </TableHead>
+
+              <TableBody>
+                {vistoriasOrdenadas.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((vistoria) => (
+                  <TableRow key={vistoria.id}>
+                    {/* Cliente */}
+                    <TableCell>
+                      <Typography>{vistoria.nomeCliente}</Typography>
+                    </TableCell>
+
+                    {/* Tipo de Vistoria */}
+                    <TableCell>{vistoria.tipoVistoria}</TableCell>
+
+                    {/* Status (será sempre "a vistoriar" vindo do backend) */}
+                    <TableCell>
+                      <Typography>{vistoria.status}</Typography>
+                    </TableCell>
+
+                    {/* Data de Agendamento */}
+                    <TableCell>
+                      {vistoria.dataAgendamento ? formatarDataHoraParaBrasil(vistoria.dataAgendamento) : 'Pendente de Agendamento'}
+                    </TableCell>
+
+                    {/* Ações */}
+                    <TableCell>
+                      <Tooltip title="Editar">
+                        <IconButton onClick={() => handleEditarVistoria(vistoria)}>
+                          <EditOutlined />
+                        </IconButton>
+                      </Tooltip>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+
+          {/* Paginação */}
+          <TablePagination
+            rowsPerPageOptions={[5, 10, 15, 25, 50, 100]}
+            component="div"
+            count={vistoriasOrdenadas.length}
+            rowsPerPage={rowsPerPage}
+            page={page}
+            onPageChange={handleMudancaPagina}
+            onRowsPerPageChange={handleMudancaLinhasPorPagina}
+            labelRowsPerPage="Linhas por página:"
+            labelDisplayedRows={({ from, to, count }) => `${from}-${to} de ${count !== -1 ? count : `mais de ${to}`}`}
+          />
+        </Box>
       </MainCard>
 
       {/* Modal de edição de vistoria */}
