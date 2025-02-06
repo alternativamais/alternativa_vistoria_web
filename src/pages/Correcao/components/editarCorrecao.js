@@ -4,14 +4,14 @@ import { Box, Button, Modal, TextField, Select, MenuItem, FormControl, InputLabe
 import { api } from 'services/api';
 import { notification } from 'components/notification/index';
 
-const EditarVistoria = ({ open, onClose, onSuccess, vistoria }) => {
+const EditarCorrecao = ({ open, onClose, onSuccess, vistoria }) => {
   const [formData, setFormData] = useState({
     tipoVistoria: vistoria?.tipoVistoria || 'interna',
     nomeCliente: vistoria?.nomeCliente || null,
     enderecoCliente: vistoria?.enderecoCliente || null,
     idTecnicoDesignado: vistoria?.idTecnicoDesignado || null,
     status: vistoria?.status || 'aberta',
-    dataAgendamento: vistoria?.dataAgendamento || null
+    dataAgendamentoCorrecao: vistoria?.dataAgendamentoCorrecao || null
   });
 
   const [usuarios, setUsuarios] = useState([]);
@@ -24,7 +24,7 @@ const EditarVistoria = ({ open, onClose, onSuccess, vistoria }) => {
         enderecoCliente: vistoria.enderecoCliente || null,
         idTecnicoDesignado: vistoria.idTecnicoDesignado || null,
         status: vistoria.status || 'aberta',
-        dataAgendamento: vistoria.dataAgendamento || null
+        dataAgendamentoCorrecao: vistoria.dataAgendamentoCorrecao || null
       });
     }
   }, [vistoria]);
@@ -108,9 +108,9 @@ const EditarVistoria = ({ open, onClose, onSuccess, vistoria }) => {
 
           <TextField
             label="Data de Agendamento"
-            name="dataAgendamento"
+            name="dataAgendamentoCorrecao"
             type="datetime-local"
-            value={formData.dataAgendamento}
+            value={formData.dataAgendamentoCorrecao}
             onChange={handleChange}
             fullWidth
             InputLabelProps={{
@@ -137,10 +137,9 @@ const EditarVistoria = ({ open, onClose, onSuccess, vistoria }) => {
           <FormControl fullWidth>
             <InputLabel id="status-label">Status</InputLabel>
             <Select labelId="status-label" name="status" value={formData.status} onChange={handleChange}>
-              <MenuItem value="a vistoriar">A Vistoriar</MenuItem>
-              <MenuItem value="pendente de agendamento">Pendente de Agendamento</MenuItem>
-              <MenuItem value="correcao pendente de agendamento">Correção de Instalação</MenuItem>
-              <MenuItem value="cancelado">Cancelado</MenuItem>
+              <MenuItem value="correcao pendente de agendamento">Correção Pendente de Agendamento</MenuItem>
+              <MenuItem value="correcao impedida">Correção Impedida</MenuItem>
+              <MenuItem value="correcao agendada">Correção Agendada</MenuItem>
               <MenuItem value="vistoriado ok">Vistoriado OK</MenuItem>
             </Select>
           </FormControl>
@@ -159,4 +158,4 @@ const EditarVistoria = ({ open, onClose, onSuccess, vistoria }) => {
   );
 };
 
-export default EditarVistoria;
+export default EditarCorrecao;

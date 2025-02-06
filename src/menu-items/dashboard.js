@@ -1,4 +1,4 @@
-import { DashboardOutlined, UserOutlined, EyeOutlined, CheckSquareOutlined, CarOutlined } from '@ant-design/icons';
+import { DashboardOutlined, UserOutlined, EyeOutlined, CheckSquareOutlined, CarOutlined, UndoOutlined } from '@ant-design/icons';
 
 const dashboard = {
   id: 'group-dashboard',
@@ -27,6 +27,14 @@ const dashboard = {
       type: 'item',
       url: '/admin/vistorias',
       icon: EyeOutlined,
+      breadcrumbs: false
+    },
+    {
+      id: 'correcao',
+      title: 'Correção de Vistorias',
+      type: 'item',
+      url: '/admin/correcao',
+      icon: UndoOutlined,
       breadcrumbs: false
     },
     {

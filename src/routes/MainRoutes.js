@@ -10,6 +10,7 @@ import VistoriasInspetor from 'pages/VistoriasInspetor/index';
 import Galeria from 'pages/Galeria/index';
 import Veiculos from 'pages/Veiculos/index';
 import Atendimentos from 'pages/Atendimentos/index';
+import Correcao from 'pages/Correcao/index';
 
 const MainRoutes = [
   {
@@ -30,6 +31,10 @@ const MainRoutes = [
       {
         path: 'admin/vistorias',
         element: <Vistorias />
+      },
+      {
+        path: 'admin/correcao',
+        element: <Correcao />
       },
       {
         path: 'admin/checklist',

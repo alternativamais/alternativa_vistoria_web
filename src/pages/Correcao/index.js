@@ -23,15 +23,14 @@ import {
 } from '@mui/material';
 import { EditOutlined, PictureOutlined, EyeOutlined } from '@ant-design/icons';
 import MainCard from 'components/sistema/MainCard';
-import CriarVistoria from './components/criarVistoria';
-import EditarVistoria from './components/editarVistoria';
-import VerDetalhesVistoria from './components/VerDetalhesVistoria';
+import EditarCorrecao from './components/editarCorrecao';
+import VerDetalhesVistoria from 'pages/Vistorias/components/VerDetalhesVistoria';
 import { api } from 'services/api';
 import { Link } from 'react-router-dom';
 import { notification } from 'components/notification/index';
 import { generateXlsxReport } from './components/generateXlsxReport';
 
-const Vistorias = () => {
+const Correcao = () => {
   const [page, setPage] = useState(() => {
     const paginaSalva = localStorage.getItem('paginaVistorias');
     return paginaSalva ? parseInt(paginaSalva, 10) : 0;
@@ -47,6 +46,7 @@ const Vistorias = () => {
     return pesquisaSalva ? pesquisaSalva : '';
   });
 
+  // Filtro de status
   const [statusFiltro, setStatusFiltro] = useState(() => {
     const statusSalvo = localStorage.getItem('statusFiltroVistorias');
     return statusSalvo ? statusSalvo : '';
@@ -65,7 +65,6 @@ const Vistorias = () => {
   const [vistorias, setVistorias] = useState([]);
   const [vistoriasFiltradas, setVistoriasFiltradas] = useState([]);
 
-  const [modalCriarOpen, setModalCriarOpen] = useState(false);
   const [modalEditarOpen, setModalEditarOpen] = useState(false);
   const [vistoriaSelecionada, setVistoriaSelecionada] = useState(null);
 
@@ -111,12 +110,15 @@ const Vistorias = () => {
   const buscarVistorias = async () => {
     try {
       const response = await api.get('/vistorias');
-      const vistoriasFiltradas = response.data.filter((item) => {
-        const s = item.status?.toLowerCase();
-        return s === 'a vistoriar' || s === 'cancelado' || s === 'pendente de agendamento' || s === 'vistoriado ok';
+
+      // Filtra de antemão apenas as vistorias com os 3 status desejados:
+      const vistoriasAjustadas = response.data.filter((vistoria) => {
+        const statusLower = vistoria.status?.toLowerCase() || '';
+        return ['correcao pendente de agendamento', 'correcao impedida', 'correcao agendada'].includes(statusLower);
       });
-      setVistorias(vistoriasFiltradas);
-      setVistoriasFiltradas(vistoriasFiltradas);
+
+      setVistorias(vistoriasAjustadas);
+      setVistoriasFiltradas(vistoriasAjustadas);
     } catch (error) {
       notification({ message: 'Erro ao buscar vistorias!', type: 'error' });
     }
@@ -125,10 +127,12 @@ const Vistorias = () => {
   const filtrarVistorias = () => {
     let filtradas = [...vistorias];
 
+    // Filtro por pesquisa (nome do cliente)
     if (pesquisa.trim() !== '') {
-      filtradas = filtradas.filter((vistoria) => vistoria.nomeCliente.toLowerCase().includes(pesquisa.toLowerCase()));
+      filtradas = filtradas.filter((vistoria) => vistoria.nomeCliente?.toLowerCase().includes(pesquisa.toLowerCase()));
     }
 
+    // Filtro adicional por status (apenas entre os 3 já permitidos)
     if (statusFiltro.trim() !== '') {
       filtradas = filtradas.filter((vistoria) => vistoria.status.toLowerCase() === statusFiltro.toLowerCase());
     }
@@ -153,14 +157,6 @@ const Vistorias = () => {
     const novasLinhas = parseInt(event.target.value, 10);
     setRowsPerPage(novasLinhas);
     setPage(0);
-  };
-
-  const handleNovaVistoria = () => {
-    setModalCriarOpen(true);
-  };
-
-  const handleFecharModalCriar = () => {
-    setModalCriarOpen(false);
   };
 
   const handleEditarVistoria = (vistoria) => {
@@ -214,24 +210,24 @@ const Vistorias = () => {
 
     switch (sortColumn) {
       case 'nomeCliente':
-        valorA = a.nomeCliente.toLowerCase();
-        valorB = b.nomeCliente.toLowerCase();
+        valorA = a.nomeCliente?.toLowerCase() || '';
+        valorB = b.nomeCliente?.toLowerCase() || '';
         break;
       case 'tipoVistoria':
-        valorA = a.tipoVistoria.toLowerCase();
-        valorB = b.tipoVistoria.toLowerCase();
+        valorA = a.tipoVistoria?.toLowerCase() || '';
+        valorB = b.tipoVistoria?.toLowerCase() || '';
         break;
       case 'status':
-        valorA = a.status.toLowerCase();
-        valorB = b.status.toLowerCase();
+        valorA = a.status?.toLowerCase() || '';
+        valorB = b.status?.toLowerCase() || '';
         break;
-      case 'dataAgendamento':
-        valorA = a.dataAgendamento ? new Date(a.dataAgendamento).getTime() : 0;
-        valorB = b.dataAgendamento ? new Date(b.dataAgendamento).getTime() : 0;
+      case 'dataAgendamentoCorrecao':
+        valorA = a.dataAgendamentoCorrecao ? new Date(a.dataAgendamentoCorrecao).getTime() : 0;
+        valorB = b.dataAgendamentoCorrecao ? new Date(b.dataAgendamentoCorrecao).getTime() : 0;
         break;
-      case 'dataHoraConclusao':
-        valorA = a.dataHoraConclusao ? new Date(a.dataHoraConclusao).getTime() : 0;
-        valorB = b.dataHoraConclusao ? new Date(b.dataHoraConclusao).getTime() : 0;
+      case 'dataConclusaoCorrecao':
+        valorA = a.dataConclusaoCorrecao ? new Date(a.dataConclusaoCorrecao).getTime() : 0;
+        valorB = b.dataConclusaoCorrecao ? new Date(b.dataConclusaoCorrecao).getTime() : 0;
         break;
       default:
         return 0;
@@ -250,6 +246,7 @@ const Vistorias = () => {
 
   return (
     <Box sx={{ padding: '20px' }}>
+      {/* CAMPO DE PESQUISA */}
       <Box
         sx={{
           display: 'flex',
@@ -266,9 +263,6 @@ const Vistorias = () => {
           onChange={handlePesquisaChange}
           sx={{ width: '300px' }}
         />
-        <Button onClick={handleNovaVistoria} variant="contained" sx={{ width: { xs: '100%', sm: 'auto' } }}>
-          Nova Vistoria
-        </Button>
       </Box>
 
       <MainCard title="Vistorias">
@@ -304,21 +298,16 @@ const Vistorias = () => {
                       Tipo de Vistoria
                     </TableSortLabel>
                   </TableCell>
+                  {/* Filtro de Status contendo APENAS os 3 valores de correcao */}
                   <TableCell sortDirection={sortColumn === 'status' ? sortDirection : false}>
                     <div style={{ display: 'flex', alignItems: 'center' }}>
-                      <FormControl sx={{ width: 180, marginRight: 1 }}>
+                      <FormControl sx={{ width: 220 }}>
                         <InputLabel>Status</InputLabel>
-                        {/*
-                          Aqui deixamos somente as 4 opções desejadas.
-                          O valor "" mostra TODAS, porém todas já foram filtradas
-                          no backend para incluir só estas 4.
-                        */}
                         <Select value={statusFiltro} onChange={handleStatusChange} label="Status">
                           <MenuItem value="">Todos</MenuItem>
-                          <MenuItem value="a vistoriar">A Vistoriar</MenuItem>
-                          <MenuItem value="cancelado">Cancelado</MenuItem>
-                          <MenuItem value="pendente de agendamento">Pendente de Agendamento</MenuItem>
-                          <MenuItem value="vistoriado ok">Vistoriado OK</MenuItem>
+                          <MenuItem value="correcao pendente de agendamento">Correcao Pendente de Agendamento</MenuItem>
+                          <MenuItem value="correcao impedida">Correcao Impedida</MenuItem>
+                          <MenuItem value="correcao agendada">Correcao Agendada</MenuItem>
                         </Select>
                       </FormControl>
                       <TableSortLabel
@@ -328,22 +317,23 @@ const Vistorias = () => {
                       />
                     </div>
                   </TableCell>
-                  <TableCell sortDirection={sortColumn === 'dataAgendamento' ? sortDirection : false}>
+                  {/* Colunas NOVAS: dataAgendamentoCorrecao e dataConclusaoCorrecao */}
+                  <TableCell sortDirection={sortColumn === 'dataAgendamentoCorrecao' ? sortDirection : false}>
                     <TableSortLabel
-                      active={sortColumn === 'dataAgendamento'}
-                      direction={sortColumn === 'dataAgendamento' ? sortDirection : 'asc'}
-                      onClick={() => handleSort('dataAgendamento')}
+                      active={sortColumn === 'dataAgendamentoCorrecao'}
+                      direction={sortColumn === 'dataAgendamentoCorrecao' ? sortDirection : 'asc'}
+                      onClick={() => handleSort('dataAgendamentoCorrecao')}
                     >
-                      Data de Agendamento
+                      Agendamento Correção
                     </TableSortLabel>
                   </TableCell>
-                  <TableCell sortDirection={sortColumn === 'dataHoraConclusao' ? sortDirection : false}>
+                  <TableCell sortDirection={sortColumn === 'dataConclusaoCorrecao' ? sortDirection : false}>
                     <TableSortLabel
-                      active={sortColumn === 'dataHoraConclusao'}
-                      direction={sortColumn === 'dataHoraConclusao' ? sortDirection : 'asc'}
-                      onClick={() => handleSort('dataHoraConclusao')}
+                      active={sortColumn === 'dataConclusaoCorrecao'}
+                      direction={sortColumn === 'dataConclusaoCorrecao' ? sortDirection : 'asc'}
+                      onClick={() => handleSort('dataConclusaoCorrecao')}
                     >
-                      Data de Conclusão
+                      Conclusão Correção
                     </TableSortLabel>
                   </TableCell>
                   <TableCell>Ações</TableCell>
@@ -367,7 +357,12 @@ const Vistorias = () => {
                             href={`https://alternativaip.sgp.net.br/admin/cliente/${vistoria.idSgp}/contratos/`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            style={{ textDecoration: 'none', display: 'flex', justifyContent: 'center', alignItems: 'center' }}
+                            style={{
+                              textDecoration: 'none',
+                              display: 'flex',
+                              justifyContent: 'center',
+                              alignItems: 'center'
+                            }}
                           >
                             <Chip
                               sx={{
@@ -377,6 +372,7 @@ const Vistorias = () => {
                                 backgroundColor: '#4B545C'
                               }}
                               icon={
+                                /* icone SGP */
                                 <svg
                                   xmlns="http://www.w3.org/2000/svg"
                                   xmlSpace="preserve"
@@ -442,25 +438,27 @@ const Vistorias = () => {
                           .join(' ')}
                         sx={{
                           backgroundColor:
-                            vistoria.status === 'a vistoriar'
-                              ? '#2196F3'
-                              : vistoria.status === 'cancelado'
-                                ? '#9E9E9E'
-                                : vistoria.status === 'pendente de agendamento'
-                                  ? '#FFEB3B'
-                                  : vistoria.status === 'vistoriado ok'
-                                    ? '#4CAF50'
-                                    : '#E0E0E0',
-                          color: vistoria.status === 'pendente de agendamento' ? '#000000FF' : 'white',
+                            vistoria.status === 'correcao pendente de agendamento'
+                              ? '#FFEB3B' // Amarelo
+                              : vistoria.status === 'correcao impedida'
+                                ? '#F44336' // Vermelho
+                                : vistoria.status === 'correcao agendada'
+                                  ? '#2196F3' // Azul
+                                  : '#E0E0E0', // Default (caso apareça algo fora do esperado)
+                          color: vistoria.status === 'correcao pendente de agendamento' ? '#000000' : '#FFFFFF',
                           fontWeight: 'bold'
                         }}
                       />
                     </TableCell>
+                    {/* NOVA COLUNA: Agendamento Correção */}
                     <TableCell>
-                      {vistoria.dataAgendamento === null ? 'Pendente de Agendamento' : formatarDataHoraParaBrasil(vistoria.dataAgendamento)}
+                      {vistoria.dataAgendamentoCorrecao
+                        ? formatarDataHoraParaBrasil(vistoria.dataAgendamentoCorrecao)
+                        : 'Pendente de Agendamento'}
                     </TableCell>
+                    {/* NOVA COLUNA: Conclusão Correção */}
                     <TableCell>
-                      {vistoria.dataHoraConclusao === null ? 'Não Concluída' : formatarDataHoraParaBrasil(vistoria.dataHoraConclusao)}
+                      {vistoria.dataConclusaoCorrecao ? formatarDataHoraParaBrasil(vistoria.dataConclusaoCorrecao) : 'Não Concluída'}
                     </TableCell>
                     <TableCell>
                       <Tooltip title="Editar">
@@ -504,16 +502,19 @@ const Vistorias = () => {
           </div>
         </Box>
       </MainCard>
-      <CriarVistoria open={modalCriarOpen} onClose={handleFecharModalCriar} onSuccess={atualizarListaVistorias} />
-      <EditarVistoria
+
+      {/* MODAL DE EDIÇÃO */}
+      <EditarCorrecao
         open={modalEditarOpen}
         onClose={handleFecharModalEditar}
         onSuccess={atualizarListaVistorias}
         vistoria={vistoriaSelecionada}
       />
+
+      {/* MODAL DE DETALHES */}
       <VerDetalhesVistoria open={modalDetalhesOpen} onClose={handleFecharModalDetalhes} vistoria={vistoriaDetalhes} />
     </Box>
   );
 };
 
-export default Vistorias;
+export default Correcao;
