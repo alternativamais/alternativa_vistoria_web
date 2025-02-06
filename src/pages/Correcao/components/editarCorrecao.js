@@ -11,7 +11,8 @@ const EditarCorrecao = ({ open, onClose, onSuccess, vistoria }) => {
     enderecoCliente: vistoria?.enderecoCliente || null,
     idTecnicoDesignado: vistoria?.idTecnicoDesignado || null,
     status: vistoria?.status || 'aberta',
-    dataAgendamentoCorrecao: vistoria?.dataAgendamentoCorrecao || null
+    dataAgendamentoCorrecao: vistoria?.dataAgendamentoCorrecao || null,
+    dataConclusaoCorrecao: vistoria?.dataConclusaoCorrecao || null
   });
 
   const [usuarios, setUsuarios] = useState([]);
@@ -24,7 +25,8 @@ const EditarCorrecao = ({ open, onClose, onSuccess, vistoria }) => {
         enderecoCliente: vistoria.enderecoCliente || null,
         idTecnicoDesignado: vistoria.idTecnicoDesignado || null,
         status: vistoria.status || 'aberta',
-        dataAgendamentoCorrecao: vistoria.dataAgendamentoCorrecao || null
+        dataAgendamentoCorrecao: vistoria.dataAgendamentoCorrecao || null,
+        dataConclusaoCorrecao: vistoria.dataConclusaoCorrecao || null
       });
     }
   }, [vistoria]);
@@ -49,7 +51,20 @@ const EditarCorrecao = ({ open, onClose, onSuccess, vistoria }) => {
 
   const handleChange = (event) => {
     const { name, value } = event.target;
-    setFormData({ ...formData, [name]: value });
+    let newState = { ...formData, [name]: value };
+
+    if (name === 'status') {
+      if (value === 'vistoriado ok') {
+        const now = new Date();
+        const localDateTime = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+
+        newState.dataConclusaoCorrecao = localDateTime;
+      } else {
+        newState.dataConclusaoCorrecao = null;
+      }
+    }
+
+    setFormData(newState);
   };
 
   const handleSubmit = async () => {
@@ -65,7 +80,10 @@ const EditarCorrecao = ({ open, onClose, onSuccess, vistoria }) => {
       notification({ message: 'Vistoria editada com sucesso!', type: 'success' });
     } catch (error) {
       console.error('Erro ao editar vistoria:', error);
-      notification({ message: 'Erro ao editar vistoria. Verifique os dados e tente novamente!', type: 'error' });
+      notification({
+        message: 'Erro ao editar vistoria. Verifique os dados e tente novamente!',
+        type: 'error'
+      });
     }
   };
 
@@ -96,12 +114,12 @@ const EditarCorrecao = ({ open, onClose, onSuccess, vistoria }) => {
             </Select>
           </FormControl>
 
-          <TextField label="Nome do Cliente" name="nomeCliente" value={formData.nomeCliente} onChange={handleChange} fullWidth />
+          <TextField label="Nome do Cliente" name="nomeCliente" value={formData.nomeCliente || ''} onChange={handleChange} fullWidth />
 
           <TextField
             label="Endereço do Cliente"
             name="enderecoCliente"
-            value={formData.enderecoCliente}
+            value={formData.enderecoCliente || ''}
             onChange={handleChange}
             fullWidth
           />
@@ -110,7 +128,7 @@ const EditarCorrecao = ({ open, onClose, onSuccess, vistoria }) => {
             label="Data de Agendamento"
             name="dataAgendamentoCorrecao"
             type="datetime-local"
-            value={formData.dataAgendamentoCorrecao}
+            value={formData.dataAgendamentoCorrecao || ''}
             onChange={handleChange}
             fullWidth
             InputLabelProps={{
@@ -118,12 +136,29 @@ const EditarCorrecao = ({ open, onClose, onSuccess, vistoria }) => {
             }}
           />
 
+          {formData.dataConclusaoCorrecao && (
+            <TextField
+              label="Data Conclusão da Correção"
+              name="dataConclusaoCorrecao"
+              type="datetime-local"
+              value={formData.dataConclusaoCorrecao}
+              onChange={handleChange}
+              fullWidth
+              InputProps={{
+                readOnly: true
+              }}
+              InputLabelProps={{
+                shrink: true
+              }}
+            />
+          )}
+
           <FormControl fullWidth>
             <InputLabel id="id-tecnico-designado-label">Técnico Designado</InputLabel>
             <Select
               labelId="id-tecnico-designado-label"
               name="idTecnicoDesignado"
-              value={formData.idTecnicoDesignado}
+              value={formData.idTecnicoDesignado || ''}
               onChange={handleChange}
             >
               {usuarios.map((usuario) => (
