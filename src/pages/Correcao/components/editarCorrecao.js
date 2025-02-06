@@ -175,7 +175,7 @@ const EditarCorrecao = ({ open, onClose, onSuccess, vistoria }) => {
               <MenuItem value="correcao pendente de agendamento">Correção Pendente de Agendamento</MenuItem>
               <MenuItem value="correcao impedida">Correção Impedida</MenuItem>
               <MenuItem value="correcao agendada">Correção Agendada</MenuItem>
-              <MenuItem value="vistoriado ok">Vistoriado OK</MenuItem>
+              <MenuItem value="correcao ok">Correção OK</MenuItem>
             </Select>
           </FormControl>
 

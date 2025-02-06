@@ -114,7 +114,7 @@ const Correcao = () => {
       // Filtra de antemão apenas as vistorias com os 3 status desejados:
       const vistoriasAjustadas = response.data.filter((vistoria) => {
         const statusLower = vistoria.status?.toLowerCase() || '';
-        return ['correcao pendente de agendamento', 'correcao impedida', 'correcao agendada'].includes(statusLower);
+        return ['correcao pendente de agendamento', 'correcao impedida', 'correcao agendada', 'correcao ok'].includes(statusLower);
       });
 
       setVistorias(vistoriasAjustadas);
@@ -439,12 +439,14 @@ const Correcao = () => {
                         sx={{
                           backgroundColor:
                             vistoria.status === 'correcao pendente de agendamento'
-                              ? '#FFEB3B' // Amarelo
+                              ? '#FFEB3B'
                               : vistoria.status === 'correcao impedida'
-                                ? '#F44336' // Vermelho
-                                : vistoria.status === 'correcao agendada'
-                                  ? '#2196F3' // Azul
-                                  : '#E0E0E0', // Default (caso apareça algo fora do esperado)
+                                ? '#F44336'
+                                : vistoria.status === 'correcao ok'
+                                  ? '#3D8C40'
+                                  : vistoria.status === 'correcao agendada'
+                                    ? '#2196F3'
+                                    : '#E0E0E0',
                           color: vistoria.status === 'correcao pendente de agendamento' ? '#000000' : '#FFFFFF',
                           fontWeight: 'bold'
                         }}
