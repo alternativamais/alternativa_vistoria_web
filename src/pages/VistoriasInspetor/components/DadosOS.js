@@ -37,6 +37,19 @@ const DadosOS = ({ formData, handleChange, vistoria }) => {
     }
   };
 
+  const handleStatusChange = (event) => {
+    const novoStatus = event.target.value;
+
+    handleChange(event);
+
+    if (novoStatus === 'correcao pendente de agendamento') {
+      const agora = new Date();
+
+      const formattedDate = agora.toISOString().slice(0, 19).replace('T', ' ');
+      handleChange({ target: { name: 'dataHoraConclusao', value: formattedDate } });
+    }
+  };
+
   return (
     <>
       <Box mb={1}>
@@ -114,13 +127,13 @@ const DadosOS = ({ formData, handleChange, vistoria }) => {
         <InputLabel id="status-label" shrink={!!formData.status}>
           Status
         </InputLabel>
-        <Select labelId="status-label" name="status" value={formData.status || ''} onChange={handleChange} displayEmpty>
+        <Select labelId="status-label" name="status" value={formData.status || ''} onChange={handleStatusChange} displayEmpty>
           <MenuItem value="" disabled>
             <em>Selecione o status</em>
           </MenuItem>
           <MenuItem value="a vistoriar">A Vistoriar</MenuItem>
           <MenuItem value="pendente de agendamento">Pendente de Agendamento</MenuItem>
-          <MenuItem value="correcao de instalacao">Correção de Instalação</MenuItem>
+          <MenuItem value="correcao pendente de agendamento">Correção de Instalação</MenuItem>
           <MenuItem value="cancelado">Cancelado</MenuItem>
           <MenuItem value="vistoriado ok">Vistoriado OK</MenuItem>
         </Select>
