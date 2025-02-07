@@ -8,8 +8,9 @@ import { useAuth } from 'hooks/auth';
 
 const formatDateToDatetimeLocal = (date) => {
   if (!date) return '';
-  const formattedDate = new Date(date).toISOString();
-  return formattedDate.slice(0, 16);
+  const d = new Date(date);
+  const localDate = new Date(d.getTime() - d.getTimezoneOffset() * 60000);
+  return localDate.toISOString().slice(0, 16);
 };
 
 const EditarAtendimento = ({ open, onClose, onSuccess, atendimento }) => {
