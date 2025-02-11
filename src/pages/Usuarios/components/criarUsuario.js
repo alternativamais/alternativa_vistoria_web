@@ -12,16 +12,28 @@ const CriarUsuario = ({ open, onClose, onSuccess }) => {
     email: '',
     password: '',
     birthday: '',
-    status: 'active'
+    status: 'active',
+    roleId: ''
   };
 
   const [formData, setFormData] = useState(initialFormData);
+  const [roles, setRoles] = useState([]);
 
   useEffect(() => {
-    if (!open) {
+    if (open) {
       setFormData(initialFormData);
+      fetchRoles();
     }
   }, [open]);
+
+  const fetchRoles = async () => {
+    try {
+      const response = await api.get('/roles');
+      setRoles(response.data);
+    } catch (error) {
+      notification({ message: 'Erro ao buscar papéis!', type: 'error' });
+    }
+  };
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -72,9 +84,19 @@ const CriarUsuario = ({ open, onClose, onSuccess }) => {
           />
           <FormControl fullWidth>
             <InputLabel id="status-label">Status</InputLabel>
-            <Select labelId="status-label" name="status" value={formData.status} onChange={handleChange}>
+            <Select labelId="status-label" name="status" value={formData.status} onChange={handleChange} label="Status">
               <MenuItem value="active">Ativo</MenuItem>
               <MenuItem value="inactive">Inativo</MenuItem>
+            </Select>
+          </FormControl>
+          <FormControl fullWidth>
+            <InputLabel id="role-label">Papel</InputLabel>
+            <Select labelId="role-label" name="roleId" value={formData.roleId} onChange={handleChange} label="Papel">
+              {roles.map((role) => (
+                <MenuItem key={role.id} value={role.id}>
+                  {role.name}
+                </MenuItem>
+              ))}
             </Select>
           </FormControl>
           <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>

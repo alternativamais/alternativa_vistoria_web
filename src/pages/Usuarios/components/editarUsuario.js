@@ -9,43 +9,59 @@ const EditarUsuario = ({ open, onClose, onSuccess, usuario }) => {
     name: usuario?.name || '',
     username: usuario?.username || '',
     email: usuario?.email || '',
-    password: '', // Campo de senha vazio por padrão
+    password: '',
     birthday: usuario?.birthday || '',
-    status: usuario?.status || 'active'
+    status: usuario?.status || 'active',
+    roleId: usuario?.role?.id || ''
   });
 
+  const [roles, setRoles] = useState([]);
+
   useEffect(() => {
-    if (usuario) {
+    if (open) {
       setFormData({
-        name: usuario.name || '',
-        username: usuario.username || '',
-        email: usuario.email || '',
-        password: '', // Senha não preenchida por padrão
-        birthday: usuario.birthday || '',
-        status: usuario.status || 'active'
+        name: usuario?.name || '',
+        username: usuario?.username || '',
+        email: usuario?.email || '',
+        password: '',
+        birthday: usuario?.birthday || '',
+        status: usuario?.status || 'active',
+        roleId: usuario?.role?.id || ''
       });
+      fetchRoles();
     }
-  }, [usuario]);
+  }, [open, usuario]);
+
+  const fetchRoles = async () => {
+    try {
+      const response = await api.get('/roles');
+      setRoles(response.data);
+    } catch (error) {
+      notification({ message: 'Erro ao buscar papéis!', type: 'error' });
+    }
+  };
 
   const handleChange = (event) => {
     const { name, value } = event.target;
-    setFormData({ ...formData, [name]: value });
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async () => {
     try {
-      // Remove o campo password se estiver vazio
       const dataToSend = { ...formData };
       if (!dataToSend.password) {
         delete dataToSend.password;
       }
 
       await api.put(`/users/${usuario.id}`, dataToSend);
-      onSuccess(); // Atualiza a lista de usuários após a edição
-      onClose(); // Fecha o modal
+      onSuccess();
+      onClose();
       notification({ message: 'Usuário editado com sucesso!', type: 'success' });
     } catch (error) {
-      notification({ message: 'Erro ao editar usuário. Verifique os dados e tente novamente.', type: 'error' });
+      notification({
+        message: 'Erro ao editar usuário. Verifique os dados e tente novamente.',
+        type: 'error'
+      });
     }
   };
 
@@ -81,9 +97,19 @@ const EditarUsuario = ({ open, onClose, onSuccess, usuario }) => {
           />
           <FormControl fullWidth>
             <InputLabel id="status-label">Status</InputLabel>
-            <Select labelId="status-label" name="status" value={formData.status} onChange={handleChange}>
+            <Select labelId="status-label" name="status" value={formData.status} onChange={handleChange} label="Status">
               <MenuItem value="active">Ativo</MenuItem>
               <MenuItem value="inactive">Inativo</MenuItem>
+            </Select>
+          </FormControl>
+          <FormControl fullWidth>
+            <InputLabel id="role-label">Papel</InputLabel>
+            <Select labelId="role-label" name="roleId" value={formData.roleId} onChange={handleChange} label="Papel">
+              {roles.map((role) => (
+                <MenuItem key={role.id} value={role.id}>
+                  {role.name}
+                </MenuItem>
+              ))}
             </Select>
           </FormControl>
           <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>

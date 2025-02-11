@@ -11,6 +11,7 @@ import Galeria from 'pages/Galeria/index';
 import Veiculos from 'pages/Veiculos/index';
 import Atendimentos from 'pages/Atendimentos/index';
 import Correcao from 'pages/Correcao/index';
+import AdminRolesPermissions from 'pages/Roles/index';
 
 const MainRoutes = [
   {
@@ -47,6 +48,10 @@ const MainRoutes = [
       {
         path: 'admin/galeria/:idvistoria',
         element: <Galeria />
+      },
+      {
+        path: 'admin/permissoes',
+        element: <AdminRolesPermissions />
       },
 
       // inspetor
