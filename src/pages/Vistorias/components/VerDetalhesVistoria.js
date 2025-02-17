@@ -15,11 +15,35 @@ import {
   CardContent,
   CardMedia,
   Grid,
+  Divider,
+  Paper,
+  List,
+  ListItem,
+  ListItemText,
+  ListItemIcon,
   Chip
 } from '@mui/material';
-import { InfoCircleOutlined, FileSearchOutlined, CheckSquareOutlined } from '@ant-design/icons';
+import { InfoCircleOutlined, FileSearchOutlined, CheckSquareOutlined, IdcardOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { api } from 'services/api';
+
+const DetailItem = ({ icon, label, value, divider = true }) => {
+  return (
+    <>
+      <ListItem disableGutters sx={{ py: 0.5 }}>
+        {icon && <ListItemIcon sx={{ minWidth: 30 }}>{icon}</ListItemIcon>}
+        <ListItemText
+          primary={
+            <Typography variant="body2" color="text.primary">
+              <strong>{label}:</strong> {value || 'Não informado'}
+            </Typography>
+          }
+        />
+      </ListItem>
+      {divider && <Divider component="li" />}
+    </>
+  );
+};
 
 const VerDetalhesVistoria = ({ open, onClose, vistoria }) => {
   const [selectedTab, setSelectedTab] = useState(0);
@@ -29,6 +53,12 @@ const VerDetalhesVistoria = ({ open, onClose, vistoria }) => {
   const handleChangeTab = (event, newValue) => {
     setSelectedTab(newValue);
   };
+
+  useEffect(() => {
+    if (!open) {
+      setImagens([]);
+    }
+  }, [open]);
 
   useEffect(() => {
     const fetchImagens = async () => {
@@ -50,17 +80,18 @@ const VerDetalhesVistoria = ({ open, onClose, vistoria }) => {
     }
   };
 
-  const renderDetail = (label, value) => (
-    <Box sx={{ mb: 1 }}>
-      <Typography variant="body2" color="text.secondary">
-        <strong>{label}:</strong> {value || 'Não informado'}
-      </Typography>
-    </Box>
-  );
-
   if (!vistoria) {
     return null;
   }
+
+  const formatarDataHoraParaBrasil = (dataISO) => {
+    if (!dataISO) {
+      return 'Não Concluída';
+    }
+    const data = new Date(dataISO);
+    data.setHours(data.getHours() - 3);
+    return data.toLocaleString('pt-BR', { timeZone: 'UTC' });
+  };
 
   return (
     <Dialog
@@ -68,34 +99,38 @@ const VerDetalhesVistoria = ({ open, onClose, vistoria }) => {
       onClose={onClose}
       fullWidth
       maxWidth="md"
-      scroll="body" // Alteração para scroll na página inteira
+      scroll="body"
       sx={{
         '& .MuiDialog-paper': {
           margin: { xs: 1, sm: 2 },
-          width: '100%'
+          width: '100%',
+          borderRadius: 2
         }
       }}
     >
-      <DialogTitle sx={{ pb: 1 }} />
+      <DialogTitle sx={{ pb: 0.5 }}>
+        <Typography variant="h6">Detalhes da Vistoria</Typography>
+      </DialogTitle>
 
       <Card
         elevation={0}
         sx={{
-          mx: 3,
+          mx: 2,
           mt: 1,
           mb: 2,
           backgroundColor: '#f5f5f5',
-          borderRadius: 2
+          borderRadius: 2,
+          p: 1
         }}
       >
-        <CardContent>
-          <Grid container spacing={2}>
+        <CardContent sx={{ p: 1 }}>
+          <Grid container spacing={1}>
             <Grid item xs={12} sm={4}>
               <Box
                 sx={{
                   position: 'relative',
-                  width: 200,
-                  height: 200,
+                  width: 220,
+                  height: 170,
                   margin: '0 auto'
                 }}
               >
@@ -112,10 +147,9 @@ const VerDetalhesVistoria = ({ open, onClose, vistoria }) => {
                         height: 190,
                         transform: `rotate(${index * 2 - 10}deg)`,
                         boxShadow: '2px 2px 6px rgba(0, 0, 0, 0.3)',
-                        borderRadius: '8px',
+                        borderRadius: '12px',
                         overflow: 'hidden',
-                        cursor: 'pointer',
-                        mb: 0
+                        cursor: 'pointer'
                       }}
                     >
                       <CardMedia
@@ -131,8 +165,8 @@ const VerDetalhesVistoria = ({ open, onClose, vistoria }) => {
                     </Box>
                   ))
                 ) : (
-                  <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                    Nenhuma imagem encontrada para esta vistoria.
+                  <Typography variant="body2" sx={{ color: 'text.secondary', textAlign: 'center', mt: 8 }}>
+                    Nenhuma imagem encontrada.
                   </Typography>
                 )}
               </Box>
@@ -165,24 +199,21 @@ const VerDetalhesVistoria = ({ open, onClose, vistoria }) => {
                 {vistoria.resumoVistoria || 'Resumo não disponível'}
               </Typography>
 
-              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mt: 1 }}>
-                <Typography variant="body2">
-                  <strong>ID da Vistoria:</strong> {vistoria.id || 'N/D'}
-                </Typography>
-                <Typography variant="body2">
-                  <strong>Status:</strong> {vistoria.status || 'N/D'}
-                </Typography>
+              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mt: 1 }}>
+                <Chip label={`ID: ${vistoria.id || 'N/D'}`} size="small" icon={<IdcardOutlined />} />
+                <Chip label={`Status: ${vistoria.status || 'N/D'}`} size="small" />
               </Box>
             </Grid>
           </Grid>
         </CardContent>
-        <div style={{ display: 'flex', justifyContent: 'end' }}>
-          {vistoria.idSgp ? (
+
+        {vistoria.idSgp && (
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', pr: 1, pb: 1 }}>
             <a
               href={`https://alternativaip.sgp.net.br/admin/cliente/${vistoria.idSgp}/contratos/`}
               target="_blank"
               rel="noopener noreferrer"
-              style={{ textDecoration: 'none', display: 'flex', justifyContent: 'center', alignItems: 'center' }}
+              style={{ textDecoration: 'none', display: 'flex', alignItems: 'center' }}
             >
               <Chip
                 sx={{
@@ -196,7 +227,7 @@ const VerDetalhesVistoria = ({ open, onClose, vistoria }) => {
                     xmlns="http://www.w3.org/2000/svg"
                     xmlSpace="preserve"
                     width="60px"
-                    height="31px"
+                    height="18px"
                     version="1.1"
                     style={{
                       shapeRendering: 'geometricPrecision',
@@ -243,8 +274,8 @@ const VerDetalhesVistoria = ({ open, onClose, vistoria }) => {
                 }
               />
             </a>
-          ) : null}
-        </div>
+          </Box>
+        )}
       </Card>
 
       <Tabs
@@ -254,38 +285,62 @@ const VerDetalhesVistoria = ({ open, onClose, vistoria }) => {
         textColor="primary"
         variant="scrollable"
         scrollButtons="auto"
-        sx={{ px: 2 }}
+        sx={{ px: 1, mb: 1 }}
       >
         <Tab icon={<InfoCircleOutlined />} iconPosition="start" label="Informações Gerais" />
         <Tab icon={<FileSearchOutlined />} iconPosition="start" label="Dados Técnicos" />
         <Tab icon={<CheckSquareOutlined />} iconPosition="start" label="Status e Datas" />
       </Tabs>
 
-      <DialogContent dividers>
+      <DialogContent dividers sx={{ p: 1 }}>
         {selectedTab === 0 && (
-          <Box>
-            {renderDetail('Tipo de Vistoria', vistoria.tipoVistoria)}
-            {renderDetail('Nome do Cliente', vistoria.nomeCliente)}
-            {renderDetail('Endereço do Cliente', vistoria.enderecoCliente)}
-          </Box>
+          <Paper variant="outlined" sx={{ p: 2 }}>
+            <List disablePadding>
+              <DetailItem icon={<InfoCircleOutlined />} label="Tipo de Vistoria" value={vistoria.tipoVistoria} />
+              <DetailItem icon={<IdcardOutlined />} label="Nome do Cliente" value={vistoria.nomeCliente} />
+              <DetailItem icon={<InfoCircleOutlined />} label="Endereço do Cliente" value={vistoria.enderecoCliente} />
+              <DetailItem
+                icon={<CheckSquareOutlined />}
+                label="Assinatura Eletrônica"
+                value={vistoria.assinaturaEletronica ? 'Sim' : 'Não'}
+                divider={false}
+              />
+            </List>
+          </Paper>
         )}
 
         {selectedTab === 1 && (
-          <Box>
-            {renderDetail('Coordenadas da CTO', vistoria.coordenadasCto)}
-            {renderDetail('Coordenadas do Endereço do Cliente', vistoria.coordenadasEnderecoCliente)}
-            {renderDetail('Resumo da Vistoria', vistoria.resumoVistoria)}
-            {renderDetail('Metragem do Cabo', vistoria.metragemCabo)}
-          </Box>
+          <Paper variant="outlined" sx={{ p: 1 }}>
+            <List disablePadding>
+              {vistoria.tipoVistoria === 'rede' ? (
+                <DetailItem icon={<FileSearchOutlined />} label="Coordenadas da CTO" value={vistoria.coordenadasCto} />
+              ) : (
+                <DetailItem
+                  icon={<FileSearchOutlined />}
+                  label="Coordenadas do Endereço do Cliente"
+                  value={vistoria.coordenadasEnderecoCliente}
+                />
+              )}
+              <DetailItem icon={<InfoCircleOutlined />} label="Resumo da Vistoria" value={vistoria.resumoVistoria} />
+              <DetailItem icon={<CheckSquareOutlined />} label="Metragem do Cabo" value={vistoria.metragemCabo} divider={false} />
+            </List>
+          </Paper>
         )}
 
         {selectedTab === 2 && (
-          <Box>
-            {renderDetail('Status', vistoria.status)}
-            {renderDetail('Criação', vistoria.dataHoraCriacao)}
-            {renderDetail('Agendamento', vistoria.dataAgendamento)}
-            {renderDetail('Conclusão', vistoria.dataHoraConclusao)}
-          </Box>
+          <Paper variant="outlined" sx={{ p: 1 }}>
+            <List disablePadding>
+              <DetailItem icon={<InfoCircleOutlined />} label="Status" value={vistoria.status} />
+              <DetailItem icon={<FileSearchOutlined />} label="Criação" value={formatarDataHoraParaBrasil(vistoria.dataHoraCriacao)} />
+              <DetailItem icon={<FileSearchOutlined />} label="Agendamento" value={formatarDataHoraParaBrasil(vistoria.dataAgendamento)} />
+              <DetailItem
+                icon={<FileSearchOutlined />}
+                label="Conclusão"
+                value={formatarDataHoraParaBrasil(vistoria.dataHoraConclusao)}
+                divider={false}
+              />
+            </List>
+          </Paper>
         )}
       </DialogContent>
 
