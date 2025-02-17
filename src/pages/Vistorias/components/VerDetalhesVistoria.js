@@ -135,7 +135,7 @@ const VerDetalhesVistoria = ({ open, onClose, vistoria }) => {
                 }}
               >
                 {imagens && imagens.length > 0 ? (
-                  imagens.map((imagem, index) => (
+                  imagens.slice(-3).map((imagem, index) => (
                     <Box
                       key={imagem.id}
                       onClick={handleImageClick}
