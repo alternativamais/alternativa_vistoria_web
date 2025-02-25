@@ -21,7 +21,6 @@ const CriarAtendimento = ({ open, onClose, onSuccess }) => {
   };
 
   const [vistoriaInputs, setVistoriaInputs] = useState([{ vistoriaId: '' }]);
-
   const [formData, setFormData] = useState(initialFormData);
   const [veiculos, setVeiculos] = useState([]);
   const [vistoriasDisponiveis, setVistoriasDisponiveis] = useState([]);
@@ -38,7 +37,6 @@ const CriarAtendimento = ({ open, onClose, onSuccess }) => {
 
   const resetForm = () => {
     setFormData(initialFormData);
-
     setVistoriaInputs([{ vistoriaId: '' }]);
     setStep(1);
   };
@@ -78,7 +76,6 @@ const CriarAtendimento = ({ open, onClose, onSuccess }) => {
   const addVistoria = () => {
     const last = vistoriaInputs[vistoriaInputs.length - 1];
     if (!last.vistoriaId) return;
-
     setVistoriaInputs([...vistoriaInputs, { vistoriaId: '' }]);
   };
 
@@ -94,7 +91,6 @@ const CriarAtendimento = ({ open, onClose, onSuccess }) => {
         .map((item) => item.vistoriaId)
         .filter((id) => id !== '')
     );
-
     return vistoriasDisponiveis.filter((vistoria) => !alreadySelected.has(vistoria.id));
   };
 
@@ -115,7 +111,6 @@ const CriarAtendimento = ({ open, onClose, onSuccess }) => {
     try {
       const payload = {
         ...formData,
-
         vistorias: vistoriaInputs
           .filter((item) => item.vistoriaId)
           .map((item) => ({
@@ -206,27 +201,40 @@ const CriarAtendimento = ({ open, onClose, onSuccess }) => {
 
         {step === 2 && (
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-            {vistoriaInputs.map((item, index) => (
-              <Box key={index} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <FormControl fullWidth>
-                  <InputLabel id={`vistoria-label-${index}`}>Vistoria</InputLabel>
-                  <Select
-                    labelId={`vistoria-label-${index}`}
-                    value={item.vistoriaId}
-                    onChange={(e) => handleVistoriaChange(index, e.target.value)}
-                  >
-                    {availableOptions(index).map((vistoria) => (
-                      <MenuItem key={vistoria.id} value={vistoria.id}>
-                        {vistoria.nomeCliente}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-                <Button onClick={() => removeVistoria(index)} color="error">
-                  Remover
-                </Button>
-              </Box>
-            ))}
+            {/* Container rolável apenas para a lista de itens */}
+            <Box sx={{ maxHeight: 300, overflowY: 'auto', pr: 1 }}>
+              {vistoriaInputs.map((item, index) => (
+                <Box
+                  key={index}
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    mb: 1,
+                    borderBottom: '1px solid #ccc',
+                    pb: 0.5
+                  }}
+                >
+                  <FormControl sx={{ flex: 1, mr: 2 }}>
+                    <InputLabel id={`vistoria-label-${index}`}>Vistoria</InputLabel>
+                    <Select
+                      labelId={`vistoria-label-${index}`}
+                      value={item.vistoriaId}
+                      onChange={(e) => handleVistoriaChange(index, e.target.value)}
+                    >
+                      {availableOptions(index).map((vistoria) => (
+                        <MenuItem key={vistoria.id} value={vistoria.id}>
+                          {vistoria.nomeCliente}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                  <Button onClick={() => removeVistoria(index)} color="error">
+                    Remover
+                  </Button>
+                </Box>
+              ))}
+            </Box>
 
             <Button onClick={addVistoria} variant="outlined" color="primary" disabled={isAddButtonDisabled()}>
               Adicionar Vistoria

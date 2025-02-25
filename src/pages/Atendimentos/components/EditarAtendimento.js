@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react/prop-types */
 import React, { useState, useEffect } from 'react';
-import { Box, Button, Modal, TextField, Select, MenuItem, FormControl, InputLabel, Checkbox, FormControlLabel } from '@mui/material';
+import { Box, Button, Modal, TextField, Select, MenuItem, FormControl, InputLabel, Checkbox, Typography } from '@mui/material';
 import { api } from 'services/api';
 import { notification } from 'components/notification/index';
 import { useAuth } from 'hooks/auth';
@@ -168,7 +168,19 @@ const EditarAtendimento = ({ open, onClose, onSuccess, atendimento }) => {
           <Box component="form" noValidate autoComplete="off" sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
             <FormControl fullWidth>
               <InputLabel id="veiculo-label">Veículo</InputLabel>
-              <Select labelId="veiculo-label" name="veiculoId" value={formData.veiculoId} onChange={handleChange}>
+              <Select
+                labelId="veiculo-label"
+                name="veiculoId"
+                value={formData.veiculoId}
+                onChange={handleChange}
+                MenuProps={{
+                  PaperProps: {
+                    style: {
+                      maxHeight: 200
+                    }
+                  }
+                }}
+              >
                 {veiculos.map((veiculo) => (
                   <MenuItem key={veiculo.id} value={veiculo.id}>
                     {`${veiculo.modelo} - ${veiculo.marca} (${veiculo.placa})`}
@@ -179,7 +191,19 @@ const EditarAtendimento = ({ open, onClose, onSuccess, atendimento }) => {
 
             <FormControl fullWidth>
               <InputLabel id="status-label">Status</InputLabel>
-              <Select labelId="status-label" name="status" value={formData.status} onChange={handleChange}>
+              <Select
+                labelId="status-label"
+                name="status"
+                value={formData.status}
+                onChange={handleChange}
+                MenuProps={{
+                  PaperProps: {
+                    style: {
+                      maxHeight: 200
+                    }
+                  }
+                }}
+              >
                 <MenuItem value="pendente">Pendente</MenuItem>
                 <MenuItem value="aberta">Aberta</MenuItem>
                 <MenuItem value="fechada">Fechada</MenuItem>
@@ -233,26 +257,48 @@ const EditarAtendimento = ({ open, onClose, onSuccess, atendimento }) => {
 
         {step === 2 && (
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-            {formData.vistorias.map((vistoria) => (
-              <Box key={vistoria.vistoriaId} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <FormControlLabel
-                  control={
+            {/* Container rolável apenas para a lista de vistorias */}
+            <Box sx={{ maxHeight: 300, overflowY: 'auto', pr: 1 }}>
+              {formData.vistorias.map((vistoria) => (
+                <Box
+                  key={vistoria.vistoriaId}
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    mb: 1,
+                    borderBottom: '1px solid #ccc',
+                    pb: 0.5
+                  }}
+                >
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                     <Checkbox
                       checked={vistoria.concluido || false}
                       onChange={(e) => handleVistoriaStatusChange(vistoria.vistoriaId, e.target.checked)}
                     />
-                  }
-                  label={vistoria.vistoria?.nomeCliente || vistoria.nomeCliente}
-                />
-                <Button onClick={() => removeVistoria(vistoria.vistoriaId)} color="error">
-                  Remover
-                </Button>
-              </Box>
-            ))}
+                    <Typography variant="body1">{vistoria.vistoria?.nomeCliente || vistoria.nomeCliente}</Typography>
+                  </Box>
+                  <Button onClick={() => removeVistoria(vistoria.vistoriaId)} color="error">
+                    Remover
+                  </Button>
+                </Box>
+              ))}
+            </Box>
 
             <FormControl fullWidth>
               <InputLabel id="nova-vistoria-label">Adicionar Vistoria</InputLabel>
-              <Select labelId="nova-vistoria-label" value={novaVistoria} onChange={(e) => setNovaVistoria(e.target.value)}>
+              <Select
+                labelId="nova-vistoria-label"
+                value={novaVistoria}
+                onChange={(e) => setNovaVistoria(e.target.value)}
+                MenuProps={{
+                  PaperProps: {
+                    style: {
+                      maxHeight: 200
+                    }
+                  }
+                }}
+              >
                 {vistoriasDisponiveis
                   .filter((v) => !formData.vistorias.some((vist) => vist.vistoriaId === v.id))
                   .map((vistoria) => (
