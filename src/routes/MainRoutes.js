@@ -12,6 +12,7 @@ import Veiculos from 'pages/Veiculos/index';
 import Atendimentos from 'pages/Atendimentos/index';
 import Correcao from 'pages/Correcao/index';
 import AdminRolesPermissions from 'pages/Roles/index';
+import VistoriasFerramentas from 'pages/VistoriasFerramentas/index';
 
 const MainRoutes = [
   {
@@ -63,6 +64,15 @@ const MainRoutes = [
         path: 'inspetor/atendimentos',
         element: <Atendimentos />
       },
+
+      // vistoria de ferramentas
+
+      {
+        path: 'inspetor/vistoria-ferramentas',
+        element: <VistoriasFerramentas />
+      },
+
+      // outra coisa
       {
         path: '*',
         element: <Navigate to="/dashboard" replace />
