@@ -13,6 +13,7 @@ import Atendimentos from 'pages/Atendimentos/index';
 import Correcao from 'pages/Correcao/index';
 import AdminRolesPermissions from 'pages/Roles/index';
 import VistoriasFerramentas from 'pages/VistoriasFerramentas/index';
+import Tecnicos from 'pages/Tecnicos/index';
 
 const MainRoutes = [
   {
@@ -53,6 +54,11 @@ const MainRoutes = [
       {
         path: 'admin/permissoes',
         element: <AdminRolesPermissions />
+      },
+
+      {
+        path: 'admin/tecnicos',
+        element: <Tecnicos />
       },
 
       // inspetor
