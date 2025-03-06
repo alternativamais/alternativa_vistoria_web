@@ -14,6 +14,7 @@ import Correcao from 'pages/Correcao/index';
 import AdminRolesPermissions from 'pages/Roles/index';
 import VistoriasFerramentas from 'pages/VistoriasFerramentas/index';
 import Tecnicos from 'pages/Tecnicos/index';
+import Ferramentas from 'pages/Ferramentas/index';
 
 const MainRoutes = [
   {
@@ -25,8 +26,6 @@ const MainRoutes = [
         path: 'dashboard',
         element: <Dashboard />
       },
-
-      // admin
       {
         path: 'admin/usuarios',
         element: <Usuarios />
@@ -55,10 +54,13 @@ const MainRoutes = [
         path: 'admin/permissoes',
         element: <AdminRolesPermissions />
       },
-
       {
         path: 'admin/tecnicos',
         element: <Tecnicos />
+      },
+      {
+        path: 'admin/ferramentas',
+        element: <Ferramentas />
       },
 
       // inspetor
