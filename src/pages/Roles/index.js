@@ -18,11 +18,14 @@ import {
   FormGroup,
   FormControlLabel,
   Checkbox,
-  Divider,
   Grid as MuiGrid,
   Typography
 } from '@mui/material';
-import { EditOutlined, DeleteOutlined, DownOutlined, UpOutlined } from '@ant-design/icons';
+import { EditOutlined, DeleteOutlined, RightOutlined } from '@ant-design/icons';
+import { styled } from '@mui/material/styles';
+import MuiAccordion from '@mui/material/Accordion';
+import MuiAccordionSummary, { accordionSummaryClasses } from '@mui/material/AccordionSummary';
+import MuiAccordionDetails from '@mui/material/AccordionDetails';
 
 import MainCard from 'components/sistema/MainCard';
 import { api } from 'services/api';
@@ -32,6 +35,34 @@ import CreateRole from './components/CreateRole';
 import EditRole from './components/EditRole';
 import CreatePermission from './components/CreatePermission';
 import EditPermission from './components/EditPermission';
+
+const Accordion = styled((props) => <MuiAccordion disableGutters elevation={0} square {...props} />)(({ theme }) => ({
+  border: `1px solid ${theme.palette.divider}`,
+  '&:not(:last-child)': {
+    borderBottom: 0
+  },
+  '&::before': {
+    display: 'none'
+  }
+}));
+
+const AccordionSummary = styled((props) => (
+  <MuiAccordionSummary expandIcon={<RightOutlined style={{ fontSize: '0.9rem' }} />} {...props} />
+))(({ theme }) => ({
+  backgroundColor: 'rgba(0, 0, 0, .03)',
+  flexDirection: 'row-reverse',
+  [`& .${accordionSummaryClasses.expandIconWrapper}.${accordionSummaryClasses.expanded}`]: {
+    transform: 'rotate(90deg)'
+  },
+  [`& .${accordionSummaryClasses.content}`]: {
+    marginLeft: theme.spacing(1)
+  }
+}));
+
+const AccordionDetails = styled(MuiAccordionDetails)(({ theme }) => ({
+  padding: theme.spacing(2),
+  borderTop: '1px solid rgba(0, 0, 0, .125)'
+}));
 
 const AdminRolesPermissions = () => {
   const [rolesData, setRolesData] = useState({
@@ -171,8 +202,8 @@ const AdminRolesPermissions = () => {
     });
   };
 
-  const handleToggleGroupExpansion = (group) => {
-    setExpandedGroups((prev) => ({ ...prev, [group]: !prev[group] }));
+  const handleAccordionChange = (group) => (event, isExpanded) => {
+    setExpandedGroups((prev) => ({ ...prev, [group]: isExpanded }));
   };
 
   const handleSaveAssignedPermissions = async () => {
@@ -228,13 +259,7 @@ const AdminRolesPermissions = () => {
 
       {/* Seção de Roles */}
       <MainCard title="Roles" sx={{ marginBottom: '20px' }}>
-        <Box
-          sx={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            paddingBottom: '10px'
-          }}
-        >
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '10px' }}>
           <TextField
             label="Pesquisar Role"
             variant="outlined"
@@ -251,10 +276,7 @@ const AdminRolesPermissions = () => {
           sx={{
             overflowX: 'auto',
             '&::-webkit-scrollbar': { width: '0.4em' },
-            '&::-webkit-scrollbar-thumb': {
-              backgroundColor: 'rgba(0,0,0,.1)',
-              borderRadius: '4px'
-            }
+            '&::-webkit-scrollbar-thumb': { backgroundColor: 'rgba(0,0,0,.1)', borderRadius: '4px' }
           }}
         >
           <TableContainer>
@@ -289,10 +311,7 @@ const AdminRolesPermissions = () => {
                           onClick={async () => {
                             if (window.confirm('Deseja realmente deletar este role?')) {
                               await api.delete(`/roles/${role.id}`);
-                              notification({
-                                message: 'Role deletado!',
-                                type: 'success'
-                              });
+                              notification({ message: 'Role deletado!', type: 'success' });
                               fetchRoles();
                             }
                           }}
@@ -319,13 +338,7 @@ const AdminRolesPermissions = () => {
 
       {/* Seção de Permissões */}
       <MainCard title="Permissões" sx={{ marginBottom: '20px' }}>
-        <Box
-          sx={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            paddingBottom: '10px'
-          }}
-        >
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '10px' }}>
           <TextField
             label="Pesquisar Permissão"
             variant="outlined"
@@ -347,10 +360,7 @@ const AdminRolesPermissions = () => {
           sx={{
             overflowX: 'auto',
             '&::-webkit-scrollbar': { width: '0.4em' },
-            '&::-webkit-scrollbar-thumb': {
-              backgroundColor: 'rgba(0,0,0,.1)',
-              borderRadius: '4px'
-            }
+            '&::-webkit-scrollbar-thumb': { backgroundColor: 'rgba(0,0,0,.1)', borderRadius: '4px' }
           }}
         >
           <TableContainer>
@@ -388,10 +398,7 @@ const AdminRolesPermissions = () => {
                           onClick={async () => {
                             if (window.confirm('Deseja realmente deletar esta permissão?')) {
                               await api.delete(`/permissions/${perm.id}`);
-                              notification({
-                                message: 'Permissão deletada!',
-                                type: 'success'
-                              });
+                              notification({ message: 'Permissão deletada!', type: 'success' });
                               fetchPermissions();
                             }
                           }}
@@ -438,57 +445,78 @@ const AdminRolesPermissions = () => {
             <Box sx={{ paddingBottom: '10px' }}>
               <Typography variant="subtitle1">Permissões Disponíveis</Typography>
             </Box>
-            {Object.keys(groupedPermissions).map((group) => {
+            {Object.keys(groupedPermissions).map((group, index, array) => {
               const groupPermissionIds = groupedPermissions[group].map((p) => p.id);
               const allChecked = groupPermissionIds.every((id) => assignData.assignedPermissions.includes(id));
               const someChecked = groupPermissionIds.some((id) => assignData.assignedPermissions.includes(id));
-              const isExpanded = expandedGroups[group] || false;
+              const isFirst = index === 0;
+              const isLast = index === array.length - 1;
               return (
-                <Box key={group} sx={{ marginBottom: '10px' }}>
-                  <Box display="flex" alignItems="center" justifyContent="space-between">
-                    <Box display="flex" alignItems="center">
-                      <Checkbox indeterminate={someChecked && !allChecked} checked={allChecked} onChange={() => handleToggleGroup(group)} />
-                      <Typography
-                        variant="subtitle1"
-                        sx={{
-                          textTransform: 'uppercase',
-                          fontWeight: 'bold',
-                          fontSize: '15px'
+                <Accordion
+                  key={group}
+                  expanded={expandedGroups[group] || false}
+                  onChange={handleAccordionChange(group)}
+                  style={{
+                    borderTopLeftRadius: isFirst ? '8px' : 0,
+                    borderTopRightRadius: isFirst ? '8px' : 0,
+                    borderBottomLeftRadius: isLast ? '8px' : 0,
+                    borderBottomRightRadius: isLast ? '8px' : 0,
+                    border: '1px solid #E2E2E2FF'
+                  }}
+                >
+                  <AccordionSummary
+                    aria-controls={`${group}-content`}
+                    id={`${group}-header`}
+                    style={{
+                      backgroundColor: '#FFFFFFFF',
+                      borderTopLeftRadius: isFirst ? '8px' : 0,
+                      borderTopRightRadius: isFirst ? '8px' : 0,
+                      borderBottomLeftRadius: isLast ? '8px' : 0,
+                      borderBottomRightRadius: isLast ? '8px' : 0
+                    }}
+                  >
+                    <Box display="flex" alignItems="center" style={{ height: 10 }}>
+                      <Checkbox
+                        checked={allChecked}
+                        indeterminate={someChecked && !allChecked}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleToggleGroup(group);
                         }}
+                        onFocus={(e) => e.stopPropagation()}
+                      />
+                      <Typography
+                        component="span"
+                        variant="subtitle1"
+                        sx={{ textTransform: 'uppercase', fontWeight: 'bold', fontSize: '15px' }}
                       >
                         {group}
                       </Typography>
                     </Box>
-                    <IconButton onClick={() => handleToggleGroupExpansion(group)}>
-                      {isExpanded ? <UpOutlined /> : <DownOutlined />}
-                    </IconButton>
-                  </Box>
-                  {isExpanded && (
-                    <>
-                      <Divider sx={{ my: 1 }} />
-                      <FormGroup>
-                        <MuiGrid container spacing={1}>
-                          {groupedPermissions[group].map((perm) => (
-                            <MuiGrid item xs={12} sm={6} md={4} key={perm.id}>
-                              <FormControlLabel
-                                control={
-                                  <Checkbox
-                                    checked={assignData.assignedPermissions.includes(perm.id)}
-                                    onChange={() => handleTogglePermission(perm.id)}
-                                  />
-                                }
-                                label={perm.name}
-                              />
-                            </MuiGrid>
-                          ))}
-                        </MuiGrid>
-                      </FormGroup>
-                    </>
-                  )}
-                </Box>
+                  </AccordionSummary>
+                  <AccordionDetails>
+                    <FormGroup>
+                      <MuiGrid container spacing={1}>
+                        {groupedPermissions[group].map((perm) => (
+                          <MuiGrid item xs={12} sm={6} md={4} key={perm.id}>
+                            <FormControlLabel
+                              control={
+                                <Checkbox
+                                  checked={assignData.assignedPermissions.includes(perm.id)}
+                                  onChange={() => handleTogglePermission(perm.id)}
+                                />
+                              }
+                              label={perm.name}
+                            />
+                          </MuiGrid>
+                        ))}
+                      </MuiGrid>
+                    </FormGroup>
+                  </AccordionDetails>
+                </Accordion>
               );
             })}
-            <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
               <Button variant="contained" color="primary" onClick={handleSaveAssignedPermissions}>
                 Salvar Permissões
               </Button>
@@ -519,13 +547,7 @@ const AdminRolesPermissions = () => {
       <EditPermission
         open={permissionModals.editOpen}
         permission={permissionModals.selected}
-        onClose={() =>
-          setPermissionModals((prev) => ({
-            ...prev,
-            editOpen: false,
-            selected: null
-          }))
-        }
+        onClose={() => setPermissionModals((prev) => ({ ...prev, editOpen: false, selected: null }))}
         onSuccess={fetchPermissions}
       />
     </Box>
