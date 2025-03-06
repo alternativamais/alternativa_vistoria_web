@@ -1,4 +1,4 @@
-import { DashboardOutlined, UserOutlined, UnlockOutlined, CarOutlined, UserSwitchOutlined } from '@ant-design/icons';
+import { DashboardOutlined, UserOutlined, UnlockOutlined, CarOutlined, UserSwitchOutlined, ToolOutlined } from '@ant-design/icons';
 // import { getUserDataFromToken } from 'utils/tokenUtils';
 
 // const tokenData = getUserDataFromToken();
@@ -54,6 +54,14 @@ const admin = {
       type: 'item',
       url: 'admin/tecnicos',
       icon: UserSwitchOutlined,
+      breadcrumbs: false
+    },
+    {
+      id: 'ferramentas',
+      title: 'Ferramentas',
+      type: 'item',
+      url: 'admin/ferramentas',
+      icon: ToolOutlined,
       breadcrumbs: false
     }
   ]
