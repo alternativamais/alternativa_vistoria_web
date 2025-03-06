@@ -43,8 +43,8 @@ const Ferramentas = () => {
   const [modalCriarOpen, setModalCriarOpen] = useState(false);
   const [modalEditarOpen, setModalEditarOpen] = useState(false);
   const [ferramentaSelecionada, setFerramentaSelecionada] = useState(null);
-  const [modalDetalhesOpen, setModalDetalhesOpen] = useState(false);
-  const [ferramentaDetalhes, setFerramentaDetalhes] = useState(null);
+  // const [modalDetalhesOpen, setModalDetalhesOpen] = useState(false);
+  // const [ferramentaDetalhes, setFerramentaDetalhes] = useState(null);
 
   const buscarFerramentas = async () => {
     try {
@@ -110,10 +110,10 @@ const Ferramentas = () => {
     setModalDetalhesOpen(true);
   };
 
-  const handleFecharModalDetalhes = () => {
-    setFerramentaDetalhes(null);
-    setModalDetalhesOpen(false);
-  };
+  // const handleFecharModalDetalhes = () => {
+  //   setFerramentaDetalhes(null);
+  //   setModalDetalhesOpen(false);
+  // };
 
   const handlePesquisaChange = (event) => {
     setPesquisa(event.target.value);
@@ -132,8 +132,8 @@ const Ferramentas = () => {
 
   const formatarData = (dataISO) => {
     if (!dataISO) return 'Sem data';
-    const data = new Date(dataISO);
-    data.setHours(data.getHours() - 3);
+    const [ano, mes, dia] = dataISO.split('-');
+    const data = new Date(ano, mes - 1, dia);
     return data.toLocaleDateString('pt-BR');
   };
 
