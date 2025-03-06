@@ -9,9 +9,9 @@ import { EyeOutlined } from '@ant-design/icons';
 //   return user.role.permissions.some((perm) => perm.group === grupo);
 // };
 
-const vistoriaFerramentas = {
+const vistoriaInstalacaoExterno = {
   id: 'group-vistoria-ferramentas',
-  title: 'Vistoria Ferramentas',
+  title: 'Vistoria Instalação Externo',
   type: 'group',
   children: [
     {
@@ -25,4 +25,4 @@ const vistoriaFerramentas = {
   ]
 };
 
-export default vistoriaFerramentas;
+export default vistoriaInstalacaoExterno;

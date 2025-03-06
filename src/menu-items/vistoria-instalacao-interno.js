@@ -1,4 +1,4 @@
-import { EyeOutlined, CheckSquareOutlined, UndoOutlined } from '@ant-design/icons';
+import { EyeOutlined, CheckSquareOutlined, UndoOutlined, CarOutlined } from '@ant-design/icons';
 // import { getUserDataFromToken } from 'utils/tokenUtils';
 
 // const tokenData = getUserDataFromToken();
@@ -37,6 +37,14 @@ const vistoriaInstalacaoInterno = {
       type: 'item',
       url: '/admin/checklist',
       icon: CheckSquareOutlined,
+      breadcrumbs: false
+    },
+    {
+      id: 'veiculos',
+      title: 'Veículos',
+      type: 'item',
+      url: '/admin/veiculos',
+      icon: CarOutlined,
       breadcrumbs: false
     }
   ]

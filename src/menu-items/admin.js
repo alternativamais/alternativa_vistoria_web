@@ -1,4 +1,13 @@
-import { DashboardOutlined, UserOutlined, UnlockOutlined, CarOutlined, UserSwitchOutlined, ToolOutlined } from '@ant-design/icons';
+import {
+  DashboardOutlined,
+  UserOutlined,
+  UnlockOutlined,
+  CarOutlined,
+  UserSwitchOutlined,
+  ToolOutlined,
+  CheckSquareOutlined,
+  EyeOutlined
+} from '@ant-design/icons';
 // import { getUserDataFromToken } from 'utils/tokenUtils';
 
 // const tokenData = getUserDataFromToken();
@@ -38,38 +47,6 @@ const admin = {
       type: 'item',
       url: '/admin/permissoes',
       icon: UnlockOutlined,
-      breadcrumbs: false
-    },
-    {
-      id: 'veiculos',
-      title: 'Veículos',
-      type: 'item',
-      url: '/admin/veiculos',
-      icon: CarOutlined,
-      breadcrumbs: false
-    },
-    {
-      id: 'tecnicos',
-      title: 'Técnicos',
-      type: 'item',
-      url: '/admin/tecnicos',
-      icon: UserSwitchOutlined,
-      breadcrumbs: false
-    },
-    {
-      id: 'ferramentas',
-      title: 'Ferramentas',
-      type: 'item',
-      url: '/admin/ferramentas',
-      icon: ToolOutlined,
-      breadcrumbs: false
-    },
-    {
-      id: '22',
-      title: 'Checklist Ferramentas',
-      type: 'item',
-      url: '/admin/ferramentaschecklistvistoria',
-      icon: ToolOutlined,
       breadcrumbs: false
     }
   ]
