@@ -15,6 +15,7 @@ import AdminRolesPermissions from 'pages/Roles/index';
 import VistoriasFerramentas from 'pages/VistoriasFerramentas/index';
 import Tecnicos from 'pages/Tecnicos/index';
 import Ferramentas from 'pages/Ferramentas/index';
+import ChecklistVistoriaFerramentas from 'pages/ChecklistVistoriaFerramentas/index';
 
 const MainRoutes = [
   {
@@ -62,6 +63,10 @@ const MainRoutes = [
         path: 'admin/ferramentas',
         element: <Ferramentas />
       },
+      {
+        path: 'admin/ferramentaschecklistvistoria',
+        element: <ChecklistVistoriaFerramentas />
+      },
 
       // inspetor
       {
@@ -79,7 +84,6 @@ const MainRoutes = [
         path: 'inspetor/vistoria-ferramentas',
         element: <VistoriasFerramentas />
       },
-
       // outra coisa
       {
         path: '*',

@@ -11,7 +11,7 @@ import { EyeOutlined, FontColorsOutlined } from '@ant-design/icons';
 
 const inspetor = {
   id: 'group-inspetor',
-  title: 'Inspetor',
+  title: 'Vistoria Instalação Externo',
   type: 'group',
   children: [
     {

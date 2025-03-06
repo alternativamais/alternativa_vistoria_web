@@ -1,4 +1,4 @@
-import { DashboardOutlined, UserOutlined, EyeOutlined, CheckSquareOutlined, CarOutlined, UndoOutlined } from '@ant-design/icons';
+import { EyeOutlined, CheckSquareOutlined, UndoOutlined } from '@ant-design/icons';
 // import { getUserDataFromToken } from 'utils/tokenUtils';
 
 // const tokenData = getUserDataFromToken();
@@ -32,7 +32,7 @@ const vistoriaInstalacaoInterno = {
       breadcrumbs: false
     },
     {
-      id: 'checklist',
+      id: 'checklistinstalacao',
       title: 'Checklist Instalação',
       type: 'item',
       url: '/admin/checklist',

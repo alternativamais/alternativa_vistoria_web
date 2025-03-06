@@ -52,7 +52,7 @@ const admin = {
       id: 'tecnicos',
       title: 'Técnicos',
       type: 'item',
-      url: 'admin/tecnicos',
+      url: '/admin/tecnicos',
       icon: UserSwitchOutlined,
       breadcrumbs: false
     },
@@ -60,7 +60,15 @@ const admin = {
       id: 'ferramentas',
       title: 'Ferramentas',
       type: 'item',
-      url: 'admin/ferramentas',
+      url: '/admin/ferramentas',
+      icon: ToolOutlined,
+      breadcrumbs: false
+    },
+    {
+      id: '22',
+      title: 'Checklist Ferramentas',
+      type: 'item',
+      url: '/admin/ferramentaschecklistvistoria',
       icon: ToolOutlined,
       breadcrumbs: false
     }
