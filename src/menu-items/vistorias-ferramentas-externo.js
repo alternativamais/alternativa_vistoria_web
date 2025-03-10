@@ -15,10 +15,10 @@ const vistoriaInstalacaoExterno = {
   type: 'group',
   children: [
     {
-      id: 'vistoriaferramentas',
-      title: 'Vistoria Ferramentas',
+      id: 'vistoriaferramentasexterno',
+      title: 'Vistoria Ferramentas Externo',
       type: 'item',
-      url: '/inspetor/vistoria-ferramentas',
+      url: 'inspetor/vistoria-ferramentas-externo',
       icon: EyeOutlined,
       breadcrumbs: false
     }

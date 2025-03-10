@@ -16,6 +16,7 @@ import VistoriasFerramentas from 'pages/VistoriasFerramentas/index';
 import Tecnicos from 'pages/Tecnicos/index';
 import Ferramentas from 'pages/Ferramentas/index';
 import ChecklistVistoriaFerramentas from 'pages/ChecklistVistoriaFerramentas/index';
+import VistoriasFerramentasExterno from 'pages/VistoriasFerramentasExterno/index';
 
 const MainRoutes = [
   {
@@ -83,6 +84,10 @@ const MainRoutes = [
       {
         path: 'inspetor/vistoria-ferramentas',
         element: <VistoriasFerramentas />
+      },
+      {
+        path: 'inspetor/vistoria-ferramentas-externo',
+        element: <VistoriasFerramentasExterno />
       },
       // outra coisa
       {

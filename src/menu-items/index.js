@@ -2,7 +2,7 @@ import admin from './admin';
 import inspetor from './inspetor';
 import vistoriaFerramentasInterno from './vistoria-ferramentas-interno';
 import vistoriaInstalacaoInterno from './vistoria-instalacao-interno';
-import vistoriaInstalacaoExterno from './vistorias-ferramentas';
+import vistoriaInstalacaoExterno from './vistorias-ferramentas-externo';
 
 const menuItems = {
   items: [admin, vistoriaInstalacaoInterno, inspetor, vistoriaFerramentasInterno, vistoriaInstalacaoExterno].filter(

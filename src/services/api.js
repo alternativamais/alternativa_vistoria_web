@@ -1,8 +1,8 @@
 import axios from 'axios';
 
 export const api = axios.create({
-  baseURL: 'https://vistoria.alternativamais.com.br/api'
-  // baseURL: 'http://localhost:5051/api'
+  // baseURL: 'https://vistoria.alternativamais.com.br/api'
+  baseURL: 'http://localhost:5051/api'
 });
 
 const getToken = () => {
