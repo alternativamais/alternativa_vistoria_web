@@ -240,6 +240,8 @@ const EditarVistoriaFerramentas = ({ open, onClose, onSuccess, vistoria }) => {
         try {
           await api.delete(`/vistoria-ferramentas/${vistoria.vistoria.id}/itens/${item.id}`);
           notification({ message: 'Item removido com sucesso!', type: 'success' });
+          // Chama o onSuccess para refazer a requisição das vistorias
+          onSuccess();
         } catch (error) {
           notification({ message: 'Erro ao remover o item!', type: 'error' });
           return;
@@ -254,6 +256,8 @@ const EditarVistoriaFerramentas = ({ open, onClose, onSuccess, vistoria }) => {
       newItems.splice(index, 1);
       return { ...prev, items: newItems };
     });
+    // Chama o onSuccess mesmo se o item não estiver persistido para sincronizar a interface
+    onSuccess();
   };
 
   const handleItemChange = (index, field, value) => {
@@ -289,7 +293,7 @@ const EditarVistoriaFerramentas = ({ open, onClose, onSuccess, vistoria }) => {
           id: item.id,
           ferramenta_id: Number(item.ferramenta_id),
           comentario: item.comentario,
-          checklistIds: item.checklistIds // Agora incluindo a atualização dos checklists
+          checklistIds: item.checklistIds
         }))
       };
 
@@ -305,6 +309,7 @@ const EditarVistoriaFerramentas = ({ open, onClose, onSuccess, vistoria }) => {
         await api.post(`/vistoria-ferramentas/${vistoria.vistoria.id}/itens`, novoPayload);
       }
 
+      // Atualiza a listagem de vistorias após a atualização
       onSuccess();
       onClose();
       notification({ message: 'Vistoria atualizada com sucesso!', type: 'success' });
