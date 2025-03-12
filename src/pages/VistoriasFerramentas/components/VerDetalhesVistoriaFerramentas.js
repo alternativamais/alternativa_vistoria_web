@@ -99,10 +99,11 @@ const VerDetalhesVistoriaFerramentas = ({ open, onClose, vistoria }) => {
     }
   };
 
-  const toggleChecklist = (chkId) => {
+  // Atualiza a expansão do checklist utilizando uma chave composta para garantir unicidade
+  const toggleChecklist = (compositeId) => {
     setExpandedChecklists((prev) => ({
       ...prev,
-      [chkId]: !prev[chkId]
+      [compositeId]: !prev[compositeId]
     }));
   };
 
@@ -293,46 +294,49 @@ const VerDetalhesVistoriaFerramentas = ({ open, onClose, vistoria }) => {
                   </Typography>
                 )}
                 {item.checklists && item.checklists.length > 0 ? (
-                  item.checklists.map((chk) => (
-                    <Box key={chk.id} sx={{ mb: 2, ml: 2, border: '1px solid #ddd', borderRadius: 1 }}>
-                      <Box
-                        sx={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'space-between',
-                          p: 1,
-                          backgroundColor: '#f0f0f0',
-                          cursor: 'pointer'
-                        }}
-                        onClick={() => toggleChecklist(chk.id)}
-                      >
-                        <Typography variant="subtitle2">{chk.nome || `ID: ${chk.id}`}</Typography>
-                        <IconButton size="small">{expandedChecklists[chk.id] ? <UpOutlined /> : <DownOutlined />}</IconButton>
+                  item.checklists.map((chk) => {
+                    const compositeId = `${item.id}-${chk.id}`;
+                    return (
+                      <Box key={compositeId} sx={{ mb: 2, ml: 2, border: '1px solid #ddd', borderRadius: 1 }}>
+                        <Box
+                          sx={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            p: 1,
+                            backgroundColor: '#f0f0f0',
+                            cursor: 'pointer'
+                          }}
+                          onClick={() => toggleChecklist(compositeId)}
+                        >
+                          <Typography variant="subtitle2">{chk.nome || `ID: ${chk.id}`}</Typography>
+                          <IconButton size="small">{expandedChecklists[compositeId] ? <UpOutlined /> : <DownOutlined />}</IconButton>
+                        </Box>
+                        <Collapse in={expandedChecklists[compositeId]} timeout="auto" unmountOnExit>
+                          <List dense sx={{ pl: 2 }}>
+                            {chk.items && chk.items.length > 0 ? (
+                              chk.items.map((it) => (
+                                <ListItem key={it.id}>
+                                  <ListItemIcon>
+                                    {it.marked ? (
+                                      <CheckCircleOutlined style={{ color: 'green' }} />
+                                    ) : (
+                                      <CloseCircleOutlined style={{ color: 'red' }} />
+                                    )}
+                                  </ListItemIcon>
+                                  <ListItemText primary={it.titulo || `ID: ${it.id}`} secondary={it.marked ? 'Marcado' : 'Não marcado'} />
+                                </ListItem>
+                              ))
+                            ) : (
+                              <Typography variant="body2" sx={{ ml: 4 }}>
+                                Nenhum item cadastrado.
+                              </Typography>
+                            )}
+                          </List>
+                        </Collapse>
                       </Box>
-                      <Collapse in={expandedChecklists[chk.id]} timeout="auto" unmountOnExit>
-                        <List dense sx={{ pl: 2 }}>
-                          {chk.items && chk.items.length > 0 ? (
-                            chk.items.map((it) => (
-                              <ListItem key={it.id}>
-                                <ListItemIcon>
-                                  {it.marked ? (
-                                    <CheckCircleOutlined style={{ color: 'green' }} />
-                                  ) : (
-                                    <CloseCircleOutlined style={{ color: 'red' }} />
-                                  )}
-                                </ListItemIcon>
-                                <ListItemText primary={it.titulo || `ID: ${it.id}`} secondary={it.marked ? 'Marcado' : 'Não marcado'} />
-                              </ListItem>
-                            ))
-                          ) : (
-                            <Typography variant="body2" sx={{ ml: 4 }}>
-                              Nenhum item cadastrado.
-                            </Typography>
-                          )}
-                        </List>
-                      </Collapse>
-                    </Box>
-                  ))
+                    );
+                  })
                 ) : (
                   <Typography variant="body2" sx={{ ml: 2 }}>
                     Nenhum checklist associado.
