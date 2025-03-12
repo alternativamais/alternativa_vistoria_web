@@ -1,10 +1,21 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react/prop-types */
 import React, { useState, useEffect } from 'react';
-import { Box, Button, Modal, TextField, Select, MenuItem, FormControl, InputLabel, useTheme, useMediaQuery } from '@mui/material';
+import {
+  Box,
+  Button,
+  Modal,
+  TextField,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  useTheme,
+  useMediaQuery,
+  Typography
+} from '@mui/material';
 import { api } from 'services/api';
 import { notification } from 'components/notification';
-// import { useAuth } from 'hooks/auth';
 import { PlusCircleOutlined, MinusCircleOutlined, UpOutlined, DownOutlined } from '@ant-design/icons';
 
 const DualListChecklistSelector = ({ allChecklists, selectedIds, onChange }) => {
@@ -138,8 +149,6 @@ const CriarVistoriaFerramentas = ({ open, onClose, onSuccess }) => {
   const [tecnicos, setTecnicos] = useState([]);
   // Estado para lista de checklists disponíveis
   const [checklistsDisponiveis, setChecklistsDisponiveis] = useState([]);
-  // Estado para lista de ferramentas
-  const [ferramentas, setFerramentas] = useState([]);
 
   // Busca os técnicos via GET em /tecnicos
   useEffect(() => {
@@ -165,19 +174,6 @@ const CriarVistoriaFerramentas = ({ open, onClose, onSuccess }) => {
       }
     };
     fetchChecklists();
-  }, []);
-
-  // Busca as ferramentas disponíveis
-  useEffect(() => {
-    const fetchFerramentas = async () => {
-      try {
-        const response = await api.get('/ferramentas');
-        setFerramentas(response.data);
-      } catch (error) {
-        notification({ message: 'Erro ao buscar ferramentas!', type: 'error' });
-      }
-    };
-    fetchFerramentas();
   }, []);
 
   // Reseta o formulário quando o modal fecha
@@ -241,6 +237,26 @@ const CriarVistoriaFerramentas = ({ open, onClose, onSuccess }) => {
     });
   };
 
+  // Função para obter as ferramentas disponíveis do técnico selecionado
+  const getFerramentasDoTecnico = () => {
+    return tecnicos.find((tec) => Number(tec.id) === Number(formData.tecnico_id))?.ferramentas || [];
+  };
+
+  // Para cada item, filtramos as ferramentas já selecionadas em outros itens
+  const getFerramentasDisponiveisParaItem = (currentItemIndex) => {
+    const todasFerramentas = getFerramentasDoTecnico();
+    // Ferramentas selecionadas em outros itens (exceto o atual)
+    const selecionadasEmOutros = formData.items
+      .filter((_, idx) => idx !== currentItemIndex)
+      .map((item) => Number(item.ferramenta_id))
+      .filter(Boolean);
+    // Se a ferramenta já estiver selecionada neste item, permitimos mantê-la
+    const currentSelected = Number(formData.items[currentItemIndex]?.ferramenta_id);
+    return todasFerramentas.filter((ferramenta) => {
+      return ferramenta.id === currentSelected || !selecionadasEmOutros.includes(ferramenta.id);
+    });
+  };
+
   // Ao enviar, monta o payload conforme o padrão esperado:
   // Se um item não tiver checklistIds (array vazio), omitimos esse campo.
   const handleSubmit = async () => {
@@ -272,6 +288,9 @@ const CriarVistoriaFerramentas = ({ open, onClose, onSuccess }) => {
       });
     }
   };
+
+  // Obtém as ferramentas do técnico selecionado para exibir o botão ou mensagem
+  const ferramentasDoTecnico = getFerramentasDoTecnico();
 
   return (
     <Modal open={open} onClose={onClose} aria-labelledby="modal-criar-vistoria" aria-describedby="modal-criar-vistoria-descricao">
@@ -365,7 +384,7 @@ const CriarVistoriaFerramentas = ({ open, onClose, onSuccess }) => {
                         onChange={(e) => handleItemChange(index, 'ferramenta_id', e.target.value)}
                         label="Ferramenta"
                       >
-                        {ferramentas.map((ferramenta) => (
+                        {getFerramentasDisponiveisParaItem(index).map((ferramenta) => (
                           <MenuItem key={ferramenta.id} value={ferramenta.id}>
                             {ferramenta.nome}
                           </MenuItem>
@@ -394,9 +413,16 @@ const CriarVistoriaFerramentas = ({ open, onClose, onSuccess }) => {
                 </Box>
               </Box>
             ))}
-            <Button onClick={handleAddItem} variant="outlined" startIcon={<PlusCircleOutlined />}>
-              Adicionar Ferramenta
-            </Button>
+            {/* Verifica se o técnico possui ferramentas para permitir adicionar um item */}
+            {formData.tecnico_id && ferramentasDoTecnico.length > 0 ? (
+              <Button onClick={handleAddItem} variant="outlined" startIcon={<PlusCircleOutlined />}>
+                Adicionar Ferramenta
+              </Button>
+            ) : formData.tecnico_id ? (
+              <Typography variant="body2" color="textSecondary">
+                O técnico não possui ferramentas para vistoriar.
+              </Typography>
+            ) : null}
           </Box>
 
           <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
