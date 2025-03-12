@@ -113,11 +113,11 @@ const Tecnicos = () => {
     setModalEditarOpen(false);
   };
 
-  const handleDetalhesTecnico = (item) => {
-    // Caso venha a utilizar a visualização de detalhes, descomente a linha abaixo
-    // setTecnicoDetalhes(item);
-    // setModalDetalhesOpen(true);
-  };
+  // const handleDetalhesTecnico = (item) => {
+  // Caso venha a utilizar a visualização de detalhes, descomente a linha abaixo
+  // setTecnicoDetalhes(item);
+  // setModalDetalhesOpen(true);
+  // };
 
   // const handleFecharModalDetalhes = () => {
   //   setTecnicoDetalhes(null);

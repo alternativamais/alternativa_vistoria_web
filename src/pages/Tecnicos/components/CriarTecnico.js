@@ -4,14 +4,11 @@ import React, { useState, useEffect } from 'react';
 import { Box, Button, Modal, TextField, InputLabel, useTheme, useMediaQuery } from '@mui/material';
 import { api } from 'services/api';
 import { notification } from 'components/notification';
-import { PlusCircleOutlined, MinusCircleOutlined } from '@ant-design/icons';
 
-// Componente Dual List para seleção de ferramentas
 const DualListFerramentasSelector = ({ allFerramentas, selectedIds, onChange }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
-  // Lista de ferramentas disponíveis e selecionadas
   const availableList = allFerramentas.filter((f) => !selectedIds.includes(f.id));
   const selectedList = allFerramentas.filter((f) => selectedIds.includes(f.id));
 
@@ -123,14 +120,10 @@ const DualListFerramentasSelector = ({ allFerramentas, selectedIds, onChange }) 
 };
 
 const CriarTecnico = ({ open, onClose, onSuccess }) => {
-  // Estado para armazenar o nome do técnico
   const [nome, setNome] = useState('');
-  // Estado para armazenar o array de IDs das ferramentas selecionadas
   const [ferramentaIds, setFerramentaIds] = useState([]);
-  // Lista de ferramentas para a dual list
   const [ferramentas, setFerramentas] = useState([]);
 
-  // Busca as ferramentas disponíveis via GET em /ferramentas
   useEffect(() => {
     const fetchFerramentas = async () => {
       try {
@@ -143,7 +136,6 @@ const CriarTecnico = ({ open, onClose, onSuccess }) => {
     fetchFerramentas();
   }, []);
 
-  // Reseta o formulário sempre que o modal for fechado
   useEffect(() => {
     if (!open) {
       setNome('');
@@ -151,18 +143,16 @@ const CriarTecnico = ({ open, onClose, onSuccess }) => {
     }
   }, [open]);
 
-  // Handler para submeter o formulário e criar o técnico
   const handleSubmit = async () => {
     try {
       const payload = {
         nome,
         ferramentaIds
       };
-      // Envia a requisição POST para criar o técnico
       await api.post('/tecnicos', payload);
       notification({ message: 'Técnico criado com sucesso!', type: 'success' });
-      onSuccess(); // Atualiza a lista de técnicos
-      onClose(); // Fecha o modal
+      onSuccess();
+      onClose();
     } catch (error) {
       notification({ message: 'Erro ao criar técnico. Verifique os dados e tente novamente!', type: 'error' });
     }
