@@ -371,7 +371,7 @@ const EditarVistoriaFerramentas = ({ open, onClose, onSuccess, vistoria }) => {
 
           {/* Itens */}
           <Box>
-            <h3>Itens</h3>
+            <h3>Ferramentas</h3>
             {formData.items.map((item, index) => (
               <Box
                 key={index}
@@ -393,7 +393,7 @@ const EditarVistoriaFerramentas = ({ open, onClose, onSuccess, vistoria }) => {
                   }}
                   onClick={() => toggleItemExpansion(index)}
                 >
-                  <span>Item {index + 1}</span>
+                  <span>Ferramenta {index + 1}</span>
                   <span>{item.expanded ? <UpOutlined /> : <DownOutlined />}</span>
                 </Box>
                 {item.expanded && (

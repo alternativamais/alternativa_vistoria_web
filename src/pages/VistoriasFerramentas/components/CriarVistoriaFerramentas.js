@@ -328,7 +328,7 @@ const CriarVistoriaFerramentas = ({ open, onClose, onSuccess }) => {
 
           {/* Itens de Vistoria */}
           <Box>
-            <h3>Itens</h3>
+            <h3>Ferramentas</h3>
             {formData.items.map((item, index) => (
               <Box
                 key={index}
@@ -395,7 +395,7 @@ const CriarVistoriaFerramentas = ({ open, onClose, onSuccess }) => {
               </Box>
             ))}
             <Button onClick={handleAddItem} variant="outlined" startIcon={<PlusCircleOutlined />}>
-              Adicionar Item
+              Adicionar Ferramenta
             </Button>
           </Box>
 
