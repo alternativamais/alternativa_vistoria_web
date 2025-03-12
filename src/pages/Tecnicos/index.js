@@ -114,8 +114,9 @@ const Tecnicos = () => {
   };
 
   const handleDetalhesTecnico = (item) => {
-    setTecnicoDetalhes(item);
-    setModalDetalhesOpen(true);
+    // Caso venha a utilizar a visualização de detalhes, descomente a linha abaixo
+    // setTecnicoDetalhes(item);
+    // setModalDetalhesOpen(true);
   };
 
   // const handleFecharModalDetalhes = () => {
@@ -139,12 +140,9 @@ const Tecnicos = () => {
     setPage(0);
   };
 
-  // Formata a data para exibição
-  const formatarData = (dataISO) => {
-    if (!dataISO) return 'Sem data';
-    const data = new Date(dataISO);
-    data.setHours(data.getHours() - 3);
-    return data.toLocaleDateString('pt-BR');
+  // Formata o valor para exibição como moeda
+  const formatarValor = (valor) => {
+    return `R$ ${parseFloat(valor).toFixed(2)}`;
   };
 
   return (
@@ -177,36 +175,40 @@ const Tecnicos = () => {
               <TableHead>
                 <TableRow>
                   <TableCell>Nome</TableCell>
-                  <TableCell>Data de Criação</TableCell>
-                  <TableCell>Data de Atualização</TableCell>
+                  <TableCell>Ferramentas</TableCell>
+                  <TableCell>Valor Total</TableCell>
                   <TableCell>Ações</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {tecnicosFiltrados.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((item) => (
-                  <TableRow key={item.id}>
-                    <TableCell>{item.nome}</TableCell>
-                    <TableCell>{formatarData(item.createdAt)}</TableCell>
-                    <TableCell>{formatarData(item.updatedAt)}</TableCell>
-                    <TableCell>
-                      <Tooltip title="Editar">
-                        <IconButton onClick={() => handleEditarTecnico(item)}>
-                          <EditOutlined />
-                        </IconButton>
-                      </Tooltip>
-                      <Tooltip title="Deletar">
-                        <IconButton onClick={() => handleDeletarTecnico(item)}>
-                          <DeleteOutlined />
-                        </IconButton>
-                      </Tooltip>
-                      <Tooltip title="Ver Detalhes">
-                        <IconButton onClick={() => handleDetalhesTecnico(item)}>
-                          <EyeOutlined />
-                        </IconButton>
-                      </Tooltip>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                {tecnicosFiltrados.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((item) => {
+                  // Caso o item não tenha ferramentas, assume um array vazio
+                  const ferramentas = item.ferramentas || [];
+                  return (
+                    <TableRow key={item.id}>
+                      <TableCell>{item.nome}</TableCell>
+                      <TableCell>{ferramentas.length}</TableCell>
+                      <TableCell>{formatarValor(item.totalFerramentas || 0)}</TableCell>
+                      <TableCell>
+                        <Tooltip title="Editar">
+                          <IconButton onClick={() => handleEditarTecnico(item)}>
+                            <EditOutlined />
+                          </IconButton>
+                        </Tooltip>
+                        <Tooltip title="Deletar">
+                          <IconButton onClick={() => handleDeletarTecnico(item)}>
+                            <DeleteOutlined />
+                          </IconButton>
+                        </Tooltip>
+                        <Tooltip title="Ver Detalhes">
+                          <IconButton onClick={() => handleDetalhesTecnico(item)}>
+                            <EyeOutlined />
+                          </IconButton>
+                        </Tooltip>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
               </TableBody>
             </Table>
           </TableContainer>
