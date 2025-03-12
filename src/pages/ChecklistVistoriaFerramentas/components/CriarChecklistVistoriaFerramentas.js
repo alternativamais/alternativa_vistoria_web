@@ -8,17 +8,17 @@ import { DeleteOutlined, PlusOutlined } from '@ant-design/icons';
 
 const CriarChecklistVistoriaFerramentas = ({ open, onClose, onSuccess }) => {
   const [nome, setNome] = useState('');
-  const [items, setItems] = useState([{ titulo: '' }]);
+  const [items, setItems] = useState([{ titulo: '', tag: '' }]);
 
   useEffect(() => {
     if (!open) {
       setNome('');
-      setItems([{ titulo: '' }]);
+      setItems([{ titulo: '', tag: '' }]);
     }
   }, [open]);
 
   const handleAddItem = () => {
-    setItems([...items, { titulo: '' }]);
+    setItems([...items, { titulo: '', tag: '' }]);
   };
 
   const handleRemoveItem = (index) => {
@@ -26,12 +26,13 @@ const CriarChecklistVistoriaFerramentas = ({ open, onClose, onSuccess }) => {
     setItems(novosItems);
   };
 
-  const handleItemChange = (index, value) => {
-    const novosItems = items.map((item, i) => (i === index ? { ...item, titulo: value } : item));
+  const handleItemFieldChange = (index, field, value) => {
+    const novosItems = items.map((item, i) => (i === index ? { ...item, [field]: value } : item));
     setItems(novosItems);
   };
 
   const handleSubmit = async () => {
+    // Filtra os items com título preenchido
     const filteredItems = items.filter((item) => item.titulo.trim() !== '');
     try {
       await api.post('/checklist-vistoria-ferramentas/create', {
@@ -73,13 +74,32 @@ const CriarChecklistVistoriaFerramentas = ({ open, onClose, onSuccess }) => {
           <Box>
             <h3>Itens</h3>
             {items.map((item, index) => (
-              <Box key={index} sx={{ display: 'flex', alignItems: 'center', gap: 1, marginBottom: 1 }}>
-                <TextField
-                  label={`Item ${index + 1}`}
-                  value={item.titulo}
-                  onChange={(e) => handleItemChange(index, e.target.value)}
-                  fullWidth
-                />
+              <Box
+                key={index}
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 1,
+                  marginBottom: 2,
+                  border: '1px solid #ccc',
+                  borderRadius: '4px',
+                  padding: 1
+                }}
+              >
+                <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 1 }}>
+                  <TextField
+                    label={`Item ${index + 1} - Título`}
+                    value={item.titulo}
+                    onChange={(e) => handleItemFieldChange(index, 'titulo', e.target.value)}
+                    fullWidth
+                  />
+                  <TextField
+                    label={`Item ${index + 1} - Tag (opcional)`}
+                    value={item.tag}
+                    onChange={(e) => handleItemFieldChange(index, 'tag', e.target.value)}
+                    fullWidth
+                  />
+                </Box>
                 <IconButton onClick={() => handleRemoveItem(index)}>
                   <DeleteOutlined />
                 </IconButton>

@@ -13,7 +13,7 @@ const EditarChecklistVistoriaFerramentas = ({ open, onClose, onSuccess, checklis
   useEffect(() => {
     if (open && checklist) {
       setNome(checklist.nome);
-      setItems(checklist.items && checklist.items.length > 0 ? checklist.items : []);
+      setItems(checklist.items && checklist.items.length > 0 ? checklist.items.map((item) => ({ ...item, tag: item.tag || '' })) : []);
     }
   }, [open, checklist]);
 
@@ -25,11 +25,11 @@ const EditarChecklistVistoriaFerramentas = ({ open, onClose, onSuccess, checklis
   }, [open]);
 
   const handleAddItem = () => {
-    setItems([...items, { titulo: 'Novo item do checklist' }]);
+    setItems([...items, { titulo: 'Novo item do checklist', tag: '' }]);
   };
 
-  const handleItemChange = (index, value) => {
-    const novosItems = items.map((item, i) => (i === index ? { ...item, titulo: value } : item));
+  const handleItemChange = (index, field, value) => {
+    const novosItems = items.map((item, i) => (i === index ? { ...item, [field]: value } : item));
     setItems(novosItems);
   };
 
@@ -59,7 +59,11 @@ const EditarChecklistVistoriaFerramentas = ({ open, onClose, onSuccess, checklis
     try {
       await api.put(`/checklist-vistoria-ferramentas/${checklist.id}`, {
         nome,
-        items: existingItems
+        items: existingItems.map((item) => ({
+          id: item.id,
+          titulo: item.titulo,
+          tag: item.tag
+        }))
       });
 
       if (newItems.length > 0) {
@@ -67,7 +71,8 @@ const EditarChecklistVistoriaFerramentas = ({ open, onClose, onSuccess, checklis
           newItems.map((item) =>
             api.post('/checklist-vistoria-ferramentas/item', {
               checklist_id: checklist.id,
-              titulo: item.titulo
+              titulo: item.titulo,
+              tag: item.tag
             })
           )
         );
@@ -98,22 +103,45 @@ const EditarChecklistVistoriaFerramentas = ({ open, onClose, onSuccess, checklis
           borderRadius: '8px',
           display: 'flex',
           flexDirection: 'column',
-          gap: 2
+          gap: 2,
+          maxHeight: '90vh', // Para não sair da tela
+          overflowY: 'auto' // Adiciona scroll se necessário
         }}
       >
         <h2 id="modal-editar-checklist">Editar Checklist</h2>
         <Box component="form" noValidate autoComplete="off" sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
           <TextField label="Nome do Checklist" name="nome" value={nome} onChange={(e) => setNome(e.target.value)} fullWidth />
-          <Box>
+
+          <Box sx={{ maxHeight: '300px', overflowY: 'auto', padding: 1, border: '1px solid #ccc', borderRadius: '8px' }}>
             <h3>Itens</h3>
             {items.map((item, index) => (
-              <Box key={index} sx={{ display: 'flex', alignItems: 'center', gap: 1, marginBottom: 1 }}>
-                <TextField
-                  label={`Item ${index + 1}`}
-                  value={item.titulo}
-                  onChange={(e) => handleItemChange(index, e.target.value)}
-                  fullWidth
-                />
+              <Box
+                key={index}
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 2,
+                  padding: 2,
+                  border: '1px solid #ddd',
+                  borderRadius: '8px',
+                  marginBottom: 1,
+                  backgroundColor: '#f9f9f9'
+                }}
+              >
+                <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 1 }}>
+                  <TextField
+                    label={`Item ${index + 1} - Título`}
+                    value={item.titulo}
+                    onChange={(e) => handleItemChange(index, 'titulo', e.target.value)}
+                    fullWidth
+                  />
+                  <TextField
+                    label={`Item ${index + 1} - Tag (opcional)`}
+                    value={item.tag}
+                    onChange={(e) => handleItemChange(index, 'tag', e.target.value)}
+                    fullWidth
+                  />
+                </Box>
                 <IconButton onClick={() => handleDeleteItem(index, item)}>
                   <DeleteOutlined />
                 </IconButton>
@@ -123,6 +151,7 @@ const EditarChecklistVistoriaFerramentas = ({ open, onClose, onSuccess, checklis
               Adicionar Item
             </Button>
           </Box>
+
           <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
             <Button onClick={onClose} color="secondary">
               Cancelar

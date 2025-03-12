@@ -14,7 +14,7 @@ import {
   IconButton,
   Tooltip
 } from '@mui/material';
-import { EditOutlined, DeleteOutlined, EyeOutlined } from '@ant-design/icons';
+import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import MainCard from 'components/sistema/MainCard';
 import { api } from 'services/api';
 import { notification } from 'components/notification';
@@ -154,11 +154,6 @@ const ChecklistVistoriaFerramentas = () => {
                       <Tooltip title="Deletar">
                         <IconButton onClick={() => handleDeletarChecklist(item)}>
                           <DeleteOutlined />
-                        </IconButton>
-                      </Tooltip>
-                      <Tooltip title="Ver Detalhes">
-                        <IconButton>
-                          <EyeOutlined />
                         </IconButton>
                       </Tooltip>
                     </TableCell>
