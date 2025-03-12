@@ -324,7 +324,7 @@ const VerDetalhesVistoriaFerramentas = ({ open, onClose, vistoria }) => {
                                       <CloseCircleOutlined style={{ color: 'red' }} />
                                     )}
                                   </ListItemIcon>
-                                  <ListItemText primary={it.titulo || `ID: ${it.id}`} secondary={it.marked ? 'Marcado' : 'Não marcado'} />
+                                  <ListItemText primary={it.titulo || `ID: ${it.id}`} secondary={it.tag ? it.tag : 'Tag não disponível'} />
                                 </ListItem>
                               ))
                             ) : (
