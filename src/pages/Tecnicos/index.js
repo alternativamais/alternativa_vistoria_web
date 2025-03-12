@@ -12,7 +12,8 @@ import {
   TablePagination,
   TextField,
   IconButton,
-  Tooltip
+  Tooltip,
+  Chip // importado para exibir as tags
 } from '@mui/material';
 import { EditOutlined, DeleteOutlined, EyeOutlined } from '@ant-design/icons';
 import MainCard from 'components/sistema/MainCard';
@@ -113,10 +114,10 @@ const Tecnicos = () => {
     setModalEditarOpen(false);
   };
 
-  // const handleDetalhesTecnico = (item) => {
   // Caso venha a utilizar a visualização de detalhes, descomente a linha abaixo
-  // setTecnicoDetalhes(item);
-  // setModalDetalhesOpen(true);
+  // const handleDetalhesTecnico = (item) => {
+  //   setTecnicoDetalhes(item);
+  //   setModalDetalhesOpen(true);
   // };
 
   // const handleFecharModalDetalhes = () => {
@@ -177,6 +178,7 @@ const Tecnicos = () => {
                   <TableCell>Nome</TableCell>
                   <TableCell>Ferramentas</TableCell>
                   <TableCell>Valor Total</TableCell>
+                  <TableCell>Tags</TableCell>
                   <TableCell>Ações</TableCell>
                 </TableRow>
               </TableHead>
@@ -184,11 +186,18 @@ const Tecnicos = () => {
                 {tecnicosFiltrados.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((item) => {
                   // Caso o item não tenha ferramentas, assume um array vazio
                   const ferramentas = item.ferramentas || [];
+                  // Agrega todas as tags de todas as ferramentas
+                  const todasTags = ferramentas.reduce((acc, ferramenta) => acc.concat(ferramenta.tags || []), []);
                   return (
                     <TableRow key={item.id}>
                       <TableCell>{item.nome}</TableCell>
                       <TableCell>{ferramentas.length}</TableCell>
                       <TableCell>{formatarValor(item.totalFerramentas || 0)}</TableCell>
+                      <TableCell>
+                        {todasTags.length > 0
+                          ? todasTags.map((tag, index) => <Chip key={index} label={tag} size="small" sx={{ mr: 0.5, mb: 0.5 }} />)
+                          : 'Nenhuma'}
+                      </TableCell>
                       <TableCell>
                         <Tooltip title="Editar">
                           <IconButton onClick={() => handleEditarTecnico(item)}>
@@ -201,7 +210,11 @@ const Tecnicos = () => {
                           </IconButton>
                         </Tooltip>
                         <Tooltip title="Ver Detalhes">
-                          <IconButton onClick={() => handleDetalhesTecnico(item)}>
+                          <IconButton
+                            onClick={() => {
+                              /* handleDetalhesTecnico(item) */
+                            }}
+                          >
                             <EyeOutlined />
                           </IconButton>
                         </Tooltip>
