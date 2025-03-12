@@ -134,7 +134,7 @@ const ChecklistVistoriaFerramentas = () => {
                   <TableCell>Nome</TableCell>
                   <TableCell>Data de Criação</TableCell>
                   <TableCell>Data de Atualização</TableCell>
-                  <TableCell>Qtd. de Items</TableCell>
+                  <TableCell>Qtd. de Itens</TableCell>
                   <TableCell>Ações</TableCell>
                 </TableRow>
               </TableHead>
