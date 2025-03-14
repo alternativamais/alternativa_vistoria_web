@@ -1,21 +1,8 @@
 /* eslint-disable react/prop-types */
 import React, { useState } from 'react';
-import {
-  Button,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
-  Typography,
-  Box,
-  Grid,
-  TextField,
-  CircularProgress,
-  Checkbox,
-  FormControlLabel
-} from '@mui/material';
+import { Button, Typography, Box, Grid, CircularProgress, FormControlLabel, Checkbox } from '@mui/material';
 
-const DadosOS = ({ formData, handleChange, vistoria }) => {
+const ClienteInfo = ({ formData, handleChange, vistoria }) => {
   const [isLoading, setIsLoading] = useState(false);
 
   const pegarCoordenadas = (campo) => {
@@ -37,22 +24,9 @@ const DadosOS = ({ formData, handleChange, vistoria }) => {
     }
   };
 
-  const handleStatusChange = (event) => {
-    const novoStatus = event.target.value;
-
-    handleChange(event);
-
-    if (novoStatus === 'correcao pendente de agendamento') {
-      const agora = new Date();
-
-      const formattedDate = agora.toISOString().slice(0, 19).replace('T', ' ');
-      handleChange({ target: { name: 'dataHoraConclusao', value: formattedDate } });
-    }
-  };
-
   return (
-    <>
-      <Box mb={1}>
+    <Box>
+      <Box mb={2}>
         <Typography variant="h6" gutterBottom>
           Agendamento: {new Date(vistoria.dataAgendamento).toLocaleString('pt-BR')}
         </Typography>
@@ -103,50 +77,14 @@ const DadosOS = ({ formData, handleChange, vistoria }) => {
         </Box>
       )}
 
-      <TextField
-        label="Resumo da Vistoria"
-        name="resumoVistoria"
-        value={formData.resumoVistoria || ''}
-        onChange={handleChange}
-        fullWidth
-        multiline
-        rows={3}
-      />
-
-      <TextField
-        label="Metragem do Cabo"
-        name="metragemCabo"
-        type="number"
-        value={formData.metragemCabo || ''}
-        onChange={handleChange}
-        fullWidth
-        margin="normal"
-      />
-
-      <FormControl fullWidth>
-        <InputLabel id="status-label" shrink={!!formData.status}>
-          Status
-        </InputLabel>
-        <Select labelId="status-label" name="status" value={formData.status || ''} onChange={handleStatusChange} displayEmpty>
-          <MenuItem value="" disabled>
-            <em>Selecione o status</em>
-          </MenuItem>
-          <MenuItem value="a vistoriar">A Vistoriar</MenuItem>
-          <MenuItem value="pendente de agendamento">Pendente de Agendamento</MenuItem>
-          <MenuItem value="correcao pendente de agendamento">Correção de Instalação</MenuItem>
-          <MenuItem value="cancelado">Cancelado</MenuItem>
-          <MenuItem value="vistoriado ok">Vistoriado OK</MenuItem>
-        </Select>
-      </FormControl>
-
       <Box mt={2}>
         <FormControlLabel
           control={<Checkbox name="assinaturaEletronica" checked={formData.assinaturaEletronica || false} onChange={handleChange} />}
           label="Assinatura Eletrônica realizada"
         />
       </Box>
-    </>
+    </Box>
   );
 };
 
-export default DadosOS;
+export default ClienteInfo;

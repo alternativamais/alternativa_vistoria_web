@@ -17,7 +17,7 @@ import {
 } from '@mui/material';
 import { EditOutlined } from '@ant-design/icons';
 import MainCard from 'components/sistema/MainCard';
-import EditarVistoria from './components/editarVistoria';
+import EditarVistoria from './components/EditarVistoria';
 import { api } from 'services/api';
 import { notification } from 'components/notification/index';
 import { useAuth } from 'hooks/auth';

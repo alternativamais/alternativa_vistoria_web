@@ -1,13 +1,14 @@
 /* eslint-disable react/prop-types */
 import React, { useState, useEffect } from 'react';
 import { Box, Button, Modal, Step, StepLabel, Stepper, Typography } from '@mui/material';
-import DadosOS from './DadosOS';
-import Checklist from './Checklist';
+import ClienteInfo from './ClienteInfo';
+import MetragemAndChecklist from './MetragemAndChecklist';
 import UploadImagens from './UploadImagens';
+import ResumoStatus from './ResumoStatus';
 import { api } from 'services/api';
 import { notification } from 'components/notification/index';
 
-const Etapas = ['Dados da OS', 'Checklist', 'Upload de Imagens'];
+const Etapas = ['Dados do Cliente', 'Metragem e Checklist', 'Upload de Imagens', 'Resumo e Status'];
 
 const EditarVistoria = ({ open, onClose, onSuccess, vistoria }) => {
   const [activeStep, setActiveStep] = useState(0);
@@ -114,7 +115,10 @@ const EditarVistoria = ({ open, onClose, onSuccess, vistoria }) => {
 
       notification({ message: 'Dados salvos com sucesso!', type: 'success' });
       onSuccess();
-      handleClose();
+      // Se for a última etapa, fecha o modal; caso contrário, permanece aberto.
+      if (activeStep === Etapas.length - 1) {
+        handleClose();
+      }
     } catch (error) {
       notification({ message: 'Erro ao salvar os dados. Verifique e tente novamente!', type: 'error' });
     }
@@ -133,6 +137,16 @@ const EditarVistoria = ({ open, onClose, onSuccess, vistoria }) => {
     }));
   };
 
+  const handleStatusChange = (event) => {
+    const novoStatus = event.target.value;
+    handleChange(event);
+    if (novoStatus === 'correcao pendente de agendamento') {
+      const agora = new Date();
+      const formattedDate = agora.toISOString().slice(0, 19).replace('T', ' ');
+      handleChange({ target: { name: 'dataHoraConclusao', value: formattedDate } });
+    }
+  };
+
   const handleNext = () => {
     if (activeStep < Etapas.length - 1) {
       setActiveStep(activeStep + 1);
@@ -148,10 +162,12 @@ const EditarVistoria = ({ open, onClose, onSuccess, vistoria }) => {
   const renderStepContent = (step) => {
     switch (step) {
       case 0:
-        return <DadosOS formData={formData} handleChange={handleChange} vistoria={vistoria} />;
+        return <ClienteInfo formData={formData} handleChange={handleChange} vistoria={vistoria} />;
       case 1:
         return (
-          <Checklist
+          <MetragemAndChecklist
+            formData={formData}
+            handleChange={handleChange}
             checklistData={checklistData}
             checklistSelections={checklistSelections}
             handleSituacaoChange={handleSituacaoChange}
@@ -160,6 +176,8 @@ const EditarVistoria = ({ open, onClose, onSuccess, vistoria }) => {
         );
       case 2:
         return <UploadImagens idVistoria={vistoria?.id} />;
+      case 3:
+        return <ResumoStatus formData={formData} handleChange={handleChange} handleStatusChange={handleStatusChange} />;
       default:
         return <Typography>Etapa desconhecida.</Typography>;
     }
@@ -192,14 +210,16 @@ const EditarVistoria = ({ open, onClose, onSuccess, vistoria }) => {
         <Box component="form" noValidate autoComplete="off" sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
           {renderStepContent(activeStep)}
           <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
-            <Button onClick={handleBack} disabled={activeStep === 0}>
-              Voltar
-            </Button>
-            {activeStep === Etapas.length - 1 ? (
-              <Button onClick={handleSave} variant="contained" color="primary">
-                Salvar Tudo
+            {activeStep > 0 && (
+              <Button onClick={handleBack} variant="outlined">
+                Voltar
               </Button>
-            ) : (
+            )}
+            {/* Botão de salvar permanece em todas as etapas, mas só fecha o modal na última */}
+            <Button onClick={handleSave} variant="contained" color="primary">
+              Salvar
+            </Button>
+            {activeStep < Etapas.length - 1 && (
               <Button onClick={handleNext} variant="contained" color="primary">
                 Avançar
               </Button>
