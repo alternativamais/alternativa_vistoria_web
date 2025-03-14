@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -19,21 +19,30 @@ import {
   Stepper,
   Step,
   StepLabel,
-  TextField
+  TextField,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem
 } from '@mui/material';
 import { api } from 'services/api';
 import { notification } from 'components/notification/index';
 import UploadImagens from './UploadImagens';
 
-const steps = ['Checklists', 'Subir Imagens', 'Comentários'];
+const steps = ['Checklists', 'Subir Imagens', 'Comentários', 'Status'];
 
 const ChecklistModal = ({ open, onClose, item, vistoriaId }) => {
   const [activeStep, setActiveStep] = useState(0);
+  // Armazena o estado atual da checklist
   const [checklistData, setChecklistData] = useState(item.checklists || []);
+  // Armazena o estado inicial para comparação ao enviar as alterações
+  const initialChecklistData = useRef(item.checklists || []);
   const [expandedGroups, setExpandedGroups] = useState({});
   const [comentario, setComentario] = useState(item.comentario || '');
+  // Estado para o campo status, com valor inicial padrão ou vindo do item
+  const [status, setStatus] = useState(item.status || 'Em andamento');
 
-  // Funções de checklist (sem alterações)
+  // Atualiza o estado local do item da checklist
   const updateChecklistItem = (checklistId, itemId, newMarked) => {
     setChecklistData((prevData) =>
       prevData.map((checklist) => {
@@ -48,44 +57,17 @@ const ChecklistModal = ({ open, onClose, item, vistoriaId }) => {
     );
   };
 
-  const handleToggleItem = async (checklistId, checklistItem) => {
-    const endpoint = checklistItem.marked ? '/checklist-vistoria-ferramentas/unmark' : '/checklist-vistoria-ferramentas/mark';
-    try {
-      await api.post(endpoint, {
-        vistoriaItemId: item.id,
-        checklistItemId: checklistItem.id
-      });
-      updateChecklistItem(checklistId, checklistItem.id, !checklistItem.marked);
-    } catch (error) {
-      notification({ message: 'Erro ao atualizar checklist!', type: 'error' });
-    }
+  // Ao clicar num item, apenas atualiza o estado local (não chama API)
+  const handleToggleItem = (checklistId, checklistItem) => {
+    updateChecklistItem(checklistId, checklistItem.id, !checklistItem.marked);
   };
 
-  const handleToggleGroup = async (checklist) => {
+  // Ao clicar no checkbox do grupo, alterna todos os itens localmente
+  const handleToggleGroup = (checklist) => {
     const allChecked = checklist.items.every((ci) => ci.marked);
-    for (const ci of checklist.items) {
-      if (allChecked && ci.marked) {
-        try {
-          await api.post('/checklist-vistoria-ferramentas/unmark', {
-            vistoriaItemId: item.id,
-            checklistItemId: ci.id
-          });
-          updateChecklistItem(checklist.id, ci.id, false);
-        } catch (error) {
-          notification({ message: 'Erro ao desmarcar item!', type: 'error' });
-        }
-      } else if (!allChecked && !ci.marked) {
-        try {
-          await api.post('/checklist-vistoria-ferramentas/mark', {
-            vistoriaItemId: item.id,
-            checklistItemId: ci.id
-          });
-          updateChecklistItem(checklist.id, ci.id, true);
-        } catch (error) {
-          notification({ message: 'Erro ao marcar item!', type: 'error' });
-        }
-      }
-    }
+    checklist.items.forEach((ci) => {
+      updateChecklistItem(checklist.id, ci.id, !allChecked);
+    });
   };
 
   const handleAccordionChange = (checklistId) => (event, isExpanded) => {
@@ -105,13 +87,53 @@ const ChecklistModal = ({ open, onClose, item, vistoriaId }) => {
     onClose();
   };
 
+  // Ao clicar em "Concluir", compara o estado atual com o inicial e envia as alterações em lote
   const handleSubmit = async () => {
     try {
+      const vistoriaItemId = item.id;
+      const checklistItemIdsToMark = [];
+      const checklistItemIdsToUnmark = [];
+
+      // Percorre cada checklist para identificar alterações
+      initialChecklistData.current.forEach((initialChecklist) => {
+        const currentChecklist = checklistData.find((ch) => ch.id === initialChecklist.id);
+        if (currentChecklist) {
+          initialChecklist.items.forEach((initialItem) => {
+            const currentItem = currentChecklist.items.find((ci) => ci.id === initialItem.id);
+            if (currentItem && currentItem.marked !== initialItem.marked) {
+              if (currentItem.marked) {
+                checklistItemIdsToMark.push(currentItem.id);
+              } else {
+                checklistItemIdsToUnmark.push(currentItem.id);
+              }
+            }
+          });
+        }
+      });
+
+      // Se houver itens para marcar, envia em lote
+      if (checklistItemIdsToMark.length > 0) {
+        await api.post('/checklist-vistoria-ferramentas/mark-multiple', {
+          vistoriaItemId,
+          checklistItemIds: checklistItemIdsToMark
+        });
+      }
+
+      // Se houver itens para desmarcar, envia em lote
+      if (checklistItemIdsToUnmark.length > 0) {
+        await api.post('/checklist-vistoria-ferramentas/unmark-multiple', {
+          vistoriaItemId,
+          checklistItemIds: checklistItemIdsToUnmark
+        });
+      }
+
+      // Atualiza os demais dados (como comentário, status, etc.)
       const payload = {
         items: [
           {
             id: item.id,
-            comentario: comentario
+            comentario: comentario,
+            status: status
           }
         ]
       };
@@ -173,7 +195,11 @@ const ChecklistModal = ({ open, onClose, item, vistoriaId }) => {
                       <Typography
                         component="span"
                         variant="subtitle1"
-                        sx={{ textTransform: 'uppercase', fontWeight: 'bold', fontSize: '15px' }}
+                        sx={{
+                          textTransform: 'uppercase',
+                          fontWeight: 'bold',
+                          fontSize: '15px'
+                        }}
                       >
                         {checklist.nome}
                       </Typography>
@@ -228,6 +254,21 @@ const ChecklistModal = ({ open, onClose, item, vistoriaId }) => {
           />
         </Box>
       );
+    } else if (activeStep === 3) {
+      return (
+        <Box p={3}>
+          <Typography variant="h6" gutterBottom>
+            Status da Vistoria
+          </Typography>
+          <FormControl fullWidth variant="outlined">
+            <InputLabel id="status-label">Status</InputLabel>
+            <Select labelId="status-label" label="Status" value={status} onChange={(e) => setStatus(e.target.value)}>
+              <MenuItem value="Vistoriado">Vistoriado</MenuItem>
+              <MenuItem value="Em andamento">Em andamento</MenuItem>
+            </Select>
+          </FormControl>
+        </Box>
+      );
     }
   };
 
@@ -256,7 +297,7 @@ const ChecklistModal = ({ open, onClose, item, vistoriaId }) => {
           </Button>
         ) : (
           <Button onClick={handleSubmit} color="primary">
-            Concluir
+            Salvar
           </Button>
         )}
       </DialogActions>

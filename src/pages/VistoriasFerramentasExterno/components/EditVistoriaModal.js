@@ -1,6 +1,7 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import SignatureCanvas from 'react-signature-canvas';
 import {
   Dialog,
   DialogTitle,
@@ -15,7 +16,12 @@ import {
   TableRow,
   IconButton,
   Tooltip,
-  Typography
+  Typography,
+  Box,
+  Stepper,
+  Step,
+  StepLabel,
+  Divider
 } from '@mui/material';
 import { EditOutlined } from '@ant-design/icons';
 import { api } from 'services/api';
@@ -26,10 +32,15 @@ const EditVistoriaModal = ({ open, onClose, vistoriaId }) => {
   const [dataVistoria, setDataVistoria] = useState(null);
   const [selectedItem, setSelectedItem] = useState(null);
   const [openChecklistModal, setOpenChecklistModal] = useState(false);
+  const [activeStep, setActiveStep] = useState(0);
+  const steps = ['Itens', 'Assinatura'];
+  const sigCanvas = useRef(null);
 
   useEffect(() => {
     if (open && vistoriaId) {
       buscarVistoria();
+      setActiveStep(0);
+      if (sigCanvas.current) sigCanvas.current.clear();
     }
   }, [open, vistoriaId]);
 
@@ -50,29 +61,50 @@ const EditVistoriaModal = ({ open, onClose, vistoriaId }) => {
   const handleCloseChecklist = () => {
     setOpenChecklistModal(false);
     setSelectedItem(null);
+    buscarVistoria();
   };
 
-  return (
-    <>
-      <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
-        <DialogTitle>Vistorias de Ferramentas</DialogTitle>
-        <DialogContent dividers>
+  const todosVistoriados = dataVistoria?.itens?.every((item) => item.status === 'Vistoriado');
+
+  const handleNext = () => setActiveStep((prev) => prev + 1);
+  const handleBack = () => setActiveStep((prev) => prev - 1);
+
+  const handleSalvarAssinatura = async () => {
+    const signatureBase64 = sigCanvas.current ? sigCanvas.current.toDataURL('image/png') : '';
+    try {
+      await api.put(`/vistoria-ferramentas/${vistoriaId}`, {
+        assinatura: signatureBase64,
+        status: 'vistoriado ok'
+      });
+      notification({ message: 'Assinatura salva com sucesso e vistorias atualizadas!', type: 'success' });
+      onClose('editmodal');
+    } catch (error) {
+      notification({ message: 'Erro ao salvar a assinatura!', type: 'error' });
+    }
+  };
+
+  const renderStepContent = () => {
+    if (activeStep === 0) {
+      return (
+        <Box sx={{ mt: 2 }}>
           {dataVistoria ? (
-            dataVistoria.itens && dataVistoria.itens.length > 0 ? (
+            dataVistoria.itens?.length > 0 ? (
               <TableContainer>
                 <Table>
                   <TableHead>
                     <TableRow>
-                      <TableCell>Ferramenta</TableCell>
-                      <TableCell>Status</TableCell>
-                      <TableCell align="right">Ações</TableCell>
+                      <TableCell sx={{ fontWeight: 'bold' }}>Ferramenta</TableCell>
+                      <TableCell sx={{ fontWeight: 'bold' }}>Status</TableCell>
+                      <TableCell sx={{ fontWeight: 'bold' }} align="right">
+                        Ações
+                      </TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
                     {dataVistoria.itens.map((item) => (
                       <TableRow key={item.id}>
                         <TableCell>{item.ferramenta_nome}</TableCell>
-                        <TableCell>Não finalizado</TableCell>
+                        <TableCell>{item.status || 'Não finalizado'}</TableCell>
                         <TableCell align="right">
                           <Tooltip title="Editar Checklist">
                             <IconButton onClick={() => handleOpenChecklist(item)}>
@@ -91,11 +123,72 @@ const EditVistoriaModal = ({ open, onClose, vistoriaId }) => {
           ) : (
             <Typography variant="body2">Carregando...</Typography>
           )}
+        </Box>
+      );
+    } else if (activeStep === 1) {
+      return (
+        <Box sx={{ mt: 2, textAlign: 'center' }}>
+          <Typography variant="h6" gutterBottom>
+            Assinatura do Técnico
+          </Typography>
+          <Divider sx={{ mb: 2 }} />
+          <SignatureCanvas
+            ref={sigCanvas}
+            penColor="black"
+            canvasProps={{
+              width: 500,
+              height: 200,
+              className: 'sigCanvas',
+              style: { border: '1px solid #ccc', borderRadius: 4 }
+            }}
+          />
+          <Box sx={{ mt: 1 }}>
+            <Button variant="outlined" onClick={() => sigCanvas.current && sigCanvas.current.clear()}>
+              Limpar
+            </Button>
+          </Box>
+        </Box>
+      );
+    }
+  };
+
+  return (
+    <>
+      <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
+        <DialogTitle sx={{ textAlign: 'center' }}>Vistorias de Ferramentas</DialogTitle>
+        <DialogContent dividers>
+          <Stepper activeStep={activeStep} alternativeLabel sx={{ mb: 3 }}>
+            {steps.map((label) => (
+              <Step key={label}>
+                <StepLabel>{label}</StepLabel>
+              </Step>
+            ))}
+          </Stepper>
+          {renderStepContent()}
         </DialogContent>
-        <DialogActions>
-          <Button onClick={onClose} color="primary">
-            Fechar
-          </Button>
+        <DialogActions sx={{ justifyContent: 'center', p: 2 }}>
+          {activeStep === 1 && (
+            <Button onClick={handleBack} variant="outlined" sx={{ mr: 2 }}>
+              Voltar
+            </Button>
+          )}
+          {activeStep === 0 && (
+            <>
+              {todosVistoriados && (
+                <Button onClick={handleNext} variant="contained" color="primary" sx={{ mr: 2 }}>
+                  Próxima Parte
+                </Button>
+              )}
+              <Button onClick={onClose} variant="outlined">
+                Fechar
+              </Button>
+            </>
+          )}
+          {activeStep === 1 && (
+            <Button onClick={handleSalvarAssinatura} variant="contained" color="primary">
+              Salvar Assinatura
+            </Button>
+          )}
         </DialogActions>
       </Dialog>
 

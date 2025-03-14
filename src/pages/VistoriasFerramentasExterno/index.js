@@ -155,9 +155,12 @@ const VistoriasFerramentasExterno = () => {
     setModalAberto(true);
   };
 
-  const fecharModal = () => {
+  const fecharModal = (local) => {
     setModalAberto(false);
     setVistoriaSelecionada(null);
+    if (local === 'editmodal') {
+      buscarVistorias();
+    }
   };
 
   return (
