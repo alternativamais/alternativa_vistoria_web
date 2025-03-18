@@ -78,9 +78,9 @@ const VerDetalhesVistoriaFerramentas = ({ open, onClose, vistoria }) => {
     const fetchImagens = async () => {
       setLoadingImages(true);
       try {
-        // Rota ajustada para vistoria de ferramentas
-        const response = await api.get(`/imagens-vistorias-ferramentas/vistoria/${vistoria.vistoria.id}`);
-        setImagens(response.data);
+        const response = await api.get(`/imagens-vistoria-ferramentas/vistoria/${vistoria.vistoria.id}`);
+        const flattenedImages = response.data.flatMap((group) => group.imagens);
+        setImagens(flattenedImages);
       } catch (error) {
         console.error('Erro ao buscar imagens:', error);
       } finally {
@@ -94,8 +94,8 @@ const VerDetalhesVistoriaFerramentas = ({ open, onClose, vistoria }) => {
 
   const handleImageClick = () => {
     if (vistoria?.vistoria?.id) {
-      onClose(); // Fecha o modal para transição mais fluida
-      navigate(`/admin/galeria-ferramentas/${vistoria.vistoria.id}`);
+      onClose();
+      navigate(`/admin/galeriaferramentas/${vistoria.vistoria.id}`);
     }
   };
 
@@ -364,6 +364,20 @@ const VerDetalhesVistoriaFerramentas = ({ open, onClose, vistoria }) => {
                 divider={false}
               />
             </List>
+            {/* Se a vistoria possuir assinatura, exibe em uma seção separada */}
+            {vistoria.vistoria.assinatura && (
+              <Box sx={{ mt: 2 }}>
+                <Divider sx={{ mb: 2 }} />
+                <Typography variant="subtitle2" sx={{ mb: 1 }}>
+                  Assinatura:
+                </Typography>
+                <img
+                  src={vistoria.vistoria.assinatura}
+                  alt="Assinatura"
+                  style={{ maxWidth: '100%', height: 'auto', border: '1px solid #ccc', borderRadius: 4 }}
+                />
+              </Box>
+            )}
           </Paper>
         )}
       </DialogContent>

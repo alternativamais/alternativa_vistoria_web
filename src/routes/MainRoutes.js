@@ -17,6 +17,7 @@ import Tecnicos from 'pages/Tecnicos/index';
 import Ferramentas from 'pages/Ferramentas/index';
 import ChecklistVistoriaFerramentas from 'pages/ChecklistVistoriaFerramentas/index';
 import VistoriasFerramentasExterno from 'pages/VistoriasFerramentasExterno/index';
+import GaleriaFerramentas from 'pages/GaleriaFerramentas/index';
 
 const MainRoutes = [
   {
@@ -51,6 +52,10 @@ const MainRoutes = [
       {
         path: 'admin/galeria/:idvistoria',
         element: <Galeria />
+      },
+      {
+        path: 'admin/galeriaferramentas/:idvistoria',
+        element: <GaleriaFerramentas />
       },
       {
         path: 'admin/permissoes',

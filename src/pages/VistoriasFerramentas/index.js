@@ -20,12 +20,12 @@ import {
   Select,
   MenuItem
 } from '@mui/material';
-import { EditOutlined, DeleteOutlined, EyeOutlined } from '@ant-design/icons';
+import { EditOutlined, DeleteOutlined, EyeOutlined, PictureOutlined } from '@ant-design/icons';
+import { Link } from 'react-router-dom';
 import MainCard from 'components/sistema/MainCard';
 import CriarVistoriaFerramentas from './components/CriarVistoriaFerramentas';
 import EditarVistoriaFerramentas from './components/EditarVistoriaFerramentas';
-import VerDetalhesVistoriaFerramentas from './components/VerDetalhesVistoriaFerramentas'; // <-- Importado
-
+import VerDetalhesVistoriaFerramentas from './components/VerDetalhesVistoriaFerramentas';
 import { api } from 'services/api';
 import { notification } from 'components/notification';
 
@@ -353,15 +353,19 @@ const VistoriasFerramentas = () => {
                           <EditOutlined />
                         </IconButton>
                       </Tooltip>
-                      <Tooltip title="Deletar">
-                        <IconButton onClick={() => handleDeletarVistoria(item)}>
-                          <DeleteOutlined />
+                      <Tooltip title="Ver Galeria Ferramentas">
+                        <IconButton component={Link} to={`/admin/galeriaferramentas/${item.vistoria.id}`}>
+                          <PictureOutlined />
                         </IconButton>
                       </Tooltip>
-                      {/* Botão de ver detalhes */}
                       <Tooltip title="Ver Detalhes">
                         <IconButton onClick={() => handleDetalhesVistoria(item)}>
                           <EyeOutlined />
+                        </IconButton>
+                      </Tooltip>
+                      <Tooltip title="Deletar">
+                        <IconButton onClick={() => handleDeletarVistoria(item)}>
+                          <DeleteOutlined />
                         </IconButton>
                       </Tooltip>
                     </TableCell>
