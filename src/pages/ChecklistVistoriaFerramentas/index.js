@@ -125,7 +125,6 @@ const ChecklistVistoriaFerramentas = () => {
               <TableHead>
                 <TableRow>
                   <TableCell>Nome</TableCell>
-                  <TableCell>Remove Valor?</TableCell>
                   <TableCell>Qtd. de Itens</TableCell>
                   <TableCell>Ações</TableCell>
                 </TableRow>
@@ -134,7 +133,6 @@ const ChecklistVistoriaFerramentas = () => {
                 {checklistsFiltrados.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((item) => (
                   <TableRow key={item.id}>
                     <TableCell>{item.nome}</TableCell>
-                    <TableCell>{item.remove_valor ? 'Sim' : 'Não'}</TableCell>
                     <TableCell>{item.items ? item.items.length : 0}</TableCell>
                     <TableCell>
                       <Tooltip title="Editar">

@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react/prop-types */
 import React, { useState, useEffect } from 'react';
-import { Box, Button, Modal, TextField, IconButton } from '@mui/material';
+import { Box, Button, Modal, TextField, IconButton, Checkbox, FormControlLabel } from '@mui/material';
 import { api } from 'services/api';
 import { notification } from 'components/notification';
 import { DeleteOutlined, PlusOutlined } from '@ant-design/icons';
@@ -13,7 +13,15 @@ const EditarChecklistVistoriaFerramentas = ({ open, onClose, onSuccess, checklis
   useEffect(() => {
     if (open && checklist) {
       setNome(checklist.nome);
-      setItems(checklist.items && checklist.items.length > 0 ? checklist.items.map((item) => ({ ...item, tag: item.tag || '' })) : []);
+      setItems(
+        checklist.items && checklist.items.length > 0
+          ? checklist.items.map((item) => ({
+              ...item,
+              tag: item.tag || '',
+              remove_valor: item.remove_valor || false
+            }))
+          : []
+      );
     }
   }, [open, checklist]);
 
@@ -25,7 +33,7 @@ const EditarChecklistVistoriaFerramentas = ({ open, onClose, onSuccess, checklis
   }, [open]);
 
   const handleAddItem = () => {
-    setItems([...items, { titulo: 'Novo item do checklist', tag: '' }]);
+    setItems([...items, { titulo: 'Novo item do checklist', tag: '', remove_valor: false }]);
   };
 
   const handleItemChange = (index, field, value) => {
@@ -57,22 +65,26 @@ const EditarChecklistVistoriaFerramentas = ({ open, onClose, onSuccess, checklis
     const newItems = filteredItems.filter((item) => !item.id);
 
     try {
+      // Atualiza os itens existentes, incluindo remove_valor
       await api.put(`/checklist-vistoria-ferramentas/${checklist.id}`, {
         nome,
         items: existingItems.map((item) => ({
           id: item.id,
           titulo: item.titulo,
-          tag: item.tag
+          tag: item.tag,
+          remove_valor: item.remove_valor
         }))
       });
 
+      // Cria novos itens, incluindo remove_valor
       if (newItems.length > 0) {
         await Promise.all(
           newItems.map((item) =>
             api.post('/checklist-vistoria-ferramentas/item', {
               checklist_id: checklist.id,
               titulo: item.titulo,
-              tag: item.tag
+              tag: item.tag,
+              remove_valor: item.remove_valor
             })
           )
         );
@@ -104,31 +116,38 @@ const EditarChecklistVistoriaFerramentas = ({ open, onClose, onSuccess, checklis
           display: 'flex',
           flexDirection: 'column',
           gap: 2,
-          maxHeight: '90vh', // Para não sair da tela
-          overflowY: 'auto' // Adiciona scroll se necessário
+          maxHeight: '90vh',
+          overflowY: 'auto'
         }}
       >
         <h2 id="modal-editar-checklist">Editar Checklist</h2>
         <Box component="form" noValidate autoComplete="off" sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
           <TextField label="Nome do Checklist" name="nome" value={nome} onChange={(e) => setNome(e.target.value)} fullWidth />
 
-          <Box sx={{ maxHeight: '300px', overflowY: 'auto', padding: 1, border: '1px solid #ccc', borderRadius: '8px' }}>
-            <h3>Itens</h3>
+          {/* Cabeçalho e botão fora da área com scroll */}
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <h3 style={{ margin: 0 }}>Itens</h3>
+            <Button onClick={handleAddItem} variant="outlined" startIcon={<PlusOutlined />}>
+              Adicionar Item
+            </Button>
+          </Box>
+
+          {/* Área com scroll para os itens */}
+          <Box sx={{ maxHeight: '300px', overflowY: 'auto', padding: 1 }}>
             {items.map((item, index) => (
               <Box
                 key={index}
                 sx={{
                   display: 'flex',
-                  alignItems: 'center',
-                  gap: 2,
+                  flexDirection: 'column',
+                  gap: 1,
                   padding: 2,
-                  border: '1px solid #ddd',
                   borderRadius: '8px',
                   marginBottom: 1,
                   backgroundColor: '#f9f9f9'
                 }}
               >
-                <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 1 }}>
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                   <TextField
                     label={`Item ${index + 1} - Título`}
                     value={item.titulo}
@@ -141,15 +160,20 @@ const EditarChecklistVistoriaFerramentas = ({ open, onClose, onSuccess, checklis
                     onChange={(e) => handleItemChange(index, 'tag', e.target.value)}
                     fullWidth
                   />
+                  <FormControlLabel
+                    control={
+                      <Checkbox checked={item.remove_valor} onChange={(e) => handleItemChange(index, 'remove_valor', e.target.checked)} />
+                    }
+                    label="Remove Valor"
+                  />
                 </Box>
-                <IconButton onClick={() => handleDeleteItem(index, item)}>
-                  <DeleteOutlined />
-                </IconButton>
+                <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                  <IconButton onClick={() => handleDeleteItem(index, item)}>
+                    <DeleteOutlined />
+                  </IconButton>
+                </Box>
               </Box>
             ))}
-            <Button onClick={handleAddItem} variant="outlined" startIcon={<PlusOutlined />}>
-              Adicionar Item
-            </Button>
           </Box>
 
           <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
