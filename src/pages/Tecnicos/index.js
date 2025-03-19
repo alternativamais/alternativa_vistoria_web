@@ -13,7 +13,7 @@ import {
   TextField,
   IconButton,
   Tooltip,
-  Chip // importado para exibir as tags
+  Chip
 } from '@mui/material';
 import { EditOutlined, DeleteOutlined, EyeOutlined } from '@ant-design/icons';
 import MainCard from 'components/sistema/MainCard';
@@ -22,7 +22,7 @@ import { notification } from 'components/notification';
 
 import CriarTecnico from './components/CriarTecnico';
 import EditarTecnico from './components/EditarTecnico';
-// import VerDetalhesTecnico from './components/VerDetalhesTecnico';
+import VerDetalhesTecnico from './components/VerDetalhesTecnico';
 
 const Tecnicos = () => {
   // Estados de paginação e pesquisa
@@ -43,12 +43,12 @@ const Tecnicos = () => {
   const [tecnicos, setTecnicos] = useState([]);
   const [tecnicosFiltrados, setTecnicosFiltrados] = useState([]);
 
-  // Estados dos modais (criação, edição e visualização) – importados e comentados para futura integração
+  // Estados dos modais (criação, edição e visualização)
   const [modalCriarOpen, setModalCriarOpen] = useState(false);
   const [modalEditarOpen, setModalEditarOpen] = useState(false);
+  const [modalDetalhesOpen, setModalDetalhesOpen] = useState(false);
   const [tecnicoSelecionado, setTecnicoSelecionado] = useState(null);
-  // const [modalDetalhesOpen, setModalDetalhesOpen] = useState(false);
-  // const [tecnicoDetalhes, setTecnicoDetalhes] = useState(null);
+  const [tecnicoDetalhes, setTecnicoDetalhes] = useState(null);
 
   // Função para buscar técnicos
   const buscarTecnicos = async () => {
@@ -114,16 +114,16 @@ const Tecnicos = () => {
     setModalEditarOpen(false);
   };
 
-  // Caso venha a utilizar a visualização de detalhes, descomente a linha abaixo
-  // const handleDetalhesTecnico = (item) => {
-  //   setTecnicoDetalhes(item);
-  //   setModalDetalhesOpen(true);
-  // };
+  // Handlers para visualização dos detalhes do técnico
+  const handleDetalhesTecnico = (item) => {
+    setTecnicoDetalhes(item);
+    setModalDetalhesOpen(true);
+  };
 
-  // const handleFecharModalDetalhes = () => {
-  //   setTecnicoDetalhes(null);
-  //   setModalDetalhesOpen(false);
-  // };
+  const handleFecharModalDetalhes = () => {
+    setTecnicoDetalhes(null);
+    setModalDetalhesOpen(false);
+  };
 
   // Handlers de pesquisa e paginação
   const handlePesquisaChange = (event) => {
@@ -178,15 +178,14 @@ const Tecnicos = () => {
                   <TableCell>Nome</TableCell>
                   <TableCell>Ferramentas</TableCell>
                   <TableCell>Valor Total</TableCell>
+                  <TableCell>Valor Devido Total</TableCell>
                   <TableCell>Tags</TableCell>
                   <TableCell>Ações</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {tecnicosFiltrados.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((item) => {
-                  // Caso o item não tenha ferramentas, assume um array vazio
                   const ferramentas = item.ferramentas || [];
-                  // Agrega todas as tags de todas as ferramentas
                   const todasTags = ferramentas.reduce((acc, ferramenta) => acc.concat(ferramenta.tags || []), []);
                   return (
                     <TableRow key={item.id}>
@@ -194,8 +193,17 @@ const Tecnicos = () => {
                       <TableCell>{ferramentas.length}</TableCell>
                       <TableCell>{formatarValor(item.totalFerramentas || 0)}</TableCell>
                       <TableCell>
+                        {item.totalPerdido > 0 && (
+                          <Box component="span" sx={{ color: 'red' }}>
+                            (Perdido: {formatarValor(item.totalPerdido)})
+                          </Box>
+                        )}
+                      </TableCell>
+                      <TableCell>
                         {todasTags.length > 0
-                          ? todasTags.map((tag, index) => <Chip key={index} label={tag} size="small" sx={{ mr: 0.5, mb: 0.5 }} />)
+                          ? todasTags.map((tag, index) => (
+                              <Chip key={index} label={tag.tags || tag} size="small" sx={{ mr: 0.5, mb: 0.5 }} />
+                            ))
                           : 'Nenhuma'}
                       </TableCell>
                       <TableCell>
@@ -210,11 +218,7 @@ const Tecnicos = () => {
                           </IconButton>
                         </Tooltip>
                         <Tooltip title="Ver Detalhes">
-                          <IconButton
-                            onClick={() => {
-                              /* handleDetalhesTecnico(item) */
-                            }}
-                          >
+                          <IconButton onClick={() => handleDetalhesTecnico(item)}>
                             <EyeOutlined />
                           </IconButton>
                         </Tooltip>
@@ -242,7 +246,7 @@ const Tecnicos = () => {
 
       <CriarTecnico open={modalCriarOpen} onClose={handleFecharModalCriar} onSuccess={buscarTecnicos} />
       <EditarTecnico open={modalEditarOpen} onClose={handleFecharModalEditar} onSuccess={buscarTecnicos} tecnico={tecnicoSelecionado} />
-      {/* <VerDetalhesTecnico open={modalDetalhesOpen} onClose={handleFecharModalDetalhes} tecnico={tecnicoDetalhes} /> */}
+      <VerDetalhesTecnico open={modalDetalhesOpen} onClose={handleFecharModalDetalhes} tecnico={tecnicoDetalhes} />
     </Box>
   );
 };
