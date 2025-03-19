@@ -65,13 +65,6 @@ const ChecklistVistoriaFerramentas = () => {
     setPage(0);
   };
 
-  const formatarData = (dataISO) => {
-    if (!dataISO) return 'Sem data';
-    const data = new Date(dataISO);
-    data.setHours(data.getHours() - 3);
-    return data.toLocaleDateString('pt-BR');
-  };
-
   const handleDeletarChecklist = async (item) => {
     if (window.confirm('Deseja realmente deletar este checklist?')) {
       try {
@@ -132,8 +125,7 @@ const ChecklistVistoriaFerramentas = () => {
               <TableHead>
                 <TableRow>
                   <TableCell>Nome</TableCell>
-                  <TableCell>Data de Criação</TableCell>
-                  <TableCell>Data de Atualização</TableCell>
+                  <TableCell>Remove Valor?</TableCell>
                   <TableCell>Qtd. de Itens</TableCell>
                   <TableCell>Ações</TableCell>
                 </TableRow>
@@ -142,8 +134,7 @@ const ChecklistVistoriaFerramentas = () => {
                 {checklistsFiltrados.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((item) => (
                   <TableRow key={item.id}>
                     <TableCell>{item.nome}</TableCell>
-                    <TableCell>{formatarData(item.createdAt)}</TableCell>
-                    <TableCell>{formatarData(item.updatedAt)}</TableCell>
+                    <TableCell>{item.remove_valor ? 'Sim' : 'Não'}</TableCell>
                     <TableCell>{item.items ? item.items.length : 0}</TableCell>
                     <TableCell>
                       <Tooltip title="Editar">
