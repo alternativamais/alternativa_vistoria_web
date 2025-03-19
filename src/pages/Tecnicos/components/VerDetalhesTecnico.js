@@ -16,12 +16,23 @@ import {
   ListItem,
   ListItemText,
   ListItemIcon,
-  Chip,
   Divider,
   Fade,
-  Collapse
+  Collapse,
+  IconButton,
+  CircularProgress
 } from '@mui/material';
-import { InfoCircleOutlined, DollarCircleOutlined, DownOutlined, UpOutlined, ToolOutlined } from '@ant-design/icons';
+import {
+  InfoCircleOutlined,
+  DollarCircleOutlined,
+  DownOutlined,
+  UpOutlined,
+  ToolOutlined,
+  FileSearchOutlined,
+  EyeOutlined
+} from '@ant-design/icons';
+import { api } from 'services/api';
+import VerDetalhesVistoriaFerramentas from 'pages/VistoriasFerramentas/components/VerDetalhesVistoriaFerramentas';
 
 const DetailItem = ({ icon, label, value, divider = true }) => (
   <>
@@ -39,16 +50,52 @@ const DetailItem = ({ icon, label, value, divider = true }) => (
   </>
 );
 
+// Formata a data para um formato mais profissional, ex: 18 de Março de 2025 às 18:09:38
+const formatDateFriendly = (dataISO) => {
+  if (!dataISO) return 'Não informado';
+  const options = { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' };
+  // Ajuste de fuso horário se necessário:
+  const data = new Date(dataISO);
+  data.setHours(data.getHours() - 3);
+  return data.toLocaleString('pt-BR', options);
+};
+
 const VerDetalhesTecnico = ({ open, onClose, tecnico }) => {
   const [selectedTab, setSelectedTab] = useState(0);
   const [expandedFerramentas, setExpandedFerramentas] = useState({});
+  const [vistorias, setVistorias] = useState([]);
+  const [loadingVistorias, setLoadingVistorias] = useState(false);
+  const [modalVistoriaOpen, setModalVistoriaOpen] = useState(false);
+  const [selectedVistoria, setSelectedVistoria] = useState(null);
 
   useEffect(() => {
     if (!open) {
       setSelectedTab(0);
       setExpandedFerramentas({});
+      setVistorias([]);
     }
   }, [open]);
+
+  // Sempre que o técnico for definido, busca as vistorias para compor o resumo
+  useEffect(() => {
+    if (tecnico && tecnico.id) {
+      fetchVistorias();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tecnico]);
+
+  const fetchVistorias = async () => {
+    setLoadingVistorias(true);
+    try {
+      const response = await api.get(`/vistoria-ferramentas/tecnico/${tecnico.id}`);
+      // A resposta possui { message, data: [ ... ] }
+      setVistorias(response.data.data || []);
+    } catch (error) {
+      console.error('Erro ao buscar vistorias:', error);
+    } finally {
+      setLoadingVistorias(false);
+    }
+  };
 
   const handleChangeTab = (event, newValue) => {
     setSelectedTab(newValue);
@@ -61,14 +108,24 @@ const VerDetalhesTecnico = ({ open, onClose, tecnico }) => {
     }));
   };
 
+  const handleOpenVistoria = (vistoria) => {
+    setSelectedVistoria(vistoria);
+    setModalVistoriaOpen(true);
+  };
+
+  const handleCloseVistoria = () => {
+    setSelectedVistoria(null);
+    setModalVistoriaOpen(false);
+  };
+
   if (!tecnico) return null;
 
-  const formatarDataHoraParaBrasil = (dataISO) => {
-    if (!dataISO) return 'Não informado';
-    const data = new Date(dataISO);
-    data.setHours(data.getHours() - 3);
-    return data.toLocaleString('pt-BR', { timeZone: 'UTC' });
-  };
+  // Cálculo dos percentuais e totais
+  const totalFerramentasCadastradas = tecnico.ferramentas ? tecnico.ferramentas.length : 0;
+  const percentualPerdido =
+    tecnico.totalFerramentasOriginal && tecnico.totalFerramentasOriginal > 0
+      ? ((tecnico.totalPerdido / tecnico.totalFerramentasOriginal) * 100).toFixed(2)
+      : '0';
 
   return (
     <Dialog
@@ -100,24 +157,34 @@ const VerDetalhesTecnico = ({ open, onClose, tecnico }) => {
         scrollButtons="auto"
         sx={{ px: 1, mb: 1 }}
       >
-        <Tab icon={<InfoCircleOutlined />} iconPosition="start" label="Informações Gerais" />
+        <Tab icon={<InfoCircleOutlined />} iconPosition="start" label="Resumo" />
         <Tab icon={<ToolOutlined />} iconPosition="start" label="Ferramentas" />
         <Tab icon={<DollarCircleOutlined />} iconPosition="start" label="Totais" />
+        <Tab icon={<FileSearchOutlined />} iconPosition="start" label="Vistorias" />
       </Tabs>
 
       <DialogContent dividers sx={{ p: 1 }}>
         {selectedTab === 0 && (
           <Paper variant="outlined" sx={{ p: 2 }}>
+            <Typography variant="subtitle1" sx={{ mb: 1 }}>
+              Informações do Técnico
+            </Typography>
             <List disablePadding>
               <DetailItem icon={<InfoCircleOutlined />} label="Nome" value={tecnico.nome} />
-              <DetailItem icon={<InfoCircleOutlined />} label="Criado Em" value={formatarDataHoraParaBrasil(tecnico.createdAt)} />
+              <DetailItem icon={<InfoCircleOutlined />} label="Data de Cadastro" value={formatDateFriendly(tecnico.createdAt)} />
+              <DetailItem icon={<InfoCircleOutlined />} label="Última Atualização" value={formatDateFriendly(tecnico.updatedAt)} />
+              <DetailItem icon={<ToolOutlined />} label="Ferramentas Cadastradas" value={totalFerramentasCadastradas} />
               <DetailItem
-                icon={<InfoCircleOutlined />}
-                label="Atualizado Em"
-                value={formatarDataHoraParaBrasil(tecnico.updatedAt)}
-                divider={false}
+                icon={<DollarCircleOutlined />}
+                label="Ferramentas Perdidas"
+                value={`R$ ${parseFloat(tecnico.totalPerdido || 0).toFixed(2)}`}
               />
+              <DetailItem icon={<DollarCircleOutlined />} label="Percentual Perdido" value={`${percentualPerdido}%`} divider={false} />
             </List>
+            <Divider sx={{ my: 1 }} />
+            <Typography variant="subtitle1" sx={{ mb: 1 }}>
+              Vistorias Realizadas: {vistorias.length}
+            </Typography>
           </Paper>
         )}
 
@@ -147,10 +214,31 @@ const VerDetalhesTecnico = ({ open, onClose, tecnico }) => {
                       </Typography>
                       <Box sx={{ mt: 1 }}>
                         <Typography variant="body2" sx={{ mb: 1 }}>
-                          <strong>Tags:</strong>
+                          <strong>Histórico de Tags:</strong>
                         </Typography>
                         {ferramenta.tags && ferramenta.tags.length > 0 ? (
-                          ferramenta.tags.map((tag) => <Chip key={tag.id} label={tag.tags} size="small" sx={{ mr: 0.5, mb: 0.5 }} />)
+                          <List sx={{ pl: 2, p: 0 }}>
+                            {ferramenta.tags.map((tag, index) => (
+                              <ListItem
+                                key={tag.id}
+                                disableGutters
+                                sx={{
+                                  backgroundColor: index % 2 === 0 ? 'rgba(0, 0, 0, 0.03)' : 'rgba(0, 0, 0, 0.01)',
+                                  py: 0.3,
+                                  px: 1,
+                                  borderRadius: 1,
+                                  mb: 0.5
+                                }}
+                              >
+                                <ListItemText
+                                  primary={tag.tags}
+                                  secondary={tag.dataHora ? `Data: ${new Date(tag.dataHora).toLocaleString('pt-BR')}` : ''}
+                                  primaryTypographyProps={{ variant: 'caption' }}
+                                  secondaryTypographyProps={{ variant: 'caption' }}
+                                />
+                              </ListItem>
+                            ))}
+                          </List>
                         ) : (
                           <Typography variant="caption">Nenhuma tag</Typography>
                         )}
@@ -187,6 +275,36 @@ const VerDetalhesTecnico = ({ open, onClose, tecnico }) => {
             </List>
           </Paper>
         )}
+
+        {selectedTab === 3 && (
+          <Paper variant="outlined" sx={{ p: 2 }}>
+            {loadingVistorias ? (
+              <Box sx={{ display: 'flex', justifyContent: 'center', p: 2 }}>
+                <CircularProgress size={24} />
+              </Box>
+            ) : vistorias && vistorias.length > 0 ? (
+              <List>
+                {vistorias.map((vistoria) => (
+                  <ListItem
+                    key={vistoria.vistoria.id}
+                    secondaryAction={
+                      <IconButton edge="end" onClick={() => handleOpenVistoria(vistoria)}>
+                        <EyeOutlined />
+                      </IconButton>
+                    }
+                  >
+                    <ListItemText
+                      primary={`Vistoria #${vistoria.vistoria.id}`}
+                      secondary={`Data: ${vistoria.vistoria.data_vistoria} - Status: ${vistoria.vistoria.status}`}
+                    />
+                  </ListItem>
+                ))}
+              </List>
+            ) : (
+              <Typography variant="body2">Nenhuma vistoria encontrada.</Typography>
+            )}
+          </Paper>
+        )}
       </DialogContent>
 
       <DialogActions sx={{ p: 2 }}>
@@ -194,6 +312,11 @@ const VerDetalhesTecnico = ({ open, onClose, tecnico }) => {
           Fechar
         </Button>
       </DialogActions>
+
+      {/* Modal para detalhes da vistoria */}
+      {selectedVistoria && (
+        <VerDetalhesVistoriaFerramentas open={modalVistoriaOpen} onClose={handleCloseVistoria} vistoria={selectedVistoria} />
+      )}
     </Dialog>
   );
 };
