@@ -53,6 +53,7 @@ const Tecnicos = () => {
   // Função para buscar técnicos
   const buscarTecnicos = async () => {
     try {
+      // A API já retorna técnicos com "ferramentas" e "ferramentasDeletadas"
       const response = await api.get('/tecnicos');
       setTecnicos(response.data);
       setTecnicosFiltrados(response.data);
@@ -176,7 +177,8 @@ const Tecnicos = () => {
               <TableHead>
                 <TableRow>
                   <TableCell>Nome</TableCell>
-                  <TableCell>Ferramentas</TableCell>
+                  <TableCell>Ferramentas Ativas</TableCell>
+                  <TableCell>Ferramentas Deletadas</TableCell>
                   <TableCell>Valor Total</TableCell>
                   <TableCell>Valor Devido Total</TableCell>
                   <TableCell>Tags</TableCell>
@@ -185,12 +187,16 @@ const Tecnicos = () => {
               </TableHead>
               <TableBody>
                 {tecnicosFiltrados.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((item) => {
-                  const ferramentas = item.ferramentas || [];
-                  const todasTags = ferramentas.reduce((acc, ferramenta) => acc.concat(ferramenta.tags || []), []);
+                  // Contabiliza as tags de ambas as listas
+                  const todasTags = [
+                    ...item.ferramentas.reduce((acc, ferramenta) => acc.concat(ferramenta.tags || []), []),
+                    ...item.ferramentasDeletadas.reduce((acc, ferramenta) => acc.concat(ferramenta.tags || []), [])
+                  ];
                   return (
                     <TableRow key={item.id}>
                       <TableCell>{item.nome}</TableCell>
-                      <TableCell>{ferramentas.length}</TableCell>
+                      <TableCell>{item.ferramentas.length}</TableCell>
+                      <TableCell>{item.ferramentasDeletadas.length}</TableCell>
                       <TableCell>{formatarValor(item.totalFerramentas || 0)}</TableCell>
                       <TableCell>
                         {item.totalPerdido > 0 && (
