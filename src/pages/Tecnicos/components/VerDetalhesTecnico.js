@@ -54,7 +54,6 @@ const DetailItem = ({ icon, label, value, divider = true }) => (
 const formatDateFriendly = (dataISO) => {
   if (!dataISO) return 'Não informado';
   const options = { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' };
-  // Ajuste de fuso horário se necessário:
   const data = new Date(dataISO);
   data.setHours(data.getHours() - 3);
   return data.toLocaleString('pt-BR', options);
@@ -76,19 +75,17 @@ const VerDetalhesTecnico = ({ open, onClose, tecnico }) => {
     }
   }, [open]);
 
-  // Sempre que o técnico for definido, busca as vistorias para compor o resumo
+  // Busca as vistorias do técnico
   useEffect(() => {
     if (tecnico && tecnico.id) {
       fetchVistorias();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tecnico]);
 
   const fetchVistorias = async () => {
     setLoadingVistorias(true);
     try {
       const response = await api.get(`/vistoria-ferramentas/tecnico/${tecnico.id}`);
-      // A resposta possui { message, data: [ ... ] }
       setVistorias(response.data.data || []);
     } catch (error) {
       console.error('Erro ao buscar vistorias:', error);
@@ -118,6 +115,28 @@ const VerDetalhesTecnico = ({ open, onClose, tecnico }) => {
     setModalVistoriaOpen(false);
   };
 
+  // Função que, ao receber uma tag, procura na lista de vistorias
+  // por um item cujo checklist contenha essa tag e abre o modal com essa vistoria
+  const handleVerVistoriaTag = (tagValue) => {
+    // Procura a primeira vistoria que contenha a tag no checklist
+    for (const vistoria of vistorias) {
+      if (vistoria.itens) {
+        for (const item of vistoria.itens) {
+          if (item.checklists) {
+            for (const chk of item.checklists) {
+              if (chk.items && chk.items.some((it) => it.tag === tagValue)) {
+                handleOpenVistoria(vistoria);
+                return;
+              }
+            }
+          }
+        }
+      }
+    }
+    // Se não encontrar, pode opcionalmente alertar ou ignorar
+    console.warn('Nenhuma vistoria encontrada para a tag:', tagValue);
+  };
+
   if (!tecnico) return null;
 
   // Cálculo dos percentuais e totais
@@ -126,6 +145,10 @@ const VerDetalhesTecnico = ({ open, onClose, tecnico }) => {
     tecnico.totalFerramentasOriginal && tecnico.totalFerramentasOriginal > 0
       ? ((tecnico.totalPerdido / tecnico.totalFerramentasOriginal) * 100).toFixed(2)
       : '0';
+
+  // Separa as ferramentas ativas e deletadas
+  const ferramentasAtivas = tecnico.ferramentas || [];
+  const ferramentasDeletadas = tecnico.ferramentasDeletadas || [];
 
   return (
     <Dialog
@@ -190,8 +213,12 @@ const VerDetalhesTecnico = ({ open, onClose, tecnico }) => {
 
         {selectedTab === 1 && (
           <Paper variant="outlined" sx={{ p: 2 }}>
-            {tecnico.ferramentas && tecnico.ferramentas.length > 0 ? (
-              tecnico.ferramentas.map((ferramenta) => (
+            {/* Seção de Ferramentas Ativas */}
+            <Typography variant="h6" gutterBottom>
+              Ferramentas Ativas
+            </Typography>
+            {ferramentasAtivas.length > 0 ? (
+              ferramentasAtivas.map((ferramenta) => (
                 <Box key={ferramenta.id} sx={{ mb: 2, border: '1px solid #e0e0e0', borderRadius: 1 }}>
                   <Box
                     sx={{
@@ -218,16 +245,18 @@ const VerDetalhesTecnico = ({ open, onClose, tecnico }) => {
                         </Typography>
                         {ferramenta.tags && ferramenta.tags.length > 0 ? (
                           <List sx={{ pl: 2, p: 0 }}>
-                            {ferramenta.tags.map((tag, index) => (
+                            {ferramenta.tags.map((tag) => (
                               <ListItem
                                 key={tag.id}
                                 disableGutters
                                 sx={{
-                                  backgroundColor: index % 2 === 0 ? 'rgba(0, 0, 0, 0.03)' : 'rgba(0, 0, 0, 0.01)',
+                                  backgroundColor: 'rgba(0, 0, 0, 0.03)',
                                   py: 0.3,
                                   px: 1,
                                   borderRadius: 1,
-                                  mb: 0.5
+                                  mb: 0.5,
+                                  display: 'flex',
+                                  alignItems: 'center'
                                 }}
                               >
                                 <ListItemText
@@ -236,6 +265,13 @@ const VerDetalhesTecnico = ({ open, onClose, tecnico }) => {
                                   primaryTypographyProps={{ variant: 'caption' }}
                                   secondaryTypographyProps={{ variant: 'caption' }}
                                 />
+                                <IconButton
+                                  size="small"
+                                  onClick={() => handleVerVistoriaTag(tag.tags)}
+                                  title="Ver Vistoria de origem desta tag"
+                                >
+                                  <EyeOutlined />
+                                </IconButton>
                               </ListItem>
                             ))}
                           </List>
@@ -248,7 +284,81 @@ const VerDetalhesTecnico = ({ open, onClose, tecnico }) => {
                 </Box>
               ))
             ) : (
-              <Typography variant="body2">Nenhuma ferramenta cadastrada.</Typography>
+              <Typography variant="body2">Nenhuma ferramenta ativa cadastrada.</Typography>
+            )}
+
+            {/* Seção de Ferramentas Deletadas */}
+            <Typography variant="h6" gutterBottom sx={{ mt: 2 }}>
+              Ferramentas Deletadas
+            </Typography>
+            {ferramentasDeletadas.length > 0 ? (
+              ferramentasDeletadas.map((ferramenta) => (
+                <Box key={ferramenta.id} sx={{ mb: 2, border: '1px solid #e0e0e0', borderRadius: 1 }}>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      p: 1,
+                      backgroundColor: '#f0f0f0',
+                      cursor: 'pointer'
+                    }}
+                    onClick={() => toggleFerramenta(`del-${ferramenta.id}`)}
+                  >
+                    <Typography variant="subtitle1">{ferramenta.nome || `ID: ${ferramenta.id}`}</Typography>
+                    <Box>{expandedFerramentas[`del-${ferramenta.id}`] ? <UpOutlined /> : <DownOutlined />}</Box>
+                  </Box>
+                  <Collapse in={expandedFerramentas[`del-${ferramenta.id}`]} timeout="auto" unmountOnExit>
+                    <Box sx={{ p: 1 }}>
+                      <Typography variant="body2">
+                        <strong>Valor:</strong> R$ {parseFloat(ferramenta.valor).toFixed(2)}
+                      </Typography>
+                      <Box sx={{ mt: 1 }}>
+                        <Typography variant="body2" sx={{ mb: 1 }}>
+                          <strong>Histórico de Tags:</strong>
+                        </Typography>
+                        {ferramenta.tags && ferramenta.tags.length > 0 ? (
+                          <List sx={{ pl: 2, p: 0 }}>
+                            {ferramenta.tags.map((tag) => (
+                              <ListItem
+                                key={tag.id}
+                                disableGutters
+                                sx={{
+                                  backgroundColor: 'rgba(0, 0, 0, 0.03)',
+                                  py: 0.3,
+                                  px: 1,
+                                  borderRadius: 1,
+                                  mb: 0.5,
+                                  display: 'flex',
+                                  alignItems: 'center'
+                                }}
+                              >
+                                <ListItemText
+                                  primary={tag.tags}
+                                  secondary={tag.dataHora ? `Data: ${new Date(tag.dataHora).toLocaleString('pt-BR')}` : ''}
+                                  primaryTypographyProps={{ variant: 'caption' }}
+                                  secondaryTypographyProps={{ variant: 'caption' }}
+                                />
+                                <IconButton
+                                  size="small"
+                                  onClick={() => handleVerVistoriaTag(tag.tags)}
+                                  title="Ver Vistoria de origem desta tag"
+                                >
+                                  <EyeOutlined />
+                                </IconButton>
+                              </ListItem>
+                            ))}
+                          </List>
+                        ) : (
+                          <Typography variant="caption">Nenhuma tag</Typography>
+                        )}
+                      </Box>
+                    </Box>
+                  </Collapse>
+                </Box>
+              ))
+            ) : (
+              <Typography variant="body2">Nenhuma ferramenta deletada.</Typography>
             )}
           </Paper>
         )}
@@ -313,7 +423,6 @@ const VerDetalhesTecnico = ({ open, onClose, tecnico }) => {
         </Button>
       </DialogActions>
 
-      {/* Modal para detalhes da vistoria */}
       {selectedVistoria && (
         <VerDetalhesVistoriaFerramentas open={modalVistoriaOpen} onClose={handleCloseVistoria} vistoria={selectedVistoria} />
       )}
