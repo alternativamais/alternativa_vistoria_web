@@ -166,14 +166,16 @@ const EditarVistoriaFerramentas = ({ open, onClose, onSuccess, vistoria }) => {
   useEffect(() => {
     const fetchFerramentas = async () => {
       try {
-        const response = await api.get('/ferramentas');
-        setFerramentas(response.data);
+        if (formData.tecnico_id) {
+          const response = await api.get(`/ferramentas/tecnico/${formData.tecnico_id}`);
+          setFerramentas(response.data.ferramentas);
+        }
       } catch (error) {
         notification({ message: 'Erro ao buscar ferramentas!', type: 'error' });
       }
     };
     fetchFerramentas();
-  }, []);
+  }, [formData.tecnico_id]);
 
   // Quando a vistoria para edição for carregada, preenche o formulário
   useEffect(() => {
@@ -413,13 +415,21 @@ const EditarVistoriaFerramentas = ({ open, onClose, onSuccess, vistoria }) => {
                         onChange={(e) => handleItemChange(index, 'ferramenta_id', e.target.value)}
                         label="Ferramenta"
                       >
-                        {ferramentas.map((ferramenta) => (
-                          <MenuItem key={ferramenta.id} value={ferramenta.id}>
-                            {ferramenta.nome}
-                          </MenuItem>
-                        ))}
+                        {ferramentas
+                          .filter((ferramenta) => {
+                            // Permite sempre exibir a ferramenta já selecionada neste item
+                            if (String(ferramenta.id) === String(item.ferramenta_id)) return true;
+                            // Filtra as ferramentas que já foram selecionadas em outros itens
+                            return !formData.items.some((i) => i.ferramenta_id && String(i.ferramenta_id) === String(ferramenta.id));
+                          })
+                          .map((ferramenta) => (
+                            <MenuItem key={ferramenta.id} value={ferramenta.id}>
+                              {ferramenta.nome}
+                            </MenuItem>
+                          ))}
                       </Select>
                     </FormControl>
+
                     <TextField
                       label="Comentário"
                       name="comentario"

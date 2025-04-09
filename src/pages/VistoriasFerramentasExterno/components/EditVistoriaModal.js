@@ -85,10 +85,12 @@ const EditVistoriaModal = ({ open, onClose, vistoriaId }) => {
 
   const renderStepContent = () => {
     if (activeStep === 0) {
+      const itensUnicos =
+        dataVistoria?.itens?.length > 0 ? Array.from(new Map(dataVistoria.itens.map((item) => [item.ferramenta_id, item])).values()) : [];
       return (
         <Box sx={{ mt: 2 }}>
           {dataVistoria ? (
-            dataVistoria.itens?.length > 0 ? (
+            itensUnicos.length > 0 ? (
               <TableContainer>
                 <Table>
                   <TableHead>
@@ -101,9 +103,9 @@ const EditVistoriaModal = ({ open, onClose, vistoriaId }) => {
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {dataVistoria.itens.map((item) => (
+                    {itensUnicos.map((item) => (
                       <TableRow key={item.id}>
-                        <TableCell>{item.ferramenta_nome}</TableCell>
+                        <TableCell>{item.tecnicoFerramenta.ferramenta.nome}</TableCell>
                         <TableCell>{item.status || 'Não finalizado'}</TableCell>
                         <TableCell align="right">
                           <Tooltip title="Editar Checklist">

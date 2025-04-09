@@ -144,7 +144,8 @@ const EditarTecnico = ({ open, onClose, onSuccess, tecnico }) => {
   useEffect(() => {
     if (tecnico) {
       setNome(tecnico.nome);
-      const ids = (tecnico.ferramentas || []).map((f) => f.id);
+      // Mapeia os ids usando o campo "idFerramenta"
+      const ids = (tecnico.ferramentas || []).map((f) => f.idFerramenta);
       setFerramentaIds(ids);
     }
   }, [tecnico]);

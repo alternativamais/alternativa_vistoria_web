@@ -22,7 +22,6 @@ const DualListChecklistSelector = ({ allChecklists, selectedIds, onChange }) => 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
-  // Listas derivadas: disponíveis e selecionados
   const availableList = allChecklists.filter((c) => !selectedIds.includes(c.id));
   const selectedList = allChecklists.filter((c) => selectedIds.includes(c.id));
 
@@ -134,28 +133,26 @@ const DualListChecklistSelector = ({ allChecklists, selectedIds, onChange }) => 
 };
 
 const CriarVistoriaFerramentas = ({ open, onClose, onSuccess }) => {
-  // O hook useAuth permanece se for necessário para outras informações
-  // const { user } = useAuth();
-
-  // Estado para armazenar os dados do formulário
   const [formData, setFormData] = useState({
     tecnico_id: '',
     data_vistoria: '',
     status: 'pendente de agendamento',
-    items: [] // Cada item: { ferramenta_id, comentario, checklistIds, expanded }
+    items: []
   });
 
-  // Estado para lista de técnicos (tecnicos)
   const [tecnicos, setTecnicos] = useState([]);
-  // Estado para lista de checklists disponíveis
+
   const [checklistsDisponiveis, setChecklistsDisponiveis] = useState([]);
 
-  // Busca os técnicos via GET em /tecnicos
+  const [ferramentas, setFerramentas] = useState([]);
+
   useEffect(() => {
     const fetchTecnicos = async () => {
       try {
         const response = await api.get('/tecnicos');
-        setTecnicos(response.data);
+        // Filtra os técnicos para não exibir os deletados
+        const tecnicosAtivos = response.data.filter((tec) => !tec.deletedAt);
+        setTecnicos(tecnicosAtivos);
       } catch (error) {
         notification({ message: 'Erro ao buscar técnicos!', type: 'error' });
       }
@@ -163,7 +160,6 @@ const CriarVistoriaFerramentas = ({ open, onClose, onSuccess }) => {
     fetchTecnicos();
   }, []);
 
-  // Busca os checklists disponíveis
   useEffect(() => {
     const fetchChecklists = async () => {
       try {
@@ -176,7 +172,22 @@ const CriarVistoriaFerramentas = ({ open, onClose, onSuccess }) => {
     fetchChecklists();
   }, []);
 
-  // Reseta o formulário quando o modal fecha
+  useEffect(() => {
+    const fetchFerramentas = async () => {
+      try {
+        if (formData.tecnico_id) {
+          const response = await api.get(`/ferramentas/tecnico/${formData.tecnico_id}`);
+          setFerramentas(response.data.ferramentas);
+        } else {
+          setFerramentas([]);
+        }
+      } catch (error) {
+        notification({ message: 'Erro ao buscar ferramentas!', type: 'error' });
+      }
+    };
+    fetchFerramentas();
+  }, [formData.tecnico_id]);
+
   useEffect(() => {
     if (!open) {
       setFormData({
@@ -185,10 +196,10 @@ const CriarVistoriaFerramentas = ({ open, onClose, onSuccess }) => {
         status: 'pendente de agendamento',
         items: []
       });
+      setFerramentas([]);
     }
   }, [open]);
 
-  // Handler para alteração dos campos do formulário
   const handleChange = (event) => {
     const { name, value } = event.target;
     setFormData((prev) => ({
@@ -197,7 +208,6 @@ const CriarVistoriaFerramentas = ({ open, onClose, onSuccess }) => {
     }));
   };
 
-  // Handlers para itens
   const handleAddItem = () => {
     setFormData((prev) => ({
       ...prev,
@@ -207,7 +217,7 @@ const CriarVistoriaFerramentas = ({ open, onClose, onSuccess }) => {
           ferramenta_id: '',
           comentario: '',
           checklistIds: [],
-          expanded: true // Inicia expandido
+          expanded: true
         }
       ]
     }));
@@ -237,28 +247,15 @@ const CriarVistoriaFerramentas = ({ open, onClose, onSuccess }) => {
     });
   };
 
-  // Função para obter as ferramentas disponíveis do técnico selecionado
-  const getFerramentasDoTecnico = () => {
-    return tecnicos.find((tec) => Number(tec.id) === Number(formData.tecnico_id))?.ferramentas || [];
-  };
-
-  // Para cada item, filtramos as ferramentas já selecionadas em outros itens
   const getFerramentasDisponiveisParaItem = (currentItemIndex) => {
-    const todasFerramentas = getFerramentasDoTecnico();
-    // Ferramentas selecionadas em outros itens (exceto o atual)
     const selecionadasEmOutros = formData.items
       .filter((_, idx) => idx !== currentItemIndex)
       .map((item) => Number(item.ferramenta_id))
       .filter(Boolean);
-    // Se a ferramenta já estiver selecionada neste item, permitimos mantê-la
     const currentSelected = Number(formData.items[currentItemIndex]?.ferramenta_id);
-    return todasFerramentas.filter((ferramenta) => {
-      return ferramenta.id === currentSelected || !selecionadasEmOutros.includes(ferramenta.id);
-    });
+    return ferramentas.filter((ferramenta) => ferramenta.id === currentSelected || !selecionadasEmOutros.includes(ferramenta.id));
   };
 
-  // Ao enviar, monta o payload conforme o padrão esperado:
-  // Se um item não tiver checklistIds (array vazio), omitimos esse campo.
   const handleSubmit = async () => {
     try {
       const payload = {
@@ -288,9 +285,6 @@ const CriarVistoriaFerramentas = ({ open, onClose, onSuccess }) => {
       });
     }
   };
-
-  // Obtém as ferramentas do técnico selecionado para exibir o botão ou mensagem
-  const ferramentasDoTecnico = getFerramentasDoTecnico();
 
   return (
     <Modal open={open} onClose={onClose} aria-labelledby="modal-criar-vistoria" aria-describedby="modal-criar-vistoria-descricao">
@@ -414,7 +408,7 @@ const CriarVistoriaFerramentas = ({ open, onClose, onSuccess }) => {
               </Box>
             ))}
             {/* Verifica se o técnico possui ferramentas para permitir adicionar um item */}
-            {formData.tecnico_id && ferramentasDoTecnico.length > 0 ? (
+            {formData.tecnico_id && ferramentas.length > 0 ? (
               <Button onClick={handleAddItem} variant="outlined" startIcon={<PlusCircleOutlined />}>
                 Adicionar Ferramenta
               </Button>

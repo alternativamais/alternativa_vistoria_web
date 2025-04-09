@@ -1,4 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable react/prop-types */
 import React, { useState, useEffect } from 'react';
 import {
   Box,
@@ -71,12 +72,14 @@ const VistoriasFerramentas = () => {
   const [modalDetalhesOpen, setModalDetalhesOpen] = useState(false);
   const [vistoriaDetalhes, setVistoriaDetalhes] = useState(null);
 
-  // Função para buscar os dados
+  // Função para buscar os dados com filtro para não exibir os deletados
   const buscarVistorias = async () => {
     try {
       const response = await api.get('/vistoria-ferramentas');
-      setVistorias(response.data);
-      setVistoriasFiltradas(response.data);
+      // Filtra as vistorias que não possuem deletedAt definido (ou seja, não deletadas)
+      const dadosFiltrados = response.data.filter((item) => !item.vistoria.deletedAt);
+      setVistorias(dadosFiltrados);
+      setVistoriasFiltradas(dadosFiltrados);
     } catch (error) {
       notification({ message: 'Erro ao buscar vistorias de ferramentas!', type: 'error' });
     }
@@ -140,9 +143,23 @@ const VistoriasFerramentas = () => {
 
   const vistoriasOrdenadas = [...vistoriasFiltradas].sort(ordenarVistorias);
 
-  // Renderiza a lista de ferramentas conforme a regra
+  // Renderiza as ferramentas, filtrando itens sem ferramenta ou com ferramenta deletada
   const renderFerramentas = (itens) => {
-    const nomes = [...new Set(itens.map((item) => item.ferramenta_nome))];
+    const validItens = itens.filter((item) => item.ferramenta && !item.ferramenta.deletedAt);
+    const nomes = [
+      ...new Set(
+        validItens.map((item) => {
+          if (item.tecnicoFerramenta && item.tecnicoFerramenta.ferramenta) {
+            return item.tecnicoFerramenta.ferramenta.nome;
+          } else if (item.ferramenta) {
+            return item.ferramenta.nome;
+          }
+          return null;
+        })
+      )
+    ].filter((nome) => nome); // Remove valores nulos ou vazios
+
+    if (nomes.length === 0) return <span>-</span>;
     if (nomes.length <= 2) {
       return <span>{nomes.join(', ')}</span>;
     }

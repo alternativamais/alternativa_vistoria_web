@@ -53,7 +53,9 @@ const VistoriasFerramentasExterno = () => {
   const buscarVistorias = async () => {
     try {
       const response = await api.get(`/vistoria-ferramentas`);
-      setVistorias(response.data);
+      // Filtra as vistorias que não possuem deletedAt definido
+      const dadosFiltrados = response.data.filter((item) => !item.vistoria.deletedAt);
+      setVistorias(dadosFiltrados);
     } catch (error) {
       notification({ message: 'Erro ao buscar vistorias!', type: 'error' });
     }
@@ -247,13 +249,14 @@ const VistoriasFerramentasExterno = () => {
                             <Typography variant="body2" color="text.secondary">
                               Ferramentas:
                             </Typography>
-                            {itens.map((itemFerramenta) => (
-                              <Typography key={itemFerramenta.id} variant="body2" color="text.primary">
-                                {itemFerramenta.ferramenta_nome}
+                            {itens.map((item) => (
+                              <Typography key={item.id} variant="body2" color="text.primary">
+                                {item.ferramenta?.nome}
                               </Typography>
                             ))}
                           </CardContent>
                         )}
+
                         <CardActions sx={{ justifyContent: 'flex-end' }}>
                           <Tooltip title="Editar">
                             <IconButton onClick={() => handleEditarClick(vistoria.id)}>

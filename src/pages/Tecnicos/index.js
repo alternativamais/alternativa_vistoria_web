@@ -13,7 +13,10 @@ import {
   TextField,
   IconButton,
   Tooltip,
-  Chip
+  Chip,
+  Collapse,
+  Typography,
+  Divider
 } from '@mui/material';
 import { EditOutlined, DeleteOutlined, EyeOutlined } from '@ant-design/icons';
 import MainCard from 'components/sistema/MainCard';
@@ -43,12 +46,15 @@ const Tecnicos = () => {
   const [tecnicos, setTecnicos] = useState([]);
   const [tecnicosFiltrados, setTecnicosFiltrados] = useState([]);
 
-  // Estados dos modais (criação, edição e visualização)
+  // Estados para controle dos modais
   const [modalCriarOpen, setModalCriarOpen] = useState(false);
   const [modalEditarOpen, setModalEditarOpen] = useState(false);
   const [modalDetalhesOpen, setModalDetalhesOpen] = useState(false);
   const [tecnicoSelecionado, setTecnicoSelecionado] = useState(null);
   const [tecnicoDetalhes, setTecnicoDetalhes] = useState(null);
+
+  // Estado para controlar a exibição da seção de técnicos deletados
+  const [mostrarDeletados, setMostrarDeletados] = useState(false);
 
   // Função para buscar técnicos
   const buscarTecnicos = async () => {
@@ -82,6 +88,10 @@ const Tecnicos = () => {
   useEffect(() => {
     localStorage.setItem('pesquisaTecnicos', pesquisa);
   }, [pesquisa]);
+
+  // Separa os técnicos ativos e os deletados (considerando que um técnico deletado possui deletedAt definido)
+  const tecnicosAtivos = tecnicosFiltrados.filter((item) => !item.deletedAt);
+  const tecnicosDeletados = tecnicosFiltrados.filter((item) => item.deletedAt);
 
   // Handler para deletar técnico
   const handleDeletarTecnico = async (item) => {
@@ -142,6 +152,11 @@ const Tecnicos = () => {
     setPage(0);
   };
 
+  // Função para alternar a exibição dos técnicos deletados
+  const toggleMostrarDeletados = () => {
+    setMostrarDeletados((prev) => !prev);
+  };
+
   // Formata o valor para exibição como moeda
   const formatarValor = (valor) => {
     return `R$ ${parseFloat(valor).toFixed(2)}`;
@@ -165,88 +180,144 @@ const Tecnicos = () => {
       </Box>
 
       <MainCard title="Técnicos">
-        <Box
-          sx={{
-            overflowX: 'auto',
-            '&::-webkit-scrollbar': { width: '0.4em' },
-            '&::-webkit-scrollbar-thumb': { backgroundColor: 'rgba(0,0,0,.1)', borderRadius: '4px' }
-          }}
-        >
-          <TableContainer>
-            <Table sx={{ minWidth: 600 }}>
-              <TableHead>
-                <TableRow>
-                  <TableCell>Nome</TableCell>
-                  <TableCell>Ferramentas Ativas</TableCell>
-                  <TableCell>Ferramentas Deletadas</TableCell>
-                  <TableCell>Valor Total</TableCell>
-                  <TableCell>Valor Devido Total</TableCell>
-                  <TableCell>Tags</TableCell>
-                  <TableCell>Ações</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {tecnicosFiltrados.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((item) => {
-                  // Contabiliza as tags de ambas as listas
-                  const todasTags = [
-                    ...item.ferramentas.reduce((acc, ferramenta) => acc.concat(ferramenta.tags || []), []),
-                    ...item.ferramentasDeletadas.reduce((acc, ferramenta) => acc.concat(ferramenta.tags || []), [])
-                  ];
-                  return (
-                    <TableRow key={item.id}>
-                      <TableCell>{item.nome}</TableCell>
-                      <TableCell>{item.ferramentas.length}</TableCell>
-                      <TableCell>{item.ferramentasDeletadas.length}</TableCell>
-                      <TableCell>{formatarValor(item.totalFerramentas || 0)}</TableCell>
-                      <TableCell>
-                        {item.totalPerdido > 0 && (
-                          <Box component="span" sx={{ color: 'red' }}>
-                            (Perdido: {formatarValor(item.totalPerdido)})
-                          </Box>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        {todasTags.length > 0
-                          ? todasTags.map((tag, index) => (
-                              <Chip key={index} label={tag.tags || tag} size="small" sx={{ mr: 0.5, mb: 0.5 }} />
-                            ))
-                          : 'Nenhuma'}
-                      </TableCell>
-                      <TableCell>
-                        <Tooltip title="Editar">
-                          <IconButton onClick={() => handleEditarTecnico(item)}>
-                            <EditOutlined />
-                          </IconButton>
-                        </Tooltip>
-                        <Tooltip title="Deletar">
-                          <IconButton onClick={() => handleDeletarTecnico(item)}>
-                            <DeleteOutlined />
-                          </IconButton>
-                        </Tooltip>
-                        <Tooltip title="Ver Detalhes">
-                          <IconButton onClick={() => handleDetalhesTecnico(item)}>
-                            <EyeOutlined />
-                          </IconButton>
-                        </Tooltip>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
-          </TableContainer>
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <TablePagination
-              rowsPerPageOptions={[5, 10, 15, 100]}
-              component="div"
-              count={tecnicosFiltrados.length}
-              rowsPerPage={rowsPerPage}
-              page={page}
-              onPageChange={handleMudancaPagina}
-              onRowsPerPageChange={handleMudancaLinhasPorPagina}
-              labelRowsPerPage="Linhas por página:"
-            />
+        {/* Técnicos Ativos */}
+        <TableContainer>
+          <Table sx={{ minWidth: 600 }}>
+            <TableHead>
+              <TableRow>
+                <TableCell>Nome</TableCell>
+                <TableCell>Ferramentas Ativas</TableCell>
+                <TableCell>Ferramentas Deletadas</TableCell>
+                <TableCell>Valor Total</TableCell>
+                <TableCell>Valor Devido Total</TableCell>
+                <TableCell>Tags</TableCell>
+                <TableCell>Ações</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {tecnicosAtivos.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((item) => {
+                // Contabiliza as tags de ambas as listas
+                const todasTags = [
+                  ...item.ferramentas.reduce((acc, ferramenta) => acc.concat(ferramenta.tags || []), []),
+                  ...item.ferramentasDeletadas.reduce((acc, ferramenta) => acc.concat(ferramenta.tags || []), [])
+                ];
+                return (
+                  <TableRow key={item.id}>
+                    <TableCell>{item.nome}</TableCell>
+                    <TableCell>{item.ferramentas.length}</TableCell>
+                    <TableCell>{item.ferramentasDeletadas.length}</TableCell>
+                    <TableCell>{formatarValor(item.totalFerramentas || 0)}</TableCell>
+                    <TableCell>
+                      {item.totalPerdido > 0 && (
+                        <Box component="span" sx={{ color: 'red' }}>
+                          (Perdido: {formatarValor(item.totalPerdido)})
+                        </Box>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      {todasTags.length > 0
+                        ? todasTags.map((tag, index) => <Chip key={index} label={tag.tags || tag} size="small" sx={{ mr: 0.5, mb: 0.5 }} />)
+                        : 'Nenhuma'}
+                    </TableCell>
+                    <TableCell>
+                      <Tooltip title="Editar">
+                        <IconButton onClick={() => handleEditarTecnico(item)}>
+                          <EditOutlined />
+                        </IconButton>
+                      </Tooltip>
+                      <Tooltip title="Deletar">
+                        <IconButton onClick={() => handleDeletarTecnico(item)}>
+                          <DeleteOutlined />
+                        </IconButton>
+                      </Tooltip>
+                      <Tooltip title="Ver Detalhes">
+                        <IconButton onClick={() => handleDetalhesTecnico(item)}>
+                          <EyeOutlined />
+                        </IconButton>
+                      </Tooltip>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
+        </TableContainer>
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <TablePagination
+            rowsPerPageOptions={[5, 10, 15, 100]}
+            component="div"
+            count={tecnicosAtivos.length}
+            rowsPerPage={rowsPerPage}
+            page={page}
+            onPageChange={handleMudancaPagina}
+            onRowsPerPageChange={handleMudancaLinhasPorPagina}
+            labelRowsPerPage="Linhas por página:"
+          />
+        </Box>
+
+        {/* Seção de Técnicos Deletados */}
+        <Box sx={{ mt: 3 }}>
+          <Divider sx={{ mb: 1 }} />
+          <Box sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={toggleMostrarDeletados}>
+            <Typography variant="subtitle1" sx={{ flexGrow: 1 }}>
+              Técnicos Deletados ({tecnicosDeletados.length})
+            </Typography>
+            <Chip label={mostrarDeletados ? 'Ocultar' : 'Exibir'} size="small" />
           </Box>
+          <Collapse in={mostrarDeletados}>
+            <TableContainer>
+              <Table sx={{ minWidth: 600 }}>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Nome</TableCell>
+                    <TableCell>Ferramentas Ativas</TableCell>
+                    <TableCell>Ferramentas Deletadas</TableCell>
+                    <TableCell>Valor Total</TableCell>
+                    <TableCell>Valor Devido Total</TableCell>
+                    <TableCell>Tags</TableCell>
+                    <TableCell>Ações</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {tecnicosDeletados.map((item) => {
+                    const todasTags = [
+                      ...item.ferramentas.reduce((acc, ferramenta) => acc.concat(ferramenta.tags || []), []),
+                      ...item.ferramentasDeletadas.reduce((acc, ferramenta) => acc.concat(ferramenta.tags || []), [])
+                    ];
+                    return (
+                      <TableRow key={item.id}>
+                        <TableCell>{item.nome}</TableCell>
+                        <TableCell>{item.ferramentas.length}</TableCell>
+                        <TableCell>{item.ferramentasDeletadas.length}</TableCell>
+                        <TableCell>{formatarValor(item.totalFerramentas || 0)}</TableCell>
+                        <TableCell>
+                          {item.totalPerdido > 0 && (
+                            <Box component="span" sx={{ color: 'red' }}>
+                              (Perdido: {formatarValor(item.totalPerdido)})
+                            </Box>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          {todasTags.length > 0
+                            ? todasTags.map((tag, index) => (
+                                <Chip key={index} label={tag.tags || tag} size="small" sx={{ mr: 0.5, mb: 0.5 }} />
+                              ))
+                            : 'Nenhuma'}
+                        </TableCell>
+                        <TableCell>
+                          <Tooltip title="Ver Detalhes">
+                            <IconButton onClick={() => handleDetalhesTecnico(item)}>
+                              <EyeOutlined />
+                            </IconButton>
+                          </Tooltip>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Collapse>
         </Box>
       </MainCard>
 
