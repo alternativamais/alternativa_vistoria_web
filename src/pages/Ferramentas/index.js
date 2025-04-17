@@ -14,14 +14,13 @@ import {
   IconButton,
   Tooltip
 } from '@mui/material';
-import { EditOutlined, DeleteOutlined, EyeOutlined } from '@ant-design/icons';
+import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import MainCard from 'components/sistema/MainCard';
 import { api } from 'services/api';
 import { notification } from 'components/notification';
 
 import CriarFerramenta from './components/CriarFerramenta';
 import EditarFerramenta from './components/EditarFerramenta';
-// import VerDetalhesFerramenta from './components/VerDetalhesFerramenta';
 
 const Ferramentas = () => {
   const [page, setPage] = useState(() => {
@@ -105,16 +104,6 @@ const Ferramentas = () => {
     setModalEditarOpen(false);
   };
 
-  const handleDetalhesFerramenta = (item) => {
-    setFerramentaDetalhes(item);
-    setModalDetalhesOpen(true);
-  };
-
-  // const handleFecharModalDetalhes = () => {
-  //   setFerramentaDetalhes(null);
-  //   setModalDetalhesOpen(false);
-  // };
-
   const handlePesquisaChange = (event) => {
     setPesquisa(event.target.value);
     setPage(0);
@@ -193,11 +182,6 @@ const Ferramentas = () => {
                           <DeleteOutlined />
                         </IconButton>
                       </Tooltip>
-                      <Tooltip title="Ver Detalhes">
-                        <IconButton onClick={() => handleDetalhesFerramenta(item)}>
-                          <EyeOutlined />
-                        </IconButton>
-                      </Tooltip>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -226,8 +210,6 @@ const Ferramentas = () => {
         onSuccess={buscarFerramentas}
         ferramenta={ferramentaSelecionada}
       />
-
-      {/* <VerDetalhesFerramenta open={modalDetalhesOpen} onClose={handleFecharModalDetalhes} ferramenta={ferramentaDetalhes} /> */}
     </Box>
   );
 };
