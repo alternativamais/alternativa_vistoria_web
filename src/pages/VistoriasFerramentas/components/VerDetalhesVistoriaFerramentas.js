@@ -286,7 +286,7 @@ const VerDetalhesVistoriaFerramentas = ({ open, onClose, vistoria }) => {
             {vistoria.itens.map((item) => (
               <Box key={item.id} sx={{ mb: 3, p: 1, border: '1px solid #e0e0e0', borderRadius: 1 }}>
                 <Typography variant="subtitle1" gutterBottom>
-                  Ferramenta: {item.ferramenta_nome || `ID: ${item.id}`}
+                  Ferramenta: {item.ferramenta?.nome || `Apagada`}
                 </Typography>
                 {item.comentario && (
                   <Typography variant="body2" sx={{ mb: 1 }}>
