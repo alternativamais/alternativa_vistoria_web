@@ -1,19 +1,23 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react/prop-types */
 import React, { useState, useEffect } from 'react';
-import { Box, Button, Modal, TextField, InputLabel, useTheme, useMediaQuery } from '@mui/material';
+import { Autocomplete, Box, Button, Modal, TextField, InputLabel, useTheme, useMediaQuery } from '@mui/material';
 import { api } from 'services/api';
 import { notification } from 'components/notification';
 
 const DualListFerramentasSelector = ({ allFerramentas, selectedIds, onChange }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const [availableSelected, setAvailableSelected] = useState([]);
+  const [selectedSelected, setSelectedSelected] = useState([]);
+  const [availableSearch, setAvailableSearch] = useState('');
+  const [selectedSearch, setSelectedSearch] = useState('');
 
   const availableList = allFerramentas.filter((f) => !selectedIds.includes(f.id));
   const selectedList = allFerramentas.filter((f) => selectedIds.includes(f.id));
 
-  const [availableSelected, setAvailableSelected] = useState([]);
-  const [selectedSelected, setSelectedSelected] = useState([]);
+  const filteredAvailable = availableList.filter((item) => item.nome.toLowerCase().includes(availableSearch.toLowerCase()));
+  const filteredSelected = selectedList.filter((item) => item.nome.toLowerCase().includes(selectedSearch.toLowerCase()));
 
   const handleAdd = () => {
     const newSelected = Array.from(new Set([...selectedIds, ...availableSelected]));
@@ -43,11 +47,21 @@ const DualListFerramentasSelector = ({ allFerramentas, selectedIds, onChange }) 
           border: '1px solid #ccc',
           borderRadius: 1,
           p: 1,
-          minHeight: 150
+          minHeight: 150,
+          maxHeight: 250,
+          overflowY: 'auto'
         }}
       >
         <InputLabel sx={{ mb: 1 }}>Disponíveis</InputLabel>
-        {availableList.map((item) => (
+        <TextField
+          size="small"
+          placeholder="Pesquisar..."
+          value={availableSearch}
+          onChange={(e) => setAvailableSearch(e.target.value)}
+          fullWidth
+          sx={{ mb: 1 }}
+        />
+        {filteredAvailable.map((item) => (
           <Box
             key={item.id}
             sx={{
@@ -91,11 +105,21 @@ const DualListFerramentasSelector = ({ allFerramentas, selectedIds, onChange }) 
           border: '1px solid #ccc',
           borderRadius: 1,
           p: 1,
-          minHeight: 150
+          minHeight: 150,
+          maxHeight: 250,
+          overflowY: 'auto'
         }}
       >
         <InputLabel sx={{ mb: 1 }}>Selecionados</InputLabel>
-        {selectedList.map((item) => (
+        <TextField
+          size="small"
+          placeholder="Pesquisar..."
+          value={selectedSearch}
+          onChange={(e) => setSelectedSearch(e.target.value)}
+          fullWidth
+          sx={{ mb: 1 }}
+        />
+        {filteredSelected.map((item) => (
           <Box
             key={item.id}
             sx={{
@@ -123,6 +147,7 @@ const CriarTecnico = ({ open, onClose, onSuccess }) => {
   const [nome, setNome] = useState('');
   const [ferramentaIds, setFerramentaIds] = useState([]);
   const [ferramentas, setFerramentas] = useState([]);
+  const [tecNames, setTecNames] = useState([]);
 
   useEffect(() => {
     const fetchFerramentas = async () => {
@@ -135,6 +160,23 @@ const CriarTecnico = ({ open, onClose, onSuccess }) => {
     };
     fetchFerramentas();
   }, []);
+
+  useEffect(() => {
+    if (!open) return;
+    const fetchTecNames = async () => {
+      try {
+        const response = await api.get('/sgp-integration/tecnicos_search');
+        const nomes = response.data.tecnicos.map((t) => t.nome);
+        setTecNames(nomes);
+      } catch (error) {
+        notification({
+          message: 'Erro ao buscar técnicos!',
+          type: 'error'
+        });
+      }
+    };
+    fetchTecNames();
+  }, [open]);
 
   useEffect(() => {
     if (!open) {
@@ -175,7 +217,23 @@ const CriarTecnico = ({ open, onClose, onSuccess }) => {
       >
         <h2 id="modal-criar-tecnico">Criar Novo Técnico</h2>
         <Box component="form" noValidate autoComplete="off" sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-          <TextField label="Nome" name="nome" value={nome} onChange={(e) => setNome(e.target.value)} fullWidth />
+          {/* Autocomplete do nome */}
+          <Autocomplete
+            freeSolo
+            options={tecNames}
+            value={nome}
+            onChange={(_, newValue) => setNome(newValue || '')}
+            inputValue={nome}
+            onInputChange={(_, newInput) => setNome(newInput)}
+            renderInput={(params) => <TextField {...params} label="Nome" fullWidth size="small" />}
+            ListboxProps={{
+              style: {
+                maxHeight: 200,
+                overflowY: 'auto'
+              }
+            }}
+          />
+
           {/* Dual List para seleção de Ferramentas */}
           <DualListFerramentasSelector allFerramentas={ferramentas} selectedIds={ferramentaIds} onChange={setFerramentaIds} />
           <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
