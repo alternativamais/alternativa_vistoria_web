@@ -50,37 +50,64 @@ const DetailItem = ({ icon, label, value, divider = true }) => (
   </>
 );
 
-// Formata a data para um formato mais profissional, ex: 18 de Março de 2025 às 18:09:38
 const formatDateFriendly = (dataISO) => {
   if (!dataISO) return 'Não informado';
-  const options = { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' };
+  const options = {
+    day: '2-digit',
+    month: 'long',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit'
+  };
   const data = new Date(dataISO);
   data.setHours(data.getHours() - 3);
   return data.toLocaleString('pt-BR', options);
 };
 
 const VerDetalhesTecnico = ({ open, onClose, tecnico }) => {
-  const [selectedTab, setSelectedTab] = useState(0);
+  const [tab, setTab] = useState(0);
   const [expandedFerramentas, setExpandedFerramentas] = useState({});
   const [vistorias, setVistorias] = useState([]);
   const [loadingVistorias, setLoadingVistorias] = useState(false);
   const [modalVistoriaOpen, setModalVistoriaOpen] = useState(false);
   const [selectedVistoria, setSelectedVistoria] = useState(null);
 
+  const [dadosTecnico, setDadosTecnico] = useState(null);
+  const [loadingTecnico, setLoadingTecnico] = useState(false);
+
   useEffect(() => {
     if (!open) {
-      setSelectedTab(0);
+      setTab(0);
       setExpandedFerramentas({});
       setVistorias([]);
+      setDadosTecnico(null);
     }
   }, [open]);
 
-  // Busca as vistorias do técnico
   useEffect(() => {
-    if (tecnico && tecnico.id) {
+    if (open && tecnico?.id) {
+      const fetchDetalhe = async () => {
+        setLoadingTecnico(true);
+        try {
+          const { data } = await api.get(`/tecnicos/${tecnico.id}`);
+          setDadosTecnico(data.tecnico);
+        } catch (err) {
+          console.error('Erro ao buscar detalhes do técnico:', err);
+          setDadosTecnico(null);
+        } finally {
+          setLoadingTecnico(false);
+        }
+      };
+      fetchDetalhe();
+    }
+  }, [open, tecnico]);
+
+  useEffect(() => {
+    if (open && tecnico?.id) {
       fetchVistorias();
     }
-  }, [tecnico]);
+  }, [open, tecnico]);
 
   const fetchVistorias = async () => {
     setLoadingVistorias(true);
@@ -89,42 +116,32 @@ const VerDetalhesTecnico = ({ open, onClose, tecnico }) => {
       setVistorias(response.data.data || []);
     } catch (error) {
       console.error('Erro ao buscar vistorias:', error);
+      setVistorias([]);
     } finally {
       setLoadingVistorias(false);
     }
   };
 
-  const handleChangeTab = (event, newValue) => {
-    setSelectedTab(newValue);
-  };
+  const handleChangeTab = (_, newValue) => setTab(newValue);
 
-  const toggleFerramenta = (id) => {
-    setExpandedFerramentas((prev) => ({
-      ...prev,
-      [id]: !prev[id]
-    }));
-  };
+  const toggleFerramenta = (id) => setExpandedFerramentas((prev) => ({ ...prev, [id]: !prev[id] }));
 
   const handleOpenVistoria = (vistoria) => {
     setSelectedVistoria(vistoria);
     setModalVistoriaOpen(true);
   };
-
   const handleCloseVistoria = () => {
     setSelectedVistoria(null);
     setModalVistoriaOpen(false);
   };
 
-  // Função que, ao receber uma tag, procura na lista de vistorias
-  // por um item cujo checklist contenha essa tag e abre o modal com essa vistoria
   const handleVerVistoriaTag = (tagValue) => {
-    // Procura a primeira vistoria que contenha a tag no checklist
     for (const vistoria of vistorias) {
       if (vistoria.itens) {
         for (const item of vistoria.itens) {
           if (item.checklists) {
             for (const chk of item.checklists) {
-              if (chk.items && chk.items.some((it) => it.tag === tagValue)) {
+              if (chk.items?.some((it) => it.tag === tagValue)) {
                 handleOpenVistoria(vistoria);
                 return;
               }
@@ -133,22 +150,28 @@ const VerDetalhesTecnico = ({ open, onClose, tecnico }) => {
         }
       }
     }
-    // Se não encontrar, pode opcionalmente alertar ou ignorar
     console.warn('Nenhuma vistoria encontrada para a tag:', tagValue);
   };
 
-  if (!tecnico) return null;
+  if (!open) return null;
+  if (loadingTecnico || !dadosTecnico) {
+    return (
+      <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm" TransitionComponent={Fade}>
+        <DialogContent sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
+          <CircularProgress />
+        </DialogContent>
+      </Dialog>
+    );
+  }
 
-  // Cálculo dos percentuais e totais
-  const totalFerramentasCadastradas = tecnico.ferramentas ? tecnico.ferramentas.length : 0;
+  const totalFerramentasCadastradas = dadosTecnico.ferramentas?.length || 0;
   const percentualPerdido =
-    tecnico.totalFerramentasOriginal && tecnico.totalFerramentasOriginal > 0
-      ? ((tecnico.totalPerdido / tecnico.totalFerramentasOriginal) * 100).toFixed(2)
+    dadosTecnico.totalFerramentasOriginal > 0
+      ? ((dadosTecnico.totalPerdido / dadosTecnico.totalFerramentasOriginal) * 100).toFixed(2)
       : '0';
 
-  // Separa as ferramentas ativas e deletadas
-  const ferramentasAtivas = tecnico.ferramentas || [];
-  const ferramentasDeletadas = tecnico.ferramentasDeletadas || [];
+  const ferramentasAtivas = dadosTecnico.ferramentas || [];
+  const ferramentasDeletadas = dadosTecnico.ferramentasDeletadas || [];
 
   return (
     <Dialog
@@ -172,7 +195,7 @@ const VerDetalhesTecnico = ({ open, onClose, tecnico }) => {
       </DialogTitle>
 
       <Tabs
-        value={selectedTab}
+        value={tab}
         onChange={handleChangeTab}
         indicatorColor="primary"
         textColor="primary"
@@ -187,20 +210,20 @@ const VerDetalhesTecnico = ({ open, onClose, tecnico }) => {
       </Tabs>
 
       <DialogContent dividers sx={{ p: 1 }}>
-        {selectedTab === 0 && (
+        {tab === 0 && (
           <Paper variant="outlined" sx={{ p: 2 }}>
             <Typography variant="subtitle1" sx={{ mb: 1 }}>
               Informações do Técnico
             </Typography>
             <List disablePadding>
-              <DetailItem icon={<InfoCircleOutlined />} label="Nome" value={tecnico.nome} />
-              <DetailItem icon={<InfoCircleOutlined />} label="Data de Cadastro" value={formatDateFriendly(tecnico.createdAt)} />
-              <DetailItem icon={<InfoCircleOutlined />} label="Última Atualização" value={formatDateFriendly(tecnico.updatedAt)} />
+              <DetailItem icon={<InfoCircleOutlined />} label="Nome" value={dadosTecnico.nome} />
+              <DetailItem icon={<InfoCircleOutlined />} label="Data de Cadastro" value={formatDateFriendly(dadosTecnico.createdAt)} />
+              <DetailItem icon={<InfoCircleOutlined />} label="Última Atualização" value={formatDateFriendly(dadosTecnico.updatedAt)} />
               <DetailItem icon={<ToolOutlined />} label="Ferramentas Cadastradas" value={totalFerramentasCadastradas} />
               <DetailItem
                 icon={<DollarCircleOutlined />}
                 label="Ferramentas Perdidas"
-                value={`R$ ${parseFloat(tecnico.totalPerdido || 0).toFixed(2)}`}
+                value={`R$ ${parseFloat(dadosTecnico.totalPerdido || 0).toFixed(2)}`}
               />
               <DetailItem icon={<DollarCircleOutlined />} label="Percentual Perdido" value={`${percentualPerdido}%`} divider={false} />
             </List>
@@ -211,9 +234,8 @@ const VerDetalhesTecnico = ({ open, onClose, tecnico }) => {
           </Paper>
         )}
 
-        {selectedTab === 1 && (
+        {tab === 1 && (
           <Paper variant="outlined" sx={{ p: 2 }}>
-            {/* Seção de Ferramentas Ativas */}
             <Typography variant="h6" gutterBottom>
               Ferramentas Ativas
             </Typography>
@@ -243,7 +265,7 @@ const VerDetalhesTecnico = ({ open, onClose, tecnico }) => {
                         <Typography variant="body2" sx={{ mb: 1 }}>
                           <strong>Histórico de Tags:</strong>
                         </Typography>
-                        {ferramenta.tags && ferramenta.tags.length > 0 ? (
+                        {ferramenta.tags?.length ? (
                           <List sx={{ pl: 2, p: 0 }}>
                             {ferramenta.tags.map((tag) => (
                               <ListItem
@@ -287,7 +309,6 @@ const VerDetalhesTecnico = ({ open, onClose, tecnico }) => {
               <Typography variant="body2">Nenhuma ferramenta ativa cadastrada.</Typography>
             )}
 
-            {/* Seção de Ferramentas Deletadas */}
             <Typography variant="h6" gutterBottom sx={{ mt: 2 }}>
               Ferramentas Deletadas
             </Typography>
@@ -317,7 +338,7 @@ const VerDetalhesTecnico = ({ open, onClose, tecnico }) => {
                         <Typography variant="body2" sx={{ mb: 1 }}>
                           <strong>Histórico de Tags:</strong>
                         </Typography>
-                        {ferramenta.tags && ferramenta.tags.length > 0 ? (
+                        {ferramenta.tags?.length ? (
                           <List sx={{ pl: 2, p: 0 }}>
                             {ferramenta.tags.map((tag) => (
                               <ListItem
@@ -363,36 +384,36 @@ const VerDetalhesTecnico = ({ open, onClose, tecnico }) => {
           </Paper>
         )}
 
-        {selectedTab === 2 && (
+        {tab === 2 && (
           <Paper variant="outlined" sx={{ p: 2 }}>
             <List disablePadding>
               <DetailItem
                 icon={<DollarCircleOutlined />}
                 label="Total Ferramentas Original"
-                value={`R$ ${parseFloat(tecnico.totalFerramentasOriginal || 0).toFixed(2)}`}
+                value={`R$ ${parseFloat(dadosTecnico.totalFerramentasOriginal || 0).toFixed(2)}`}
               />
               <DetailItem
                 icon={<DollarCircleOutlined />}
                 label="Total Perdido"
-                value={`R$ ${parseFloat(tecnico.totalPerdido || 0).toFixed(2)}`}
+                value={`R$ ${parseFloat(dadosTecnico.totalPerdido || 0).toFixed(2)}`}
               />
               <DetailItem
                 icon={<DollarCircleOutlined />}
                 label="Total Ferramentas"
-                value={`R$ ${parseFloat(tecnico.totalFerramentas || 0).toFixed(2)}`}
+                value={`R$ ${parseFloat(dadosTecnico.totalFerramentas || 0).toFixed(2)}`}
                 divider={false}
               />
             </List>
           </Paper>
         )}
 
-        {selectedTab === 3 && (
+        {tab === 3 && (
           <Paper variant="outlined" sx={{ p: 2 }}>
             {loadingVistorias ? (
               <Box sx={{ display: 'flex', justifyContent: 'center', p: 2 }}>
                 <CircularProgress size={24} />
               </Box>
-            ) : vistorias && vistorias.length > 0 ? (
+            ) : vistorias?.length ? (
               <List>
                 {vistorias.map((vistoria) => (
                   <ListItem

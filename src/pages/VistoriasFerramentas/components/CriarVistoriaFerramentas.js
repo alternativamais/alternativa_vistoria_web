@@ -151,7 +151,7 @@ const CriarVistoriaFerramentas = ({ open, onClose, onSuccess }) => {
       try {
         const response = await api.get('/tecnicos');
         // Filtra os técnicos para não exibir os deletados
-        const tecnicosAtivos = response.data.filter((tec) => !tec.deletedAt);
+        const tecnicosAtivos = response.data.filter((tec) => tec.status === 'ativo');
         setTecnicos(tecnicosAtivos);
       } catch (error) {
         notification({ message: 'Erro ao buscar técnicos!', type: 'error' });

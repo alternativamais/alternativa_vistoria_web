@@ -28,7 +28,6 @@ import EditarTecnico from './components/EditarTecnico';
 import VerDetalhesTecnico from './components/VerDetalhesTecnico';
 
 const Tecnicos = () => {
-  // Estados de paginação e pesquisa
   const [page, setPage] = useState(() => {
     const saved = localStorage.getItem('paginaTecnicos');
     return saved ? parseInt(saved, 10) : 0;
@@ -42,28 +41,21 @@ const Tecnicos = () => {
     return saved || '';
   });
 
-  // Lista de técnicos
   const [tecnicos, setTecnicos] = useState([]);
   const [tecnicosFiltrados, setTecnicosFiltrados] = useState([]);
-
-  // Estados para controle dos modais
   const [modalCriarOpen, setModalCriarOpen] = useState(false);
   const [modalEditarOpen, setModalEditarOpen] = useState(false);
   const [modalDetalhesOpen, setModalDetalhesOpen] = useState(false);
   const [tecnicoSelecionado, setTecnicoSelecionado] = useState(null);
   const [tecnicoDetalhes, setTecnicoDetalhes] = useState(null);
+  const [mostrarCancelados, setMostrarCancelados] = useState(false);
 
-  // Estado para controlar a exibição da seção de técnicos deletados
-  const [mostrarDeletados, setMostrarDeletados] = useState(false);
-
-  // Função para buscar técnicos
   const buscarTecnicos = async () => {
     try {
-      // A API já retorna técnicos com "ferramentas" e "ferramentasDeletadas"
-      const response = await api.get('/tecnicos');
-      setTecnicos(response.data);
-      setTecnicosFiltrados(response.data);
-    } catch (error) {
+      const { data } = await api.get('/tecnicos');
+      setTecnicos(data);
+      setTecnicosFiltrados(data);
+    } catch {
       notification({ message: 'Erro ao buscar técnicos!', type: 'error' });
     }
   };
@@ -72,13 +64,11 @@ const Tecnicos = () => {
     buscarTecnicos();
   }, []);
 
-  // Filtra os técnicos com base na pesquisa (buscando pelo nome)
   useEffect(() => {
-    const filtrados = tecnicos.filter((item) => item.nome.toLowerCase().includes(pesquisa.toLowerCase()));
+    const filtrados = tecnicos.filter((t) => t.nome.toLowerCase().includes(pesquisa.toLowerCase()));
     setTecnicosFiltrados(filtrados);
   }, [pesquisa, tecnicos]);
 
-  // Persistência dos estados de paginação e pesquisa
   useEffect(() => {
     localStorage.setItem('paginaTecnicos', page.toString());
   }, [page]);
@@ -89,124 +79,100 @@ const Tecnicos = () => {
     localStorage.setItem('pesquisaTecnicos', pesquisa);
   }, [pesquisa]);
 
-  // Separa os técnicos ativos e os deletados (considerando que um técnico deletado possui deletedAt definido)
-  const tecnicosAtivos = tecnicosFiltrados.filter((item) => !item.deletedAt);
-  const tecnicosDeletados = tecnicosFiltrados.filter((item) => item.deletedAt);
+  const tecnicosAtivos = tecnicosFiltrados.filter((t) => t.status !== 'Cancelado');
+  const tecnicosCancelados = tecnicosFiltrados.filter((t) => t.status === 'Cancelado');
 
-  // Handler para deletar técnico
-  const handleDeletarTecnico = async (item) => {
-    if (window.confirm('Deseja realmente deletar este técnico?')) {
+  const handleDeletarTecnico = async (t) => {
+    if (window.confirm('Deseja realmente cancelar este técnico?')) {
       try {
-        await api.delete(`/tecnicos/${item.id}`);
-        notification({ message: 'Técnico deletado com sucesso!', type: 'success' });
+        await api.delete(`/tecnicos/${t.id}`);
+        notification({ message: 'Técnico cancelado com sucesso!', type: 'success' });
         buscarTecnicos();
-      } catch (error) {
-        notification({ message: 'Erro ao deletar técnico!', type: 'error' });
+      } catch {
+        notification({ message: 'Erro ao cancelar técnico!', type: 'error' });
       }
     }
   };
 
-  // Handlers para abrir/fechar modais
-  const handleNovaCriacao = () => {
-    setModalCriarOpen(true);
-  };
-
-  const handleFecharModalCriar = () => {
-    setModalCriarOpen(false);
-  };
-
-  const handleEditarTecnico = (item) => {
-    setTecnicoSelecionado(item);
+  const handleNovaCriacao = () => setModalCriarOpen(true);
+  const handleFecharModalCriar = () => setModalCriarOpen(false);
+  const handleEditarTecnico = (t) => {
+    setTecnicoSelecionado(t);
     setModalEditarOpen(true);
   };
-
   const handleFecharModalEditar = () => {
     setTecnicoSelecionado(null);
     setModalEditarOpen(false);
   };
-
-  // Handlers para visualização dos detalhes do técnico
-  const handleDetalhesTecnico = (item) => {
-    setTecnicoDetalhes(item);
+  const handleDetalhesTecnico = (t) => {
+    setTecnicoDetalhes(t);
     setModalDetalhesOpen(true);
   };
-
   const handleFecharModalDetalhes = () => {
     setTecnicoDetalhes(null);
     setModalDetalhesOpen(false);
   };
 
-  // Handlers de pesquisa e paginação
-  const handlePesquisaChange = (event) => {
-    setPesquisa(event.target.value);
+  const handlePesquisaChange = (e) => {
+    setPesquisa(e.target.value);
+    setPage(0);
+  };
+  const handleMudancaPagina = (_, newPage) => setPage(newPage);
+  const handleMudancaLinhasPorPagina = (e) => {
+    setRowsPerPage(parseInt(e.target.value, 10));
     setPage(0);
   };
 
-  const handleMudancaPagina = (event, newPage) => {
-    setPage(newPage);
-  };
+  const toggleMostrarCancelados = () => setMostrarCancelados((v) => !v);
 
-  const handleMudancaLinhasPorPagina = (event) => {
-    const novasLinhas = parseInt(event.target.value, 10);
-    setRowsPerPage(novasLinhas);
-    setPage(0);
-  };
-
-  // Função para alternar a exibição dos técnicos deletados
-  const toggleMostrarDeletados = () => {
-    setMostrarDeletados((prev) => !prev);
-  };
-
-  // Formata o valor para exibição como moeda
-  const formatarValor = (valor) => {
-    return `R$ ${parseFloat(valor).toFixed(2)}`;
-  };
+  const formatarValor = (v) => `R$ ${parseFloat(v).toFixed(2)}`;
 
   return (
-    <Box sx={{ padding: '20px' }}>
+    <Box sx={{ p: 2 }}>
       <Box
         sx={{
           display: 'flex',
-          gap: '10px',
+          gap: 1,
           flexDirection: { xs: 'column', sm: 'row' },
           justifyContent: 'space-between',
-          paddingBottom: '10px'
+          pb: 1
         }}
       >
-        <TextField label="Pesquisar por Nome" variant="outlined" value={pesquisa} onChange={handlePesquisaChange} sx={{ width: '300px' }} />
-        <Button onClick={handleNovaCriacao} variant="contained" sx={{ width: { xs: '100%', sm: 'auto' } }}>
+        <TextField label="Pesquisar por Nome" variant="outlined" value={pesquisa} onChange={handlePesquisaChange} sx={{ width: 300 }} />
+        <Button onClick={handleNovaCriacao} variant="contained">
           Novo Técnico
         </Button>
       </Box>
 
-      <MainCard title="Técnicos">
-        {/* Técnicos Ativos */}
+      <MainCard title="Técnicos Ativos">
         <TableContainer>
-          <Table sx={{ minWidth: 600 }}>
+          <Table>
             <TableHead>
               <TableRow>
                 <TableCell>Nome</TableCell>
-                <TableCell>Ferramentas Ativas</TableCell>
-                <TableCell>Ferramentas Deletadas</TableCell>
+                <TableCell>Status</TableCell>
+                <TableCell># Ferramentas</TableCell>
                 <TableCell>Valor Total</TableCell>
-                <TableCell>Valor Devido Total</TableCell>
+                <TableCell>Valor Devido</TableCell>
                 <TableCell>Tags</TableCell>
                 <TableCell>Ações</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {tecnicosAtivos.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((item) => {
-                // Contabiliza as tags de ambas as listas
-                const todasTags = [
-                  ...item.ferramentas.reduce((acc, ferramenta) => acc.concat(ferramenta.tags || []), []),
-                  ...item.ferramentasDeletadas.reduce((acc, ferramenta) => acc.concat(ferramenta.tags || []), [])
-                ];
+                const todasTags = item.ferramentas.flatMap((f) => f.tags || []);
                 return (
                   <TableRow key={item.id}>
                     <TableCell>{item.nome}</TableCell>
+                    <TableCell>
+                      <Chip
+                        label={item.status === 'Cancelado' ? 'Cancelado' : 'Ativo'}
+                        size="small"
+                        color={item.status === 'Cancelado' ? 'error' : 'success'}
+                      />
+                    </TableCell>
                     <TableCell>{item.ferramentas.length}</TableCell>
-                    <TableCell>{item.ferramentasDeletadas.length}</TableCell>
-                    <TableCell>{formatarValor(item.totalFerramentas || 0)}</TableCell>
+                    <TableCell>{formatarValor(item.totalFerramentasOriginal)}</TableCell>
                     <TableCell>
                       {item.totalPerdido > 0 && (
                         <Box component="span" sx={{ color: 'red' }}>
@@ -216,7 +182,7 @@ const Tecnicos = () => {
                     </TableCell>
                     <TableCell>
                       {todasTags.length > 0
-                        ? todasTags.map((tag, index) => <Chip key={index} label={tag.tags || tag} size="small" sx={{ mr: 0.5, mb: 0.5 }} />)
+                        ? todasTags.map((tag, i) => <Chip key={i} label={tag.tags || tag} size="small" sx={{ mr: 0.5, mb: 0.5 }} />)
                         : 'Nenhuma'}
                     </TableCell>
                     <TableCell>
@@ -225,7 +191,7 @@ const Tecnicos = () => {
                           <EditOutlined />
                         </IconButton>
                       </Tooltip>
-                      <Tooltip title="Deletar">
+                      <Tooltip title="Cancelar">
                         <IconButton onClick={() => handleDeletarTecnico(item)}>
                           <DeleteOutlined />
                         </IconButton>
@@ -242,7 +208,8 @@ const Tecnicos = () => {
             </TableBody>
           </Table>
         </TableContainer>
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 1 }}>
           <TablePagination
             rowsPerPageOptions={[5, 10, 15, 100]}
             component="div"
@@ -254,72 +221,68 @@ const Tecnicos = () => {
             labelRowsPerPage="Linhas por página:"
           />
         </Box>
-
-        {/* Seção de Técnicos Deletados */}
-        <Box sx={{ mt: 3 }}>
-          <Divider sx={{ mb: 1 }} />
-          <Box sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={toggleMostrarDeletados}>
-            <Typography variant="subtitle1" sx={{ flexGrow: 1 }}>
-              Técnicos Deletados ({tecnicosDeletados.length})
-            </Typography>
-            <Chip label={mostrarDeletados ? 'Ocultar' : 'Exibir'} size="small" />
-          </Box>
-          <Collapse in={mostrarDeletados}>
-            <TableContainer>
-              <Table sx={{ minWidth: 600 }}>
-                <TableHead>
-                  <TableRow>
-                    <TableCell>Nome</TableCell>
-                    <TableCell>Ferramentas Ativas</TableCell>
-                    <TableCell>Ferramentas Deletadas</TableCell>
-                    <TableCell>Valor Total</TableCell>
-                    <TableCell>Valor Devido Total</TableCell>
-                    <TableCell>Tags</TableCell>
-                    <TableCell>Ações</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {tecnicosDeletados.map((item) => {
-                    const todasTags = [
-                      ...item.ferramentas.reduce((acc, ferramenta) => acc.concat(ferramenta.tags || []), []),
-                      ...item.ferramentasDeletadas.reduce((acc, ferramenta) => acc.concat(ferramenta.tags || []), [])
-                    ];
-                    return (
-                      <TableRow key={item.id}>
-                        <TableCell>{item.nome}</TableCell>
-                        <TableCell>{item.ferramentas.length}</TableCell>
-                        <TableCell>{item.ferramentasDeletadas.length}</TableCell>
-                        <TableCell>{formatarValor(item.totalFerramentas || 0)}</TableCell>
-                        <TableCell>
-                          {item.totalPerdido > 0 && (
-                            <Box component="span" sx={{ color: 'red' }}>
-                              (Perdido: {formatarValor(item.totalPerdido)})
-                            </Box>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          {todasTags.length > 0
-                            ? todasTags.map((tag, index) => (
-                                <Chip key={index} label={tag.tags || tag} size="small" sx={{ mr: 0.5, mb: 0.5 }} />
-                              ))
-                            : 'Nenhuma'}
-                        </TableCell>
-                        <TableCell>
-                          <Tooltip title="Ver Detalhes">
-                            <IconButton onClick={() => handleDetalhesTecnico(item)}>
-                              <EyeOutlined />
-                            </IconButton>
-                          </Tooltip>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          </Collapse>
-        </Box>
       </MainCard>
+
+      <Box sx={{ mt: 3 }}>
+        <Divider sx={{ mb: 1 }} />
+        <Box sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={toggleMostrarCancelados}>
+          <Typography variant="subtitle1" sx={{ flexGrow: 1 }}>
+            Técnicos Cancelados ({tecnicosCancelados.length})
+          </Typography>
+          <Chip label={mostrarCancelados ? 'Ocultar' : 'Exibir'} size="small" />
+        </Box>
+        <Collapse in={mostrarCancelados}>
+          <TableContainer>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>Nome</TableCell>
+                  <TableCell>Status</TableCell>
+                  <TableCell># Ferramentas</TableCell>
+                  <TableCell>Valor Total</TableCell>
+                  <TableCell>Valor Devido</TableCell>
+                  <TableCell>Tags</TableCell>
+                  <TableCell>Ações</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {tecnicosCancelados.map((item) => {
+                  const todasTags = item.ferramentas.flatMap((f) => f.tags || []);
+                  return (
+                    <TableRow key={item.id}>
+                      <TableCell>{item.nome}</TableCell>
+                      <TableCell>
+                        <Chip label="Cancelado" size="small" color="error" />
+                      </TableCell>
+                      <TableCell>{item.ferramentas.length}</TableCell>
+                      <TableCell>{formatarValor(item.totalFerramentasOriginal)}</TableCell>
+                      <TableCell>
+                        {item.totalPerdido > 0 && (
+                          <Box component="span" sx={{ color: 'red' }}>
+                            (Perdido: {formatarValor(item.totalPerdido)})
+                          </Box>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        {todasTags.length > 0
+                          ? todasTags.map((tag, i) => <Chip key={i} label={tag.tags || tag} size="small" sx={{ mr: 0.5, mb: 0.5 }} />)
+                          : 'Nenhuma'}
+                      </TableCell>
+                      <TableCell>
+                        <Tooltip title="Ver Detalhes">
+                          <IconButton onClick={() => handleDetalhesTecnico(item)}>
+                            <EyeOutlined />
+                          </IconButton>
+                        </Tooltip>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Collapse>
+      </Box>
 
       <CriarTecnico open={modalCriarOpen} onClose={handleFecharModalCriar} onSuccess={buscarTecnicos} />
       <EditarTecnico open={modalEditarOpen} onClose={handleFecharModalEditar} onSuccess={buscarTecnicos} tecnico={tecnicoSelecionado} />
