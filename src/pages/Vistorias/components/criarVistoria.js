@@ -105,7 +105,8 @@ const CriarVistoria = ({ open, onClose, onSuccess }) => {
       const payload = {
         ...formData,
         idTecnicoDesignado: formData.idTecnicoDesignado ? Number(formData.idTecnicoDesignado) : null,
-        idSgp: formData.idSgp
+        idSgp: formData.idSgp,
+        status: formData.dataAgendamento ? 'a vistoriar' : 'pendente de agendamento'
       };
 
       await api.post('/vistorias', payload);
