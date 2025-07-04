@@ -105,10 +105,10 @@ const Galeria = () => {
 
     console.log('ID para apagar:', id);
 
-    if (senha !== '2025') {
-      notification({ message: 'Senha incorreta!', type: 'error' });
-      return;
-    }
+    // if (senha !== '2025') {
+    //   notification({ message: 'Senha incorreta!', type: 'error' });
+    //   return;
+    // }
 
     try {
       await api.delete(`/imagens-vistorias/${id}`);
