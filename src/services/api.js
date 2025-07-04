@@ -1,13 +1,11 @@
 import axios from 'axios';
 
-export const api = axios.create({
-  baseURL: 'https://vistoria.alternativamais.com.br/api'
-  // baseURL: 'http://localhost:5051/api'
-});
+const isProd = process.env.REACT_APP_PROD === 'true';
+const apiUrl = isProd ? process.env.REACT_APP_API_URL : 'http://localhost:5051/api';
 
-const getToken = () => {
-  return localStorage.getItem('@vistoria:token');
-};
+export const api = axios.create({ baseURL: apiUrl });
+
+const getToken = () => localStorage.getItem('@vistoria:token');
 
 api.interceptors.request.use(
   (config) => {
@@ -17,7 +15,5 @@ api.interceptors.request.use(
     }
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
