@@ -162,6 +162,9 @@ const CriarVistoria = ({ open, onClose, onSuccess }) => {
             value={formData.enderecoCliente}
             onChange={handleChange}
             fullWidth
+            InputLabelProps={{
+              shrink: true
+            }}
           />
           <TextField
             label="Data de Agendamento"
