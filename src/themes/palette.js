@@ -36,22 +36,22 @@ const Palette = (mode) => {
     palette: {
       mode,
       common: {
-        black: '#000',
-        white: '#fff'
+        black: '#000000',
+        white: '#ffffff'
       },
       ...paletteColor,
       text: {
-        primary: paletteColor.grey[700],
-        secondary: paletteColor.grey[500],
+        primary: mode === 'dark' ? paletteColor.grey[200] : paletteColor.grey[700],
+        secondary: mode === 'dark' ? paletteColor.grey[400] : paletteColor.grey[500],
         disabled: paletteColor.grey[400]
       },
       action: {
         disabled: paletteColor.grey[300]
       },
-      divider: paletteColor.grey[200],
+      divider: mode === 'dark' ? paletteColor.grey[700] : paletteColor.grey[200],
       background: {
-        paper: paletteColor.grey[0],
-        default: paletteColor.grey.A50
+        paper: mode === 'dark' ? paletteColor.grey[800] : paletteColor.grey[0],
+        default: mode === 'dark' ? paletteColor.grey[800] : paletteColor.grey.A50
       }
     }
   });
