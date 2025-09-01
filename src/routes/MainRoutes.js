@@ -12,6 +12,7 @@ import Veiculos from 'pages/Veiculos/index';
 import Atendimentos from 'pages/Atendimentos/index';
 import Correcao from 'pages/Correcao/index';
 import AdminRolesPermissions from 'pages/Roles/index';
+import Logs from 'pages/Logs';
 import VistoriasFerramentas from 'pages/VistoriasFerramentas/index';
 import Tecnicos from 'pages/Tecnicos/index';
 import Ferramentas from 'pages/Ferramentas/index';
@@ -28,6 +29,10 @@ const MainRoutes = [
       {
         path: 'dashboard',
         element: <Dashboard />
+      },
+      {
+        path: 'admin/logs',
+        element: <Logs />
       },
       {
         path: 'admin/usuarios',
