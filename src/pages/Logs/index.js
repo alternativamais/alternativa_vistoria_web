@@ -69,9 +69,9 @@ function Row({ row, type }) {
             <TableCell>{row.source}</TableCell>
           </>
         )}
-        <TableCell>{row.userId}</TableCell>
+        <TableCell>{row.userUsername || row.userId}</TableCell>
+        <TableCell>{row.ip}</TableCell>
         <TableCell sx={{ maxWidth: 280, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{row.message}</TableCell>
-        <TableCell>{row.requestId}</TableCell>
       </TableRow>
       <TableRow>
         <TableCell colSpan={12} sx={{ p: 0, border: 0 }}>
@@ -297,8 +297,8 @@ export default function Logs() {
                   </>
                 )}
                 <TableCell>User</TableCell>
+                <TableCell>Ip</TableCell>
                 <TableCell>Mensagem</TableCell>
-                <TableCell>ReqId</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
