@@ -29,7 +29,10 @@ const EditPermission = ({ open, permission, onClose, onSuccess }) => {
   const handleSubmit = async () => {
     try {
       await api.put(`/permissions/${permission.id}`, formData);
-      notification({ message: 'Permissão atualizada com sucesso!', type: 'success' });
+      notification({
+        message: 'Permissão atualizada com sucesso!',
+        type: 'success'
+      });
       onSuccess();
       onClose();
     } catch (error) {

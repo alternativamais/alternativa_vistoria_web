@@ -29,7 +29,10 @@ const CreatePermission = ({ open, onClose, onSuccess }) => {
   const handleSubmit = async () => {
     try {
       await api.post('/permissions', formData);
-      notification({ message: 'Permissão criada com sucesso!', type: 'success' });
+      notification({
+        message: 'Permissão criada com sucesso!',
+        type: 'success'
+      });
       onSuccess();
       onClose();
     } catch (error) {

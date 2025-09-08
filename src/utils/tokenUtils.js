@@ -1,7 +1,6 @@
 import { jwtDecode } from 'jwt-decode';
 
 // Compat: previously the JWT had a full `user` object.
-// Now it can contain standard claims like `sub` (userId), `rid` (roleId), `email`.
 export function getUserDataFromToken() {
   const token = localStorage.getItem('@vistoria:token');
 

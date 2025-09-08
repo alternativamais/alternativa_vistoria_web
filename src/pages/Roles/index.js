@@ -126,7 +126,10 @@ const AdminRolesPermissions = () => {
         initialAssignedPermissions: permIds
       }));
     } catch (error) {
-      notification({ message: 'Erro ao buscar detalhes do role!', type: 'error' });
+      notification({
+        message: 'Erro ao buscar detalhes do role!',
+        type: 'error'
+      });
     }
   };
 
@@ -259,7 +262,13 @@ const AdminRolesPermissions = () => {
 
       {/* Seção de Roles */}
       <MainCard title="Roles" sx={{ marginBottom: '20px' }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '10px' }}>
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            paddingBottom: '10px'
+          }}
+        >
           <TextField
             label="Pesquisar Role"
             variant="outlined"
@@ -276,7 +285,10 @@ const AdminRolesPermissions = () => {
           sx={{
             overflowX: 'auto',
             '&::-webkit-scrollbar': { width: '0.4em' },
-            '&::-webkit-scrollbar-thumb': { backgroundColor: 'rgba(0,0,0,.1)', borderRadius: '4px' }
+            '&::-webkit-scrollbar-thumb': {
+              backgroundColor: 'rgba(0,0,0,.1)',
+              borderRadius: '4px'
+            }
           }}
         >
           <TableContainer>
@@ -311,7 +323,10 @@ const AdminRolesPermissions = () => {
                           onClick={async () => {
                             if (window.confirm('Deseja realmente deletar este role?')) {
                               await api.delete(`/roles/${role.id}`);
-                              notification({ message: 'Role deletado!', type: 'success' });
+                              notification({
+                                message: 'Role deletado!',
+                                type: 'success'
+                              });
                               fetchRoles();
                             }
                           }}
@@ -338,7 +353,13 @@ const AdminRolesPermissions = () => {
 
       {/* Seção de Permissões */}
       <MainCard title="Permissões" sx={{ marginBottom: '20px' }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '10px' }}>
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            paddingBottom: '10px'
+          }}
+        >
           <TextField
             label="Pesquisar Permissão"
             variant="outlined"
@@ -360,7 +381,10 @@ const AdminRolesPermissions = () => {
           sx={{
             overflowX: 'auto',
             '&::-webkit-scrollbar': { width: '0.4em' },
-            '&::-webkit-scrollbar-thumb': { backgroundColor: 'rgba(0,0,0,.1)', borderRadius: '4px' }
+            '&::-webkit-scrollbar-thumb': {
+              backgroundColor: 'rgba(0,0,0,.1)',
+              borderRadius: '4px'
+            }
           }}
         >
           <TableContainer>
@@ -398,7 +422,10 @@ const AdminRolesPermissions = () => {
                           onClick={async () => {
                             if (window.confirm('Deseja realmente deletar esta permissão?')) {
                               await api.delete(`/permissions/${perm.id}`);
-                              notification({ message: 'Permissão deletada!', type: 'success' });
+                              notification({
+                                message: 'Permissão deletada!',
+                                type: 'success'
+                              });
                               fetchPermissions();
                             }
                           }}
@@ -488,7 +515,11 @@ const AdminRolesPermissions = () => {
                       <Typography
                         component="span"
                         variant="subtitle1"
-                        sx={{ textTransform: 'uppercase', fontWeight: 'bold', fontSize: '15px' }}
+                        sx={{
+                          textTransform: 'uppercase',
+                          fontWeight: 'bold',
+                          fontSize: '15px'
+                        }}
                       >
                         {group}
                       </Typography>
@@ -534,7 +565,13 @@ const AdminRolesPermissions = () => {
       <EditRole
         open={roleModals.editOpen}
         role={roleModals.selected}
-        onClose={() => setRoleModals((prev) => ({ ...prev, editOpen: false, selected: null }))}
+        onClose={() =>
+          setRoleModals((prev) => ({
+            ...prev,
+            editOpen: false,
+            selected: null
+          }))
+        }
         onSuccess={fetchRoles}
       />
 
@@ -547,7 +584,13 @@ const AdminRolesPermissions = () => {
       <EditPermission
         open={permissionModals.editOpen}
         permission={permissionModals.selected}
-        onClose={() => setPermissionModals((prev) => ({ ...prev, editOpen: false, selected: null }))}
+        onClose={() =>
+          setPermissionModals((prev) => ({
+            ...prev,
+            editOpen: false,
+            selected: null
+          }))
+        }
         onSuccess={fetchPermissions}
       />
     </Box>

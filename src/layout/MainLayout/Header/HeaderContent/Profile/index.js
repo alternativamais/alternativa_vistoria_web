@@ -172,11 +172,6 @@ const Profile = () => {
                               <Typography variant="body2" color="textSecondary">
                                 {user.userFunction}
                               </Typography>
-                              {user?.ip && (
-                                <Typography variant="caption" color="textSecondary">
-                                  IP: {user.ip}
-                                </Typography>
-                              )}
                             </Stack>
                           </Stack>
                         </Grid>

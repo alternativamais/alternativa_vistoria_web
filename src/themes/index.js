@@ -11,7 +11,7 @@ import componentsOverride from './overrides';
 import { ColorModeContext } from 'context/ColorModeContext';
 
 export default function ThemeCustomization({ children }) {
-  const [mode, setMode] = useState('dark');
+  const [mode, setMode] = useState('light');
 
   const colorMode = useMemo(
     () => ({

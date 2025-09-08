@@ -29,7 +29,10 @@ const EditRole = ({ open, role, onClose, onSuccess }) => {
   const handleSubmit = async () => {
     try {
       await api.put(`/roles/${role.id}`, formData);
-      notification({ message: 'Role atualizado com sucesso!', type: 'success' });
+      notification({
+        message: 'Role atualizado com sucesso!',
+        type: 'success'
+      });
       onSuccess();
       onClose();
     } catch (error) {
